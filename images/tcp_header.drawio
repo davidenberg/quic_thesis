@@ -1,0 +1,49 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0" version="28.0.4">
+  <diagram name="Page-1" id="9VAiGbhMhBIgdSpnjQkf">
+    <mxGraphModel dx="2066" dy="1147" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-15" value="&lt;div&gt;Source Port&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="180" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-16" value="&lt;div&gt;Destination Port&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="180" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-17" value="&lt;div&gt;Sequence Number&lt;/div&gt;&lt;div&gt;&lt;b&gt;4 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="240" width="500" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-18" value="&lt;div&gt;Acknowledgment Number&lt;/div&gt;&lt;div&gt;&lt;b&gt;4 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="300" width="500" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-19" value="&lt;div&gt;Data Offset&lt;/div&gt;&lt;div&gt;&lt;b&gt;4 Bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="360" width="70" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-20" value="&lt;div&gt;Reservered&lt;/div&gt;&lt;div&gt;&lt;b&gt;4 Bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="180" y="360" width="70" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-21" value="&lt;div&gt;Control Flags&lt;/div&gt;&lt;b&gt;1 Byte&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="360" width="110" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-22" value="&lt;div&gt;Window Size&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="360" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-23" value="&lt;div&gt;Checksum&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="420" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-24" value="&lt;div&gt;Urgent Pointer&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="420" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-25" value="&lt;div&gt;Option&lt;/div&gt;&lt;div&gt;&lt;b&gt;0-320 Bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="480" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-26" value="Padding" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="480" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="glJfoWYV5c9bZfMoSDEz-27" value="Data" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="540" width="500" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -501,6 +501,13 @@ Otaniemi, 30 June 2025\\
 \mysection{Abbreviations}
 
 \begin{tabular}{ll}
+ACK & acknowledgment \\
+IP & Internet Protocol \\
+ISN & Initial Sequence Number \\
+RFC & Request For Comment \\
+SMB & Server Message Block \\
+TCP & Transmission Control Protocol \\
+UDP & User Datagram Protocol \\
 \end{tabular}
 
 
@@ -518,9 +525,6 @@ Otaniemi, 30 June 2025\\
 %% 
 \thispagestyle{empty}
 
-Test references \cite{aaltolib}
-Test 2
-Test 3
 \subsection{Research questions and objectives}
 
 
@@ -531,7 +535,68 @@ Test 3
 
 \section{Background}
 \subsection{Internet transport protocols}
-\subsection{File sharing protocols}
+\subsubsection{Transmission Control Protocol}
+The Transmission Control Protocol (TCP), as outlined in Request For Comment (RFC)
+793 is a foundational internet transport protocol. It was
+originally published in September 1981, focusing primarily on solving military
+communication challenges. It is intended to be a highly reliable transport
+protocol between hosts in a packet switched network. The TCP is connection-oriented,
+providing reliable, end-to-end, bi-directional communication between a pair of processes, in the
+form of a continuous stream of bytes. The TCP protocol is designed to fit into
+a layered hierarchy of protocols, slotting
+in on top of the internet protocol (IP)\cite{rfc791}. IP handles the addressing
+and routing of datagrams between the hosts, while TCP aims to ensure that
+information is delivered correctly, in order, and without duplications, without
+any reliability guarantees needed from the underlying protocol, which may lose,
+fragment or reorder the datagrams\cite{rfc793}.
+
+TCP ensures reliable communication by using a system of sequence numbers and
+acknowledgments (ACKs). Each transmitted byte of data is assigned a sequence
+number, and the peer is required to send an ACK to acknowledge that the data was
+received. On the receiver side the sequence numbers are used to reconstruct the
+data, ensuring that the data is received in order. If the sender does not received
+an ACK within a timeout period, the missing segment will be retransmitted. A
+checksum is included with each segment, ensuring that the datagram was not
+corrupted during transport. If data corruption is detected, the receiver will
+discard the damaged segment, and rely on the retransmission mechanic to recover.
+The TCP uses a receive window for flow control, allowing the receiver to decide 
+the amount of data that the sender may send before waiting for further ACKs. The
+reliability and flow control aspects of the TCP demands that the TCP store some
+information about the transmission. The data stored about the data stream, sockets,
+sequence numbers and windows sizes, is referred to as a connection. The network
+address and port tuple is referred to as a socket, and a pair of sockets is used
+in identifying the connection. Using this mechanic to uniquely identify connections,
+allows for multiple processes to simultaneously communicate using the TCP\cite{rfc793}.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[alt={A block diagram of the TCP header format, detailing its fields and their sizes.}, height=8cm]{./images/tcp_header.png}
+	\caption{The TCP header}
+	\label{fig:tcp_header}
+\end{figure}
+The TCP header, figure~\ref{fig:tcp_header}, encodes the functionality of the TCP.
+It follows the IP header in a datagram. The header is usually 20 bytes long, but
+can be extended using options. It begins with the source and destination port, which
+together with the source and destination addresses, are used to identify the connection.
+The next two fields in the header are the sequence and acknowledgement numbers. The
+sequence number is the sequence number of the first data byte in the data segment.
+If the SYN flag is set the sequence number is referring to the initial sequence number
+(ISN). The acknowledgement refers to the next sequence number the receiver is
+expecting to receive, at the same time acknowledging that all sequence numbers
+up to this point was received. Next is the data offset field, indicating where
+the data begins. The reserved field following this must be 0. After this is the
+1 byte flags field
+\begin{itemize}
+	\item \textbf{URG} Urgent pointer field is set
+	\item \textbf{ACK} acknowledgement field is set
+	\item \textbf{PSH} Push function, requesting that buffered data is sent immediately to the receiver
+	\item \textbf{RST} Reset the connection
+	\item \textbf{SYN} Synchronize sequence numbers
+	\item \textbf{FIN} Sender is done sending data
+\end{itemize}
+
+\subsubsection{User Datagram Protocol}
+\subsection{The SMB protocol}
 
 \clearpage
 
@@ -544,13 +609,13 @@ Test 3
 \section{The SMB protocol}
 
 \subsection{Information about the SMB protocol}
-
+\clearpage
 \section{Implementing QUIC as transport for SMB server}
 
 \subsection{MsQuic architecture and API}
 
 \subsection{Fusion SMB server QUIC transport layer design}
-
+\clearpage
 \section{Performance and interoperability benchmarking}
 
 \subsection{Tesn environment}
@@ -570,7 +635,7 @@ Test 3
 \subsubsection{Becnhmarking workloads}
 
 \subsection{Results}
-
+\clearpage
 \section{Conclusions}
 \label{sec:summary}
 
@@ -581,7 +646,7 @@ Test 3
 \clearpage
 %% Bibliography/ list of references
 %%
-\nocite{*} % print uncited references in the bibliography
+%%\nocite{*} % print uncited references in the bibliography
 \printbibliography[heading=bibintoc] %, add the title to the table of conten
 
 \end{document}
