@@ -594,7 +594,35 @@ the data begins. The reserved field following this must be 0. After this is the
 	\item \textbf{SYN} Synchronize sequence numbers
 	\item \textbf{FIN} Sender is done sending data
 \end{itemize}
+The 2 byte window field specifies the number of bytes that may be in-flight at any one
+time. This is the specified size of the sliding window that is used for flow
+control purposes. Following the window field is a 2 byte checksum field, used for
+detecting corruption of the TCP-header, data payload as well as a pseudo IP header,
+containing information about the source and destination addresses, as well as the
+protocol number and tcp packet length. In case the URG bit is set in the flags field,
+the 2 byte urgent pointer header field indicates where the urgent data ends. Finally
+the options field contains extension to the normal TCP header, containing among other, options
+for maximum segment size and multipath TCP\cite{rfc8684}.
 
+To ensure reliable delivery of TCP segments, each segment is assigned a sequence number.
+This allows the receiver to reconstruct segments delivered out of order, and additionally
+detect missing segments. The receiver sends acknowledgments, containing the next
+expected sequence number, to signal to the sender that the data was successfully received.
+The sequence number is a 32 bit number, with the initial sequence number (ISN)
+selected randomly at the time when the TCP connection is established. This ensures that
+sequence numbers from stale connections have a low probability of overlapping with
+any active connection\cite{rfc793}.
+
+The TCP connection is established via a three-way handshake. The client sends
+a TCP packet with the SYN bit set in the flags field, this packet contains the
+clients ISN. The server responds with a packet with the SYN and ACK bit set,
+acknowledging the clients sequence number as well as providing the servers ISN.
+Finally the client responds with an ACK, acknowledging the servers ISN. Following
+this the client and server are synchronized, and communication may begin. A peer
+may terminate its side of the connection by sending a FIN packet, signaling to
+the other endpoint that one side has closed its side of the communication. The
+closed endpoint may continue receiving data until the other endpoint also closes
+it side\cite{rfc793}.
 \subsubsection{User Datagram Protocol}
 \subsection{The SMB protocol}
 
