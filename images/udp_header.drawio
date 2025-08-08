@@ -1,0 +1,25 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0" version="28.0.4">
+  <diagram name="Page-1" id="1GeaLLO0cHbRzgZTsU2d">
+    <mxGraphModel dx="1426" dy="787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="PpB8uI-S0JWQX4Iy8xdc-1" value="&lt;div&gt;Source Port&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="130" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="PpB8uI-S0JWQX4Iy8xdc-2" value="&lt;div&gt;Destination Port&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="130" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="PpB8uI-S0JWQX4Iy8xdc-3" value="&lt;div&gt;Length&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="190" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="PpB8uI-S0JWQX4Iy8xdc-4" value="&lt;div&gt;Checksum&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 Bytes&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="190" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="PpB8uI-S0JWQX4Iy8xdc-5" value="Data" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="250" width="320" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

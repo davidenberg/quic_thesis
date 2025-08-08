@@ -624,6 +624,32 @@ the other endpoint that one side has closed its side of the communication. The
 closed endpoint may continue receiving data until the other endpoint also closes
 it side\cite{rfc793}.
 \subsubsection{User Datagram Protocol}
+\begin{figure}[b]
+	\centering
+	\includegraphics[alt={A block diagram of the UDP header format, detailing its fields and their sizes.}, height=4cm]{./images/udp_header.png}
+	\caption{The UDP header}
+	\label{fig:udp_header}
+\end{figure}
+The User Datagram Protocol (UDP), which was defined by RFC 768, is designed to
+enable programs to transmit self-contained messages, know as datagrams, over a
+packet-switched network. The UDP is designed to run on top of the IP\cite{rfc791},
+using IP addresses and port numbers for addressing. The UDP is by design connectionless,
+providing no guarantees for datagram delivery, duplicate datagrams or in-order
+delivery. In exchange, the UDP aims to minimize the overhead present in the protocol.
+As UDP is connectionless there is no need to establish a connection via a handshake,
+instead datagrams can be transmitted directly, and they should be designed in
+such a way that they can stand on their own. The UDP header, as seen in figure~\ref{fig:udp_header}
+is only 8 bytes long,
+consisting of the source and destination port, as well as the length of the datagram
+and a checksum to verify the received datagram\cite{rfc768}. Even though UDP has
+a checksum field its use varies depending on the implementation. Some implementations
+may discard the datagram, or alternatively pass it along to the application with a 
+warning, as UDP provides no way to recover from broken datagrams\cite{computer_networking}. The minimal UDP
+header (8 bytes) combined with the lack of a handshake makes UDP a protocol with
+the bare minimum needed for datagram transfer.
+Generally, UDP is used for applications where low latency is a requirement and some
+amount of packet loss is deemed acceptable. It is then up to the application layer to
+handle missing, reordered or duplicate datagrams.
 \subsection{The SMB protocol}
 
 \clearpage
