@@ -502,11 +502,16 @@ Otaniemi, 30 June 2025\\
 
 \begin{tabular}{ll}
 ACK & acknowledgment \\
+HOL & Head-of-line \\
 IP & Internet Protocol \\
 ISN & Initial Sequence Number \\
+NAT & Network Address Translator \\
+OS & Operating System \\
 RFC & Request For Comment \\
+RTT & Round-Tripe Time \\
 SMB & Server Message Block \\
 TCP & Transmission Control Protocol \\
+TLS & Transport Layer Security \\
 UDP & User Datagram Protocol \\
 \end{tabular}
 
@@ -534,9 +539,13 @@ UDP & User Datagram Protocol \\
 \clearpage
 
 \section{Background}
+This section of the thesis will give an overview of the two most common transport
+protocols, the Transmission Control Protocol (TCP) and the User Datagram Protocol (UDP).
+This section also covers the Server Message Block (SMB) protocol, outlining the
+file-sharing protocol.
 \subsection{Internet transport protocols}
 \subsubsection{Transmission Control Protocol}
-The Transmission Control Protocol (TCP), as outlined in Request For Comment (RFC)
+The TCP, as outlined in Request For Comment (RFC)
 793 is a foundational internet transport protocol. It was
 originally published in September 1981, focusing primarily on solving military
 communication challenges. It is intended to be a highly reliable transport
@@ -630,7 +639,7 @@ it side\cite{rfc793}.
 	\caption{The UDP header}
 	\label{fig:udp_header}
 \end{figure}
-The User Datagram Protocol (UDP), which was defined by RFC 768, is designed to
+The UDP, which was defined by RFC 768, is designed to
 enable programs to transmit self-contained messages, know as datagrams, over a
 packet-switched network. The UDP is designed to run on top of the IP\cite{rfc791},
 using IP addresses and port numbers for addressing. The UDP is by design connectionless,
@@ -650,17 +659,106 @@ the bare minimum needed for datagram transfer.
 Generally, UDP is used for applications where low latency is a requirement and some
 amount of packet loss is deemed acceptable. It is then up to the application layer to
 handle missing, reordered or duplicate datagrams.
-\subsection{The SMB protocol}
+\subsection{The Server Message Block protocol}
 
 \clearpage
 
 \section{QUIC}
+The Internet's underlying infrastructure is in a state of constant evolution,
+driven by a demand for decreased latency, increased throughput requirements and
+a need for improved security. For many years now, the TCP has been the de-facto
+solution for reliable and secure, when combined with Transport Layer Security (TLS), communications. However,
+TCP was developed in a time where security and latency where not considerations,
+at least not in the same way as in todays landscape. Over the years there have
+been efforts to enhance TCP, such as multipath TCP\cite{rfc8684} and combining
+TCP and TLS in HTTPS\cite{rfc2818} to improve security. This section of the thesis
+will cover QUIC, a transport protocol developed to overcome the limitations and
+improve the performance as compared to the TCP\cite{quic_transport_protocol_design}.
 
-\subsection{Information about the QUIC protocol}
+The importance of the QUIC protocol is not to be underestimated. It represents
+a substantial change to the internet's transport layer, the first one in over
+two decades. QUIC was initially developed by Google, and then later standardized
+in RFC 9000\cite{rfc9000}. QUIC is designed to address the issues experienced
+by TCP, with a focus on optimizing for web traffic. The main issues being the
+Head-of-line (HOL) blocking, but also aiming to improve on other aspects,
+such as integrating the TLS handshake into the transport handshake. A decision
+that was made for QUIC specifically was to move the protocol out of the kernel
+space and into the user space, allowing for rapid development and innovation\cite{quic_transport_protocol_design}.
+
+This chapter of the thesis will outline the limitations of TCP that led to the
+development of QUIC, give an overview of the architecture and logic that drives
+QUIC.
+\subsection{The motivation for a new transport protocol}
+The TCP is a cornerstone of modern internet infrastructure. It has been a reliable
+work horse for more than 40 years, ensuring communications between users and hosts
+since its inception. However, as the design of TCP is largely colored by the
+landscape when it was created, much of the improvements that have been made to TCP,
+such as security, has had to be built on top of TCP, as these were not considerations
+at the time of the TCP's inception. Todays internet landscape, with real-time content,
+hyper mobile users and increased demands on latency, but also privacy and security, have exposed
+some of the limitation imposed by the TCP stack. This section will outlined the
+key issues that prompted the development of a new, modern protocol: QUIC.
+
+\subsubsection{Head-of-Line Blocking}
+The TCP guarantees that all frames will be delivered, reliably in-order. Seeing
+as the TCP works as a single byte-stream the creates a phenomenon know as
+Head-of-Line (HOL) blocking, where any lost packet will block the delivery of
+all subsequent packets until the missing packet has been retransmitted. This
+can potentially amplify issues in the network, increasing delays, decreasing
+throughput and worsening the user experience. To combat this limitation, modern
+network protocols, such as HTTP/2\cite{rfc9113}, have introduced measures to
+combat the issue. HTTP/2 introduced multiplexing of multiple requests over one
+connection, allowing multiple application-level streams, for example for different
+resources such as images or javascript, to be multiplexed over a single TCP
+connection. This means that HTTP/2 managed to mitigate application-level HOL
+blocking, which was an issues in earlier versions of HTTP, it still potentially
+suffered from transport level HOL blocking, as the multiplexed streams was still
+sent over a single TCP connection. As a result a single lost packet in the TCP
+stream still caused all other unrelated streams over the same connection to stall,
+even if their packets were successfully delivered, until the offending packet
+could be retransmitted. This in practice means that much of the improvements made
+by HTTP/2 in this regard was negated by the issues of TCP, particularly in lossy
+environments\cite{http2_vs_1}.
+
+\subsubsection{Handshake Delay}
+A limitation of the TCP stack is the delay caused by the TCP handshake. As discussed
+in earlier chapters, establishing a TCP connection is done via a three-way handshake
+(SYN, SYN-ACK, ACK). This handshake incurs one Round-Trip Time (RTT) of delay. In
+addition, most application use TLS for security, and historically the TLS 1.2 handshake
+and setup adds two additional RTTs of delay. While network bandwidth is ever increasing,
+much of the communication done on the internet consist of short dialogues, that
+are significantly impacted by the additional overhead brought on by the TCP plus TLS
+handshake\cite{quic_transport_protocol_design}.
+
+Some of the latency brought on by the TLS handshake is addressed by TLS 1.3, adding
+support for 1-RTT and 0-RTT handshakes, at the cost of perfect forward secrecy\cite{rfc8446}. Even with
+these enhancements, the TCP plus TLS handshake takes a minimum of 1,5 RTTs, due to the separation
+of connection and security handshake.
+
+\subsubsection{Protocol Ossification}
+A big hurdle in deploying new protocols and extensions to existing ones on the internet,
+is the protocol ossification of existing protocols on the internet. There exists a heap
+of middleboxes, such as Network Address Translators (NATs) and firewalls that are
+part of the network. These devices may be overly conservative, dropping or 
+modifying packets that do not conform to their assumption. This is already an
+issue for TCP enhancements, and entirely new protocols have no chance of reaching
+their destination, without explicitly adding support in all necessary middleboxes.
+To get around this, protocol designer have to design their protocols from the ground
+up to be middlebox proof, such as QUIC encapsulating its protocol inside UDP as an
+anti-ossification measure\cite{Ossification}.
+
+A related issue of rolling out enhancements to existing protocols is that the
+network stack tends to be part of the Operating System (OS) kernel. The networking
+stack is tightly coupled to the OS, requiring OS updates or upgrades to implement
+changes to existing protocols. With todays upgrade frequency it can take years
+to roll out simple changes to the networking stack. QUIC moves the deployment of the 
+protocol to the user space, improving the speed of development and deployment,
+and opening up the space for multiple actors to create their own implementations of
+the protocol\cite{quic_transport_protocol_design}.
 
 \clearpage
 
-\section{The SMB protocol}
+\section{The Server Message Block protocol}
 
 \subsection{Information about the SMB protocol}
 \clearpage
@@ -672,7 +770,7 @@ handle missing, reordered or duplicate datagrams.
 \clearpage
 \section{Performance and interoperability benchmarking}
 
-\subsection{Tesn environment}
+\subsection{Test environment}
 
 \subsubsection{Hardware environment}
 

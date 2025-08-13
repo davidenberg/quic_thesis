@@ -98,7 +98,7 @@
     abstract =  {TCP/IP communication is currently restricted to a single path per connection, yet multiple paths often exist between peers. The simultaneous use of these multiple paths for a TCP/IP session would improve resource usage within the network and thus improve user experience through higher throughput and improved resilience to network failure. Multipath TCP provides the ability to simultaneously use multiple paths between peers. This document presents a set of extensions to traditional TCP to support multipath operation. The protocol offers the same type of service to applications as TCP (i.e., a reliable bytestream), and it provides the components necessary to establish and use multiple TCP flows across potentially disjoint paths. This document specifies v1 of Multipath TCP, obsoleting v0 as specified in RFC 6824, through clarifications and modifications primarily driven by deployment experience.},
 }
 
-@BOOK{computer_networking,
+@BOOK{compute_rnetworking,
   title     = "Computer networking: A top-down approach, global edition",
   author    = "Kurose, James and Ross, Keith",
   publisher = "Pearson Education",
@@ -108,5 +108,115 @@
   address   = "London, England",
   language  = "en"
 }
+
+@inproceedings{quic_transport_protocol_design,
+author = {Langley, Adam and Riddoch, Alistair and Wilk, Alyssa and Vicente, Antonio and Krasic, Charles and Zhang, Dan and Yang, Fan and Kouranov, Fedor and Swett, Ian and Iyengar, Janardhan and Bailey, Jeff and Dorfman, Jeremy and Roskind, Jim and Kulik, Joanna and Westin, Patrik and Tenneti, Raman and Shade, Robbie and Hamilton, Ryan and Vasiliev, Victor and Chang, Wan-Teh and Shi, Zhongyi},
+title = {The QUIC Transport Protocol: Design and Internet-Scale Deployment},
+year = {2017},
+isbn = {9781450346535},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3098822.3098842},
+doi = {10.1145/3098822.3098842},
+abstract = {We present our experience with QUIC, an encrypted, multiplexed, and low-latency transport protocol designed from the ground up to improve transport performance for HTTPS traffic and to enable rapid deployment and continued evolution of transport mechanisms. QUIC has been globally deployed at Google on thousands of servers and is used to serve traffic to a range of clients including a widely-used web browser (Chrome) and a popular mobile video streaming app (YouTube). We estimate that 7\% of Internet traffic is now QUIC. We describe our motivations for developing a new transport, the principles that guided our design, the Internet-scale process that we used to perform iterative experiments on QUIC, performance improvements seen by our various services, and our experience deploying QUIC globally. We also share lessons about transport design and the Internet ecosystem that we learned from our deployment.},
+booktitle = {Proceedings of the Conference of the ACM Special Interest Group on Data Communication},
+pages = {183–196},
+numpages = {14},
+location = {Los Angeles, CA, USA},
+series = {SIGCOMM '17}
+}
+
+@misc{rfc2818,
+    series =    {Request for Comments},
+    number =    2818,
+    howpublished =  {RFC 2818},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC2818},
+    url =       {https://www.rfc-editor.org/info/rfc2818},
+    author =    {Eric Rescorla},
+    title =     {{HTTP Over TLS}},
+    pagetotal = 7,
+    year =      2000,
+    month =     may,
+    abstract =  {This memo describes how to use Transport Layer Security (TLS) to secure Hypertext Transfer Protocol (HTTP) connections over the Internet. This memo provides information for the Internet community.},
+}
+
+@misc{rfc9000,
+    series =    {Request for Comments},
+    number =    9000,
+    howpublished =  {RFC 9000},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9000},
+    url =       {https://www.rfc-editor.org/info/rfc9000},
+    author =    {Jana Iyengar and Martin Thomson},
+    title =     {{QUIC: A UDP-Based Multiplexed and Secure Transport}},
+    pagetotal = 151,
+    year =      2021,
+    month =     may,
+    abstract =  {This document defines the core of the QUIC transport protocol. QUIC provides applications with flow-controlled streams for structured communication, low-latency connection establishment, and network path migration. QUIC includes security measures that ensure confidentiality, integrity, and availability in a range of deployment circumstances. Accompanying documents describe the integration of TLS for key negotiation, loss detection, and an exemplary congestion control algorithm.},
+}
+
+@INPROCEEDINGS{hol_tcp,
+  author={Scharf, Michael and Kiesel, Sebastian},
+  booktitle={IEEE Globecom 2006}, 
+  title={NXG03-5: Head-of-line Blocking in TCP and SCTP: Analysis and Measurements}, 
+  year={2006},
+  volume={},
+  number={},
+  pages={1-5},
+  keywords={TCPIP;Transport protocols;Next generation networking;Analytical models;Operating systems;Delay effects;Protection;IP networks;Middleboxes;Communication networks},
+  doi={10.1109/GLOCOM.2006.333}}
+
+@misc{rfc9113,
+    series =    {Request for Comments},
+    number =    9113,
+    howpublished =  {RFC 9113},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9113},
+    url =       {https://www.rfc-editor.org/info/rfc9113},
+    author =    {Martin Thomson and Cory Benfield},
+    title =     {{HTTP/2}},
+    pagetotal = 78,
+    year =      2022,
+    month =     jun,
+    abstract =  {This specification describes an optimized expression of the semantics of the Hypertext Transfer Protocol (HTTP), referred to as HTTP version 2 (HTTP/2). HTTP/2 enables a more efficient use of network resources and a reduced latency by introducing field compression and allowing multiple concurrent exchanges on the same connection. This document obsoletes RFCs 7540 and 8740.},
+}
+
+@INPROCEEDINGS{http2_vs_1,
+  author={de Saxcé, Hugues and Oprescu, Iuniana and Chen, Yiping},
+  booktitle={2015 IEEE Conference on Computer Communications Workshops (INFOCOM WKSHPS)}, 
+  title={Is HTTP/2 really faster than HTTP/1.1?}, 
+  year={2015},
+  volume={},
+  number={},
+  pages={293-299},
+  keywords={Servers;Web pages;Internet;Protocols;Packet loss;Multiplexing},
+  doi={10.1109/INFCOMW.2015.7179400}}
+
+@misc{rfc8446,
+    series =    {Request for Comments},
+    number =    8446,
+    howpublished =  {RFC 8446},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC8446},
+    url =       {https://www.rfc-editor.org/info/rfc8446},
+    author =    {Eric Rescorla},
+    title =     {{The Transport Layer Security (TLS) Protocol Version 1.3}},
+    pagetotal = 160,
+    year =      2018,
+    month =     aug,
+    abstract =  {This document specifies version 1.3 of the Transport Layer Security (TLS) protocol. TLS allows client/server applications to communicate over the Internet in a way that is designed to prevent eavesdropping, tampering, and message forgery. This document updates RFCs 5705 and 6066, and obsoletes RFCs 5077, 5246, and 6961. This document also specifies new requirements for TLS 1.2 implementations.},
+}
+
+@INPROCEEDINGS{Ossification,
+  author={Edeline, Korian and Donnet, Benoit},
+  booktitle={2019 Network Traffic Measurement and Analysis Conference (TMA)}, 
+  title={A Bottom-Up Investigation of the Transport-Layer Ossification}, 
+  year={2019},
+  volume={},
+  number={},
+  pages={169-176},
+  keywords={Middleboxes;Strips;IP networks;Transport protocols;Technological innovation},
+  doi={10.23919/TMA.2019.8784690}}
 
 @Comment{jabref-meta: databaseType:bibtex;}
