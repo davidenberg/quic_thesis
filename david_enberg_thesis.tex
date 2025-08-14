@@ -688,7 +688,7 @@ space and into the user space, allowing for rapid development and innovation\cit
 This chapter of the thesis will outline the limitations of TCP that led to the
 development of QUIC, give an overview of the architecture and logic that drives
 QUIC.
-\subsection{The motivation for a new transport protocol}
+\subsection{The motivation for a new transport protocol \label{quic_motivation}}
 The TCP is a cornerstone of modern internet infrastructure. It has been a reliable
 work horse for more than 40 years, ensuring communications between users and hosts
 since its inception. However, as the design of TCP is largely colored by the
@@ -756,6 +756,52 @@ protocol to the user space, improving the speed of development and deployment,
 and opening up the space for multiple actors to create their own implementations of
 the protocol\cite{quic_transport_protocol_design}.
 
+\subsection{Background and evolution}
+As discussed in Section \ref{quic_motivation}, the combinations of TCP, TLS and HTTP/2 are
+plagued by issues that are difficult to circumvent without major overhauls or extensions to
+the individual protocols, which due to protocol ossification is increasingly difficult. With
+this in mind, a new protocol was being created, aiming to solve the issues of
+HOL blocking, improved latency and circumventing protocol ossification. The answer
+was the protocol that would later be standardized into QUIC, early on know as gQUIC.
+QUIC began development back in 2012, by Jim Roskind, an engineer at google. Initially
+the motivation for developing a new transport protocol was to improve support for
+the now deprecated SPDY protocol\cite{googleQUICDesign}. QUIC was designed to run over
+UDP, by encapsulating the protocol frames into UDP datagrams, and encrypting the contents,
+the protocol could effectively sidestep the issues of middlebox interference, allowing
+for rapid deployment without any necessary modifications to existing infrastructure.
+To combat the issue of HOL blocking, QUIC implements transport level multiplexing of
+data streams, allowing multiple independent streams to exist over one connection.
+Packet loss in any of the data streams would not affect any of the other, blocking
+only itself while waiting for retransmission. QUIC uses a combined connection and
+cryptographic handshake, minimizing the latency of establishing a new connection.
+While TCP uses IP-port tuples to identify connections, this does not allow for mobility
+of the end user. If the IP or port of the user changes during the lifetime of the connection
+the connection is dropped, and has to be reestablished. To combat this QUIC uses
+Connection IDs to identify connections, allowing the connection to resume when
+there is some change in network. QUIC was widely deployed on Google's front end servers,
+and by 2017 it was already estimated that QUIC represented 7\% of global internet
+traffic\cite{quic_transport_protocol_design}.
+
+QUIC was submitted to the IETF for consideration in 2016, and a working group
+was created for the purposes of standardizing QUIC. The goals of the working group
+was to create a general purpose transport protocol that contained the benefits
+of gQUIC. The custom cryptographic handshake was replaced with TLS 1.3, the packet header
+was reworked into two types, a long and a short header, that was mostly encrypted
+to prevent middlebox interference. Loss detection and congestion control mechanics
+were updated, flow control semantics were separated into per stream and per connection
+limits and version negotiation was introduced to enable future compatibility of the
+protocol\cite{rfc9000}. In the end the protocol was standardized in a number of RFCs.
+RFC 9000\cite{rfc9000} defines QUICs core transport mechanics, RFC 9001\cite{rfc9001} defines the use of TLS 1.3
+and RFC 9002\cite{rfc9002} describes the loss detection and congestion control algorithms used by the
+protocol. In addition, RFC 8999\cite{rfc8999} defines some version-independent
+properties of QUIC, aligning QUICK packets, headers and versioning between
+different versions of the protocol. Following the standardization the adoption
+of QUIC has been quick. Chromium, and by extensions all chromium based browsers
+has supported QUIC since before it was standardized\cite{chromium_quic}. Both
+Firefox\cite{firefox_quic} and Safari\cite{safari_quic} added support for QUIC
+soon after the standards were published. QUIC has shown the viability and potential
+of deploying network protocols to the user space, enabling rapid adoption without
+OS kernel updates.
 \clearpage
 
 \section{The Server Message Block protocol}
