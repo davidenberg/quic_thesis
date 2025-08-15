@@ -632,7 +632,7 @@ may terminate its side of the connection by sending a FIN packet, signaling to
 the other endpoint that one side has closed its side of the communication. The
 closed endpoint may continue receiving data until the other endpoint also closes
 it side\cite{rfc793}.
-\subsubsection{User Datagram Protocol}
+\subsubsection{User Datagram Protocol \label{UDP}}
 \begin{figure}[b]
 	\centering
 	\includegraphics[alt={A block diagram of the UDP header format, detailing its fields and their sizes.}, height=4cm]{./images/udp_header.png}
@@ -653,7 +653,7 @@ consisting of the source and destination port, as well as the length of the data
 and a checksum to verify the received datagram\cite{rfc768}. Even though UDP has
 a checksum field its use varies depending on the implementation. Some implementations
 may discard the datagram, or alternatively pass it along to the application with a 
-warning, as UDP provides no way to recover from broken datagrams\cite{computer_networking}. The minimal UDP
+warning, as UDP provides no way to recover from broken datagrams\cite{compute_rnetworking}. The minimal UDP
 header (8 bytes) combined with the lack of a handshake makes UDP a protocol with
 the bare minimum needed for datagram transfer.
 Generally, UDP is used for applications where low latency is a requirement and some
@@ -802,6 +802,56 @@ Firefox\cite{firefox_quic} and Safari\cite{safari_quic} added support for QUIC
 soon after the standards were published. QUIC has shown the viability and potential
 of deploying network protocols to the user space, enabling rapid adoption without
 OS kernel updates.
+
+\subsection{Architectural Overview}
+
+The QUIC protocol is designed to be a general-purpose, secure and multiplexed
+transport protocol, working on top of UDP. In comparison to TCP, which usually
+is part of the OS kernel, QUIC is typically implemented in the user space, enabling
+quick iteration and deployment of protocol enhancements. This section describes
+QUIC's position in the networking stack, the different architectural parts and the
+basic elements of the protocol's operation.
+
+QUIC packets are directly encapsulate inside UDP datagrams. This design has both 
+practical and implementation advantages. When deploying QUIC, the fact that the
+wire image of QUIC packets are identical to that of UDP datagrams, means that they
+pass seamlessly through middleboxes and firewalls, without suffering the adverse
+effects of protocol ossification as is often the case in TCP. As discussed in Section \ref{UDP},
+the UDP is a barebones protocol, with the minimum overhead needed to transmit datagrams. This
+works to the advantage of the designer when building a protocol on top of UDP, as
+the designer the freedom they need to implemnt their own semantics, withouth risking
+interference from the underlying protocol. UDP provides the basic datagram services
+that are then enhanced by the QUIC protocol, ensuring a secure, reliable and performant
+protocol\cite{quic_transport_protocol_design}.
+
+From an architectural perspective, QUIC incorporates three main layers, a transport
+layer, a security layer and an application interface. From the bottom up, UDP provides
+minimal mechanism for transmitting datagrams, withouth any guarantees. On top of this
+QUIC implements its own transport layer, handling the multiplexing of datastreams,
+ensuring reliable and in-order delivery of data as well as connection management
+mechanics\cite{rfc9000}. QUIC security layer is fully integrated into the protocol, using TLS 1.3
+for encryption of wire traffic, as well as authentication and authorization of peers, ensuring
+secure communications between the endpoints. The security layer also protects most of
+the packet headers, leaving only the necessary info for routing and version control
+visible on the wire\cite{rfc9001}. The final layer exposes a standardized application
+interface that can support virtually any application-layer protocol, the most prominent
+one being HTTP/3\cite{rfc9113}.
+
+One of the main innovation made by the QUIC protocol is the concept of transport-level,
+mutiplexed and independent data streams. Any QUIC conneciton may contain one or multiple
+data streams, seen entirely as their own independant object. This helps mitigate the
+HOL blocking issues, as if the application is using multiple streams, when loss occurs,
+only the stream on which the loss occured will be blocked. While the lossy stream is
+blocking and waiting for retransmission, the other streams can continue sending as 
+normal. QUIC uses per connection limits for the number of streams and per stream
+flow control limits\cite{rfc9000}.
+
+Connection management and and identification in QUIC differs in the IP-port tuple
+combination that is tranditionally used in TCP. QUIC connection are identified by a
+connection ID, which are independtly selected by the endpoints. The purpose of the
+connection IDs is to allow the conneciton to survive changes in the network, for example
+when a mobile users moves from a local network to cellular. The migration is done transparently
+and securly, allowing the application to continue operations withouth interruption\cite{rfc9000}.
 \clearpage
 
 \section{The Server Message Block protocol}
