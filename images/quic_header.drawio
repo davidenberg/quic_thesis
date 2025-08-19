@@ -1,0 +1,70 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:141.0) Gecko/20100101 Firefox/141.0" version="28.0.7">
+  <diagram name="Page-1" id="HxD5iyzWCqI19C5e9wH2">
+    <mxGraphModel dx="1426" dy="787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2JScG8To_oCkEqMIyIZk-1" value="&lt;div&gt;Header Form&lt;/div&gt;&lt;div&gt;&lt;b&gt;1 bit&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="140" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-2" value="&lt;div&gt;Fixed Bit&lt;/div&gt;&lt;div&gt;&lt;b&gt;1 bit&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="140" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-3" value="&lt;div&gt;Long Packet Type&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="140" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-4" value="&lt;div&gt;Type Specific Bits&lt;/div&gt;&lt;div&gt;&lt;b&gt;4 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-5" value="&lt;div&gt;Version ID&lt;/div&gt;&lt;div&gt;&lt;b&gt;32 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="140" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-6" value="&lt;div&gt;DCID Len&lt;/div&gt;&lt;div&gt;&lt;b&gt;8 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="200" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-7" value="&lt;div&gt;DCID&lt;/div&gt;&lt;div&gt;&lt;b&gt;0-160 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="200" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-8" value="&lt;div&gt;SCID Len&lt;/div&gt;&lt;div&gt;&lt;b&gt;8 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="460" y="200" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-9" value="&lt;div&gt;SCID&lt;/div&gt;&lt;div&gt;&lt;b&gt;0-160 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="200" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-11" value="&lt;h2&gt;QUIC Long Header&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="377.5" y="90" width="165" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-12" value="&lt;h2&gt;QUIC Short Header&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="373.75" y="290" width="172.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-13" value="&lt;div&gt;Header Form&lt;/div&gt;&lt;div&gt;&lt;b&gt;1 bit&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="340" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-14" value="&lt;div&gt;Fixed Bit&lt;/div&gt;&lt;div&gt;&lt;b&gt;1 bit&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="340" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-15" value="&lt;div&gt;Spin Bit&lt;/div&gt;&lt;div&gt;&lt;b&gt;1 bit&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="340" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-16" value="&lt;div&gt;Reserved&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="340" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-17" value="&lt;div&gt;Key Phase&lt;/div&gt;&lt;div&gt;&lt;b&gt;1 bit&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="340" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-18" value="&lt;div&gt;Packet Number Length&lt;/div&gt;&lt;div&gt;&lt;b&gt;2 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="340" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-19" value="&lt;div&gt;DCID&lt;/div&gt;&lt;div&gt;&lt;b&gt;0-160 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="400" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-20" value="&lt;div&gt;Packet Number&lt;/div&gt;&lt;div&gt;&lt;b&gt;8-32 bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="400" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2JScG8To_oCkEqMIyIZk-21" value="&lt;div&gt;Payload&lt;/div&gt;&lt;div&gt;&lt;b&gt;8+ bits&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="400" width="320" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

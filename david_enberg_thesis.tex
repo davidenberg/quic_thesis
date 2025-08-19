@@ -852,6 +852,96 @@ connection ID, which are independtly selected by the endpoints. The purpose of t
 connection IDs is to allow the conneciton to survive changes in the network, for example
 when a mobile users moves from a local network to cellular. The migration is done transparently
 and securly, allowing the application to continue operations withouth interruption\cite{rfc9000}.
+
+\subsection{Packet and Frame Structure}
+
+QUIC packets are contained inside UDP datagrams, and together with the encryption
+and integrity protection provided this gives a robust protection against protocol
+ossification. As compared to TCP, where segmentation and reassembly of packets are
+transparently done as part of the transport protocol and not accessible to the
+application, QUIC defines a large set of different frames types for different,
+distinct roles in conneciton establishments, data transfer and protocol logic
+management. Depending on the packet type QUIC uses either a long header or short
+header.
+\begin{figure}[b]
+	\centering
+	\includegraphics[alt={A block diagram of the QUIC short and long header format, detailing its fields and their sizes.}, height=8cm]{./images/quic_header.png}
+	\caption{The QUIC header formats}
+	\label{fig:quic_header}
+\end{figure}
+
+QUIC packets are divided into two general categories, those that use the long header
+and those that use the short header. The long header is used during the establishment
+phase of the connection, being used in the Version Negotation, Initial, 0-RTT, Handshake
+and Retry packets. The long header, as seen in Figure~\ref{fig:quic_header}, contains the
+necessary data for these function. The first bit of the long header is set to 1 to indicate
+that this is a long header. The fixed bit following this is always set to 1, except
+for Version Negotation packets. The Long Packet type indicates the type of packet,
+and the 4 type specific bits are dependant on the packet type. Following this,
+the version ID field indicates the specific QUIC version this packet is using, and
+finally the destination and souce ID length and IDs contain the identifiers for
+the source and destination of this packet. Following the header is, if relevant,
+the specific packet type payload. In addition, the Initial, 0-RTT and Handshake
+packet types includes a packet number length and packet number field. In comparison,
+the short header is more compact, reducing per-packet overhead. The Header Form bit
+(set to 0 in the short header case) and the Fixed bit is the same as for the long
+header. The Spin Bit that follows may be used to make on path estimations of
+the RTT. Following the two reserverd bits is the key phase bit, used to keep
+track of the keys that are used to protect the packet. The packet number length
+is the length of the packet number field minus one. Lastly is the destination ID
+again indicating the recipient, the packet aaltolibnumber used for protocols semantics
+and finally the packet payload\cite{rfc9000}.
+
+\begin{table}[tb]
+	\centering
+	\caption{Table of QUIC long header types}
+	\label{tab:quic_long_header_types}
+	\begin{tabular}{lll}
+	\textbf{Packet Type}		  & \textbf{QUIC v1} & \textbf{QUIC v2} \\
+	Initial   & 0x00    & 0b01    \\
+	0-RTT     & 0x01    & 0b10    \\
+	Handshake & 0x02    & 0b11    \\
+	Retry     & 0x03    & 0b00   
+	\end{tabular}
+\end{table}
+The long header packet type numbers differs between QUIC version 1 and version 2, as
+is outline in Table~\ref{tab:quic_long_header_types}. Intial packets are used to initiate the connection and transmit
+the initial TLS hanshake. The Handshake packet carries the subsequent
+cryptographic messages, after the intial exchange. In case the connection attempt is
+a resumption, the client may use the 0-RTT packe type to transmit encrypted application
+data as part of the hanshake, basing the encryption on previously established keys. The
+Retry packet type may be used by the server to force the client to
+validate its address\cite{rfc9000}.
+
+In QUIC there is only one short-header packet type, know as the 1-RTT packet. It is
+used for the bulk of communication, taking advantage of the more compact short
+header to reduce overhead on the connection, which is useful for high-throughput
+applications. The header is in part protected by header protection, preventing
+interference by middleboxes on the wire.
+
+QUIC uses the concept of frames to enable protocol funcitonality. The payload of
+QUIC packets consists of one or more frames, and the frames can be of different types,
+enabling the transmission of application data and control data in the same packet. Frames
+allow the QUIC protocol to signal transport events between the peers. Arguably the most
+important frame type for data transmission is the STREAM frame. The stream frame
+carries stream data associated with a specific stream. The STREAM frame contains
+a stream identifier, byte offset and flags to track the state of the stream. The STREAM
+frame implicitly creates a new stream in case the identifier is previously unknown.
+The ACK frame is then used to acknowledge received packets. The ACK frame contains
+one or more ranges of packet numbers that have been received, with possible gap values
+indicating missing packets. This higher granularity enables the sender to only retransmit
+the missing packets, lowering retransmission overhead in reordering scenarios. Other
+important frame types include MAX\_DATA and MAX\_STREAM\_DATA for flow control
+on the connection and stream level, PING frames to probe the peer and ensure that
+the connection staus alive, CRYPTO frams for carrying TLS hanshake data and CONNECTION\_CLOSE
+to terminate the connection. These are the most important frame types, with an
+extensive list being available in RFC 9000 chapter 19 Frame Types and Formats. Together,
+these frames allow for great control of transport functionality, allowing for explicit
+control of the semantics\cite{rfc9000}.
+
+\subsubsection{Encryption and Header Protection}
+
+
 \clearpage
 
 \section{The Server Message Block protocol}
