@@ -889,7 +889,7 @@ header. The Spin Bit that follows may be used to make on path estimations of
 the RTT. Following the two reserverd bits is the key phase bit, used to keep
 track of the keys that are used to protect the packet. The packet number length
 is the length of the packet number field minus one. Lastly is the destination ID
-again indicating the recipient, the packet aaltolibnumber used for protocols semantics
+again indicating the recipient, the packet number used for protocols semantics
 and finally the packet payload\cite{rfc9000}.
 
 \begin{table}[tb]
@@ -939,7 +939,99 @@ extensive list being available in RFC 9000 chapter 19 Frame Types and Formats. T
 these frames allow for great control of transport functionality, allowing for explicit
 control of the semantics\cite{rfc9000}.
 
-\subsubsection{Encryption and Header Protection}
+\subsection{Streams}
+
+The QUIC protocol is designed around the concept of streams. Streams are an abstraction
+of a byte-streams, that are used to transmit data between applications. Streams may
+be either bidirectional or unidirectional, that is, from the perspective of one peer,
+the streams may be read-only, write-only or read and write. Any single connection may contain one or
+more streams, with the streams being multiplexed and entirely indedependent from one
+another. Streams are design to be lightweight, with minimal overhead. A stream can
+open, closed and transmit data in a single frame, or alternatively the streams
+can persist for longer lengths of time, up to the lifetime of the connection. The number
+of streams and the amount of data that may be sent over a single stream is constrained
+by the flow control. The different streams are identified via a unique identifier inside a connection,
+the stream ID, which is a 62-bit integer. The reasoning for using a 62-bit integer is
+that the two remaining bits are used to distinguish between unidirectional and bidirectional
+streams, as well as identify the initiator of the stream, which may be either the
+client or server\cite{rfc9000}.
+
+The lifetime of a stream is explicitly managed by the peers. The stream is first
+created by sending a stream frame, containing the stream ID of the stream that is
+requested to be opened. Data transfer id done via STREAM frames, that carry the
+application data that is to be transmitted. Once data transfer is complete, and
+the application is done with the stream, it may be closed by sending a stream
+frame with the FIN bit set, or alternatively send a RESET\_STREAM to abruptly end the
+stream, signaling that no further data will be sent. On the receiver end the receiver
+can read data from the stream, and may end the stream by sending a STOP\_SENDING frame,
+signaling that no more data will be accepted on the stream\cite{rfc9000}.
+
+The desing of QUIC streams is such that it directly addresses TCP's HoL blocking
+issue. In TCP, the in-order delivery guarantee is implement on an entire connection,
+resulting in the whole connection stalling in case of a lost packet until it is
+retranmsitted and received. In comparison, QUIC building it's streams on top of
+UDP, have implemented an in-order guarantee per stream. That is, any lost packet
+only blocks the specific stream that packet belonged to, allowing the other streams
+that may exists on the same connection to keep transmitting while the erronous
+stream retransmits. This feature also works in the favor for control data,
+as control frames is transmitted separately from the stream frames, they are not
+affected by loss on any of the data streams\cite{rfc9000}. An example of this advantage
+in action is in the HTTP/3 protocol. Here each client request is mapped to its own
+bidirectional QUIC stream, and unidirectional streams are used for control and
+push streams. HTTP/3 implementations should support at least 100 concurrent streams
+taking advantage of the multiplexing afforded by QUIC\cite{rfc9114}. When a client
+visits a web page, it may open tens of streams simultaneously, to fetch HTML, CSS,
+JavaScript, images and font. If a packet containing part of an image is lost, QUIC
+enables the HTML and CSS streams to continue delivering, improving render times
+in lossy environments.
+
+The lighweight desing of QUIC streams makes the suitable for short request-response
+communications in other domains as well. DNS over QUIC takes advantage of the
+stream semantics by creating a new QUIC stream for each request. Beside preventing
+HoL blocking, DNS over QUIC takes advantage of QUIC's stream semantics by allowing
+each DNS query to use a separate stream for communication. This allows the protocol
+to cheaply process each request-response, forgoing the overhead of setting up a connection,
+with its full handshake, instead creating a lightweight stream for the specific
+communication. The multiplexed streams also allow the server to process and respond
+to the queries out-of-order, allowing multiple, simoultaneous, outstanding queries
+at any one time.
+
+\subsection{Flow and Congestion Control}
+
+To prevent fast senders or malicious actors from overwelming the receive buffer,
+the QUIC protocol implements flow control on two levels, a per-stream flow limitation
+and a per-conneciton limitation. The receiver controls the amount of data that can
+be sent on any one QUIC stream at a time, as well as over the connection as a whole.
+The receiver also limits the number of concurrent streams that the sender may open,
+preventing the overwelming of the receiver with a large number of unique streams.
+The limits are set during the hanshake process, but they may be updated by sending
+MAX\_STREAM\_DATA and MAX\_DATA frames to signal that the flow control limits have
+been increase. A receiver may not reduce the flow control limits during the connection.
+If the sender is faster than the receiver it may reach a state where it is unable
+to transmit data due to either one of the limit. In this case the sender should
+send a STREAM\_DATA\_BLOCK or DATA\_BLOCK frame to signale to the receiver that
+there is outstanding application data waiting to be sent, but it is currently unable
+due to the flow control limits. Similarly the limit on the number of streams that
+may be opened is set during the connectiion initialization phase. It may the layer be
+increased by sending a MAX\_STREAMS frame, and similarly to the data flow control limits,
+the streams limits may only be increased, not decreased. The sender can signal to the
+receiver that it would like to open more streams by sending a STREAMS\_BLOCKED frame\cite{rfc9000}.
+This granular control allows the protocol implementations to adapt the flow control
+according to the environment, enabling improved performance especially in dynamic environments.
+
+The QUIC protocol uses three different packet number spaces, separate for initial,
+hanshake and application data spaces. This is as an effect of the fact that the
+corresponding packets use different levels of encryption, ensuring that acknowledgements
+sent in one packet number space does not cause retransmissions of packets of a different
+encryption level. The packet numbers of QUIC are monotonically increasing, signaling
+the order in which the packets were sent. To reconstruct reordered packets QUIC instead
+uses a stream offset field inside the stream frames, to keep track of the correct
+order of data. Loss detection in the QUIC protocol is then based on these packet
+numbers. Loss can either be detected vi acknowledgement-based detection,
+if a packet that is considered in-flight and is unacknowledged, but a packet
+sent after the potential lost packet has been acknowledged, and enough time has passed
+since the packet was sent. Alternatively, a Probe Timeout (PTO) causes one or two
+datagrams to be sent out, expecting a response to test the reachability of the peer\cite{rfc9002}.
 
 
 \clearpage
