@@ -276,7 +276,7 @@ urldate=long % date is expressed as Month dd, yyyy
 
 %% The date for the bachelor's thesis is the day it is presented
 %%
-\date{28 November 2025}
+\date{24 November 2025}
 %%
 
 %% Thesis supervisor
@@ -459,15 +459,14 @@ thesis}
 %% 
 %% Respecify those fields that differ from the earlier specification or simply
 %% respecify all fields.
-\thesistitle{Arbetets titel}
-\supervisor{Prof.\ Pirjo Professori}
-\advisor{TkD Alan Advisor} %
-\advisor{DI Elsa Expert}
-\degreeprogram{Electronik och electroteknik}
-\collaborativepartner{Company or institute name in Swedish (if relevant)}
+\thesistitle{Utvärdering av SMB över QUIC lösningar}
+\supervisor{PhD Pasi Sarolahti}
+\advisor{Bastian Shajit (MSc)}
+\degreeprogram{Datakommunikationsteknik}
+\collaborativepartner{Tuxera Ab}
 %\date{30.6.2025}
 %% Abstract keywords
-\keywords{Nyckelord p\aa{} svenska, temperatur}
+\keywords{tbd}
 %% Abstract text
 \begin{abstractpage}[swedish]
 \end{abstractpage}
@@ -482,10 +481,10 @@ thesis}
 %\mysection{Esipuhe}
 
 \vspace{5cm}
-Otaniemi, 30 June 2025\\
+Tölö, 24 November 2025\\
 
 \vspace{5mm}
-{\hfill Eddie E.\ Engineer \hspace{1cm}}
+{\hfill David C.\ Enberg \hspace{1cm}}
 
 %% Force a new page after the preface
 %%
@@ -507,6 +506,7 @@ IP & Internet Protocol \\
 ISN & Initial Sequence Number \\
 NAT & Network Address Translator \\
 OS & Operating System \\
+RDMA & Remote Direct Memory Access \\
 RFC & Request For Comment \\
 RTT & Round-Tripe Time \\
 SMB & Server Message Block \\
@@ -530,15 +530,101 @@ UDP & User Datagram Protocol \\
 %% 
 \thispagestyle{empty}
 
-\subsection{Research questions and objectives}
+In modern communication networks, reliable, secure and high-performance internet
+transport protocols has become a cornerstone of communication over the internet,
+being essential for applications ranging from web browsing and multimedia sharing
+to enterprise level file sharing. The Transmission Control Protocol (TCP)\cite{rfc793}
+has served as the solution of choice for reliable communication for over 4 decades.
+Side-by-side with TCP, the User Datagram Protocol (UDP)\cite{rfc768} has been
+used for application with high requirements on latency, with no guarantees of
+reliability. As the application demands move towards higher throughput, lower latency
+and increased security demands, the inherent limitations of TCP has become apparent.
 
+One demanding use of internet transports is remote file access, present at both
+the enterprise and consumer level. The Server Message Block (SMB)\cite{smb2}, is a
+widely adopted protocol for sharing files over a network, with implementations available
+in Windows, Linux and embedded systems. Traditionally the SMB protocol has used
+TCP to ensure reliable delivery\cite{smb2}. However, the increasing demand of modern
+use cases, with mobile users and more security demanding applications, is increasingly
+highlighting the limitations of TCP.
+
+Recently, a new transport protocol, QUIC, has been developed to address
+the issues and shortcomings of TCP. QUIC was initially developed by Google\cite{quic_transport_protocol_design},
+and later standardized by the IETF in RFC 9000\cite{rfc9000}. QUIC implements transport
+level multiplexing, encryption and authentication via TLS 1.3, and improved connection
+setup latency as parts of its design\cite{rfc9000,rfc9001}. QUIC has already been
+widely deployed as a foundation for HTTP/3\cite{rfc9114}, supporting large-scale
+web applications. But QUIC was not only developed as transport protocol for web applications,
+also finding use as a general-purpose transport protocol\cite{rfc9000}. One of these is 
+to serve as a transport protocol for the SMB protocol.
+
+Although TCP has served as the reliable transport protocol for SMB during the last
+decades, it has several well-known drawbacks in modern networking environments.
+First, TCP suffers from head-of-line (HOL) blocking, which can significantly
+impact performance in lossy environments. Second, TCP combined with TLS requires
+additional messages during the connection setup, the handshake, negatively affecting
+the latency of connections, especially affecting short communications. Finally,
+TCP suffers heavily from protocol ossification, different middleboxes, firewalls and
+operating system (OS) implementations makes changes difficult and slow to propagate\cite{quic_transport_protocol_design}.
+
+Although the improvements brought on by QUIC has been widely studied in the context
+of web traffic\cite{quic_better_for_what,evaluating_quic_perf,quic_and_tcp_performance},
+no studies have been done on the performance of SMB using the QUIC transport protocol.
+While the support for alternative transport protocols in the SMB protocol, mainly
+RDMA and QUIC, has been defined and implemented by Microsoft\cite{smb2}, formal
+efforts into researching and comparing the performance of these alternative transport
+is non-existent. There is also no current implementation of SMB over QUIC for Linux
+based system, with currently the only available implementation being in Windows machines.
+SMB suffers in the context of network reachability, as following a number of exploits,
+many internet service providers choose to block port 445, which is the port used
+by SMB, as many exploits over the internet target this specific port, resulting
+in normal SMB traffic being blocked as well\cite{bitag_port_blocking}.
+
+A possible solution to address the limitation present in TCP is the use of
+QUIC as an alternative transport protocol. Via combining QUIC's multiplexed transport,
+and SMB semantics for remote file access, this approach could mitigate the adverse effects of
+HOL blocking, improve latency of the connection and improve deployment to users space
+applications. Additionally, since QUIC is design with mobile users in mind, it could
+improve the reliability of the SMB protocol in diverse mobile environments, especially
+for mobile users. By moving from the traditional TCP port 445 to UDP port 443,
+SMB over QUIC in essence would mimic normal web traffic, circumventing the blocking
+of SMB traffic that is commonly done for TCP.
+
+The objective of this thesis is to design, implement and benchmark a QUIC transport
+layer for an SMB server. The aim is to develop a working prototype that can be used to
+test performance, interoperability and compare against standard SMB over TCP solutions.
+In order to develop this solution, the thesis will implement a QUIC transport layer. This
+will be accomplished by using the MsQuic library\cite{msquic}. This QUIC transport layer
+will the be integrated into Fusion SMB, an SMB server developed by Tuxera\cite{fusion}.
+The thesis will perform a series of performance benchmarks and interoperability tests,
+focusing on throughput and compatibility.
+
+This thesis is limited to supporting a QUIC transport layer using MsQuic. Other
+potential QUIC libraries are beyond the scope of this thesis, as there is no
+unified interface between the libraries, resulting in the work done to get one
+library working is not transferable to another library. The performance evaluations
+are limited to different throughput tests, including several different workloads, representative of
+real world enterprise and customer use cases.
+Other tests that will not be considered is latency and benchmarking connection creation,
+as the only available client is the Microsoft Windows SMB over QUIC client, which is
+limited in the number of connections. Questions such as large scale deployments,
+multi-node setups and integration into cloud architecture remains outside the scope
+of this thesis.
 
 \subsection{Thesis structure}
 
+The rest of this thesis is structured as follows. Chapter~\ref{sec:background} provides
+background on internet transport protocols and network storage protocols. Chapter~\ref{sec:quic} introduces
+QUIC, the motivations for its creations and it architecture. Chapter~\ref{sec:smb} gives
+and overview of the SMB protocol. Chapter~\ref{sec:implementation} describes the design
+and implementation of a QUIC transport layer for the Fusion SMB server. Chapter~\ref{sec:benchmark}
+presents the test environment, workloads and the resulting performance numbers. Finally, Chapter~\ref{sec:conclusion}
+discusses the findings and possible future work.
 %% In a thesis, every section/chapter starts a new page, hence the \clearpage
 \clearpage
 
 \section{Background}
+\label{sec:background}
 This section of the thesis will give an overview of the two most common transport
 protocols, the Transmission Control Protocol (TCP) and the User Datagram Protocol (UDP).
 This section also covers the Server Message Block (SMB) protocol, outlining the
@@ -659,11 +745,15 @@ the bare minimum needed for datagram transfer.
 Generally, UDP is used for applications where low latency is a requirement and some
 amount of packet loss is deemed acceptable. It is then up to the application layer to
 handle missing, reordered or duplicate datagrams.
-\subsection{The Server Message Block protocol}
+\subsection{HTTP}
+
+\subsection{Network Storage Protocols}
+
 
 \clearpage
 
 \section{QUIC}
+\label{sec:quic}
 The Internet's underlying infrastructure is in a state of constant evolution,
 driven by a demand for decreased latency, increased throughput requirements and
 a need for improved security. For many years now, the TCP has been the de-facto
@@ -1128,17 +1218,17 @@ decrypt the packet\cite{rfc9000}.
 \clearpage
 
 \section{The Server Message Block protocol}
-
+\label{sec:smb}
 \subsection{Information about the SMB protocol}
 \clearpage
 \section{Implementing QUIC as transport for SMB server}
-
+\label{sec:implementation}
 \subsection{MsQuic architecture and API}
 
 \subsection{Fusion SMB server QUIC transport layer design}
 \clearpage
 \section{Performance and interoperability benchmarking}
-
+\label{sec:benchmark}
 \subsection{Test environment}
 
 \subsubsection{Hardware environment}
@@ -1158,6 +1248,7 @@ decrypt the packet\cite{rfc9000}.
 \subsection{Results}
 \clearpage
 \section{Conclusions}
+\label{sec:conclusion}
 \label{sec:summary}
 
 \subsection{Discussion}

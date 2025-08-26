@@ -363,4 +363,71 @@ series = {SIGCOMM '17}
     month =     mar,
     abstract =  {The User Datagram Protocol (UDP) provides a minimal message-passing transport that has no inherent congestion control mechanisms. This document provides guidelines on the use of UDP for the designers of applications, tunnels, and other protocols that use UDP. Congestion control guidelines are a primary focus, but the document also provides guidance on other topics, including message sizes, reliability, checksums, middlebox traversal, the use of Explicit Congestion Notification (ECN), Differentiated Services Code Points (DSCPs), and ports. Because congestion control is critical to the stable operation of the Internet, applications and other protocols that choose to use UDP as an Internet transport must employ mechanisms to prevent congestion collapse and to establish some degree of fairness with concurrent traffic. They may also need to implement additional mechanisms, depending on how they use UDP. Some guidance is also applicable to the design of other protocols (e.g., protocols layered directly on IP or via IP-based tunnels), especially when these protocols do not themselves provide congestion control. This document obsoletes RFC 5405 and adds guidelines for multicast UDP usage.},
 }
+
+@Online{smb2,
+  author  = {{Microsoft}},
+  journal = {Microsoft Learn},
+  title   = {[MS-SMB2]: Server Message Block (SMB) Protocol Versions 2 and 3},
+  url     = {https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/5606ad47-5ee0-437a-817e-70c366052962},
+  urldate = {2025-08-26}
+}
+
+@INPROCEEDINGS{quic_better_for_what,
+  author={Cook, Sarah and Mathieu, Bertrand and Truong, Patrick and Hamchaoui, Isabelle},
+  booktitle={2017 IEEE International Conference on Communications (ICC)}, 
+  title={QUIC: Better for what and for whom?}, 
+  year={2017},
+  volume={},
+  number={},
+  pages={1-6},
+  keywords={Protocols;Servers;Google;YouTube;Delays;Internet;Loss measurement},
+  doi={10.1109/ICC.2017.7997281}}
+
+@INPROCEEDINGS{quic_and_tcp_performance,
+  author={Nepomuceno, Késsia and Oliveira, Igor Nogueira de and Aschoff, Rafael Roque and Bezerra, Daniel and Ito, Maria Silvia and Melo, Wesley and Sadok, Djamel and Szabó, Géza},
+  booktitle={2018 IEEE Symposium on Computers and Communications (ISCC)}, 
+  title={QUIC and TCP: A Performance Evaluation}, 
+  year={2018},
+  volume={},
+  number={},
+  pages={00045-00051},
+  keywords={Internet;Web pages;Google;Servers;Transport protocols;Packet loss;QUIC;TCP;Page Load Time},
+  doi={10.1109/ISCC.2018.8538687}}
+
+@ARTICLE{evaluating_quic_perf,
+  author={Shreedhar, Tanya and Panda, Rohit and Podanev, Sergey and Bajpai, Vaibhav},
+  journal={IEEE Transactions on Network and Service Management}, 
+  title={Evaluating QUIC Performance Over Web, Cloud Storage, and Video Workloads}, 
+  year={2022},
+  volume={19},
+  number={2},
+  pages={1366-1381},
+  keywords={Internet;Protocols;Streaming media;Cloud computing;Throughput;Servers;Middleboxes;Content delivery networks (CDN);transmission control protocol (TCP);transport layer security (TLS);QUIC;internet engineering task force (IETF);application workloads},
+  doi={10.1109/TNSM.2021.3134562}}
+
+@techreport{bitag_port_blocking,
+  author       = {{Broadband Internet Technical Advisory Group (BITAG)}},
+  title        = {Port Blocking},
+  institution  = {BITAG},
+  year         = {2015},
+  month        = feb,
+  note         = {Technical report documenting ISP port-blocking practices including TCP/139 and TCP/445},
+  url          = {https://www.bitag.org/documents/Port-Blocking.pdf}
+}
+
+@Online{msquic,
+  author  = {{Microsoft}},
+  journal = {Github},
+  title   = {MsQuic},
+  url     = {https://github.com/microsoft/msquic},
+  urldate = {2025-08-26}
+}
+
+@Online{fusion,
+  author  = {{Tuxera}},
+  title   = {Tuxera Fusion SMB},
+  url     = {https://www.tuxera.com/products/tuxera-fusion-smb/},
+  urldate = {2025-08-26}
+}
+
 @Comment{jabref-meta: databaseType:bibtex;}
