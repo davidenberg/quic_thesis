@@ -1179,6 +1179,7 @@ This allows the protocol to exchange some security guarantess for improved laten
 when establishing a connection\cite{rfc9000}.
 
 \subsubsection{Connections and Identifiers}
+\label{sec:connections_ids}
 
 From a connection standpoint one of the innovations made by the QUIC protocol, as
 compared to TCP, which uses port-IP tuples to identify connections, is the Introduction
@@ -1214,6 +1215,94 @@ initializing a new connection, then a Stateless Reset may be sent in response. I
 a packet is received, but it is not consistant with the connection, the packets
 are discarded. Such a scenario could be incorrect versioning or inability to
 decrypt the packet\cite{rfc9000}.
+
+\subsubsection{Connection Lifetime}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Diagram of QUIC handshake between a client and a server}, height=9cm]{./images/quic_handshake.png}
+	\caption{The QUIC Handshake}
+	\label{fig:quic_handshake}
+\end{figure}
+
+On of the main innovations made by the QUIC protocol is the integration of the
+TLS 1.3 cryptographic handshake into the transport handshake, improving the latency
+of connection setup and encrypting the connection from the beginning. As can be
+seen from Figure~\ref{fig:quic_handshake}, in an 1-RTT hanshake, the connection is inniated by the client
+sending an Initial packet, which contains a TLS ClientHello message, which is
+contained inside a CRYPTO frame. The server responds with an Initial Packet containing
+the TLS ServerHello message, and a Handshake Packet containing EncryptedExtensions, as
+well as its certificate and possibly the CeritifcateVerify message in case the client
+should be authenticated as well. The client then responds with a Handshake message
+containing the TLS Finished message, which signals the completion of the hanshake,
+and application data can now flow securely\cite{rfc9000, rfc9001}.
+
+It is possible to transmit data before the cryptographic handshake has been complete,
+albeit with some drawbacks. In Figure~\ref{fig:quic_handshake} the opportunities
+for early data transmisison has been marked with an asterisk. Firstly, 0-RTT data
+transfer is possible, in case the client is previously known to the server, and
+has received a TLS resumption ticket, data may be sent during the Initial Packet
+from the client. 0-RTT data transfer comes with the caveat that it is susceptible
+to replay attacks. It is also possible for the server to derive the encryption keys,
+early and transmit data alongside its initial hanshake message. This mechanic may
+be refered to as "0.5-RTT", but the data is carried inside a 1-RTT packet. This has
+the drawback of transmitting data before the client has authenticated, which means
+that the server should avoid transmitting sensitive data during this transfer. Similarly,
+once the client has completed the cryptographic hanshake it may already start
+transmitting data alongside the TLS Finished message\cite{rfc9000, rfc9001}.
+
+There are three ways in which a QUIC connection may be terminated. First via an
+idle timeout. The idle timeout is configured in the transport parameters, via the
+max\_idle\_timeout. If both endpoints announces a max\_idle\_timeout, the lower of
+the two will be used. The idle timeout is reset when receiving a packet from the 
+peer, or alternatively sending a packet to the peer. This means that and endpoint
+may defer the idle timeout, by sending a packet to the peer if it expects that
+data is still outstanding. If the idle timeout runs out, the connection will be
+silently closed, and the state discarded. Second, an endpoint may explicitly
+shut down a connection by sending a CONNECTION\_CLOSE frame. This also immediately
+closes all open streams, putting the peer that sent the CONNECTION\_CLOSE frame into
+the closing state, and the peer that received the CONNECTION\_CLOSE into the draining
+state. This is to enable the peers to cleanly shut down their connection, and
+properly handle packets that arrive out of order. Finally, a connection may be
+shut down via a stateless reset. This is used in case the peer does not have
+access to the state of the connection, and as a result is unable to process incoming
+packets. This sends a Stateless Reset Token, which is associated with a connection ID,
+causing the peer to immediately reset the connection.
+
+\subsubsection{Connection Migration}
+
+The QUIC protocol adds support for connection migration. In legacy protocols such
+as TCP, the connection is identified by the touple pair of source and destination
+IP addresses and ports. If something happens that causes any of this information to
+change, for example changing from a local network to a mobile, the connection will
+be closed and the state discarded. As discussed in Section~\ref{sec:connections_ids}
+one of the motivation for adding connection IDs was to improve the resilience of
+connections, allowing the connections to survive changes in network. The connection IDs
+are selected by the endpoints, and allows the packets to be correctly routed,
+even if the IP address or port of either endpoints changes for any reason\cite{rfc9000}.
+
+As changes in network port or address may be involuntary, which might happen as a
+result from NAT rebinding or network change, there may be a situation where
+either endpoint detecs a change to its peer's address or port. The endpoint must then perform
+path validation. Path validation is done via sending a PATH\_CHALLENGE frame, containing
+a random or hard to guess payload. The peer receives the PATH\_CHALLENGE, and responds
+with a PATH\_RESPONSE frame, echoing the payload from the PATH\_CHALLENGE frame.
+In this way the path is validated one way. The peer may include its own PATH\_CHALLENGE
+frame alongside the PATH\_RESPONDE, to validate reachability the other way\cite{rfc9000}.
+
+Conneciton migration may also be initialized explicitly, by sending packets from
+a new local address. In this case both peers must ensure reachability on the
+new path, by using path validation as described earlier in this chapter. When an endpoint
+receives packets from a new address, it must validate the path and subsequently
+send packets to the new address, using a new connection ID, to prevent on wire
+tracking of the connection migration. In practice, on the receiving end the process
+is the same for explicit and implicit migration. A server will not initialize a 
+connection migration, this is exclusively done by the client. What a server may
+do, is a preferred address. This allows servers to accept incoming connection
+on one address, and then quickly transfer the connection to a separeate, prefered
+address, performing path validation against the client from the new address\cite{rfc9000}.
+
+
 
 \clearpage
 
