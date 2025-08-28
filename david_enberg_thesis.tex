@@ -509,7 +509,9 @@ OS & Operating System \\
 RDMA & Remote Direct Memory Access \\
 RFC & Request For Comment \\
 RTT & Round-Tripe Time \\
+SCTP & Stream Control Transmission Protocol \\
 SMB & Server Message Block \\
+SST & Structured Stream Transport \\
 TCP & Transmission Control Protocol \\
 TLS & Transport Layer Security \\
 UDP & User Datagram Protocol \\
@@ -745,9 +747,106 @@ the bare minimum needed for datagram transfer.
 Generally, UDP is used for applications where low latency is a requirement and some
 amount of packet loss is deemed acceptable. It is then up to the application layer to
 handle missing, reordered or duplicate datagrams.
-\subsection{HTTP}
+
+\subsection{Streams}
+
+A data stream is defined as a set of digital signals that is used to transmit
+information\cite{data_stream}. In practice, when talking about internet
+transport protocols, a data stream refers to a ordered, series of bytes that is
+used to transmit information. For TCP this holds true, even though TCP splits
+the transmitted data into packets, from the application point of view the
+information is a stream of bytes. In comparison, UDP does not offer this same
+abstraction, as each datagram exists independently of one another, but a series
+of these datagrams could be seen as a type of data stream, albeit an unordered one.
+Having only one stream per connection can lead to issues in the transport layer, such as HOL-blocking,
+which will be discussed in Section~\ref{sec:hol}. The solution of opening multiple
+connections comes with drawbacks, of high overhead and resource consumption for
+the peers, with each connection taking up a separate socket on the client machine.
+As a result, protocols have emerged that aim to extend the data stream capabilities
+of TCP and UDP, and in the process solve some of the issues present in the legacy
+transport protocols.
+\subsubsection{SST}
+
+The Structured Stream Transport (SST) was introduced in \cite{sst} with the aim
+of extending TCP semantics, by introducing a hierarchical structure, allowing
+child streams to be created on top of an existing streams. These streams can
+be created without having to set up new connections, making them much more lightweight
+than TCP applications. The SST supports multiplexed streams, allowing the streams
+to exists in parallel, alleviating the issues of HOL blocking as each stream uses
+independent flow control. The SST also supports independent stream prioritization
+as well as reliable and best effort (unreliable) delivery\cite{sst}.
+
+There were three primary reasons for creating a new protocols, the SST. First, while
+TCP is better suited for long connection and large data transfers, UDP excels
+in short communication where the overhead of setting up connection via TCP's three
+way handshake provides significant overhead. Secondly, some protocols provides
+multiplexing on top of TCP, but suffers from HOL blocking as loss will block all
+data transfers until retransmission. Finally, some protocols such as HTTP/1.0
+has bad utilization of network resources, as they are design to run on top of TCP
+and open a new TCP connection for each and every resource that is loaded. This
+was somewhat remedied in HTTP/1.1 with the serializing of requests over one connection,
+but at the time of the SST's creation it had yet to be widely implemented\cite{sst}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Diagra of the SST architecture.}, height=8cm]{./images/sst.png}
+	\caption{The SST architecture}
+	\label{fig:sst_arc}
+\end{figure}
+
+As can be seen in Figure~\ref{fig:sst_arc}, the SST architecture consists of three
+parts, the Stream, Channel and Negotiation Protocols. The Channel Protocol is responsible
+for the delivery channel providing the best-effort delivery service, congestion control
+and packet sequencing. The Negotiation protocol is responsible for setting up the channel,
+and negotiating protocol details. Most interesting is the Stream Protocol, building on
+top of the other protocols to implement the Stream structure that SST is based upon.
+SST implements the concept of child streams. Child streams are created on top of
+a parent streams, but are otherwise equivalent to the main stream in all but name.
+Child streams allow multiple streams to exists on top of one connection, and they
+are design to be lightweight. This mitigates the issue of HOL blocking between stream,
+as loss on one stream still enables the other streams to keep transmitting while
+the erroneous stream independently recovers. SST also implements a second type of stream,
+while the normal stream is semantically similar to TCP, the ephemeral stream is closer
+to UDP. Ephemeral streams allows the application to have short communications as part
+of the larger connection, without any additional overhead\cite{sst}.
+
+
+\subsubsection{SCTP}
+
+The Stream Control Transmission Protocol (SCTP), was first defined in RFC 4960\cite{rfc4960}, and
+which was then later replaced by RFC 9260\cite{rfc4960}. SCTP was originally implemented
+to carry Public Switched Telephone Network (PSTN) messages, but was later standardizes
+to a general purpose protocol. SCTP is a connection based protocol, with connections
+referred to as association, and is designed to be ran on top of IP. As a contrast
+to TCP, which is heavily focused on transporting a byte stream, SCTP focuses on delivering
+messages between application. A message is sent on one end in one operation, and
+the whole message is received on the other end, in one operation. A series of these
+messages then form the stream inside SCTP. SCTP natively supports multiplexing of these streams, addressing TCP's issue
+of HOL blocking. This is a significant improvement for PSTN messagingn, where control
+messages must not be delayed by data loss in other streams\cite{rfc9260}.
+
+In SCTP user messages are split into SCTP DATA chunks, which are bundled together
+with SCTP Control chunks together with a common header to form the SCTP packet. While
+there may be multiple chunks inside one SCTP packet, each chunk only contains the data
+of one message. Multiple sequences, streams, of these chunks may be sent in parallel
+over one association, enabling multiplexed streams. SCTP support both ordered and
+unordered message streams, allowing messages to potentially be delivered out-of-order,
+which may be preferable for certain kinds of data, such as control data\cite{rfc9260}.
+
+SCTP supports multihoming, allowing the protocol to simultaneously bind to multiple
+different addresses and ports. This improves resilience, allowing the traffic to migrated
+to a backup path in case the primary network path is experiencing issues. The migration
+allows continued communication without breaking the association\cite{rfc9260}.
+
+\subsection{HTTP and its evolutions}
+
+\subsection{TLS}
 
 \subsection{Network Storage Protocols}
+
+\subsubsection{SMB}
+
+\subsubsection{NFS}
 
 
 \clearpage
@@ -790,6 +889,7 @@ some of the limitation imposed by the TCP stack. This section will outlined the
 key issues that prompted the development of a new, modern protocol: QUIC.
 
 \subsubsection{Head-of-Line Blocking}
+\label{sec:hol}
 The TCP guarantees that all frames will be delivered, reliably in-order. Seeing
 as the TCP works as a single byte-stream the creates a phenomenon know as
 Head-of-Line (HOL) blocking, where any lost packet will block the delivery of

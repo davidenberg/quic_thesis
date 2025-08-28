@@ -430,4 +430,79 @@ series = {SIGCOMM '17}
   urldate = {2025-08-26}
 }
 
+@Online{data_stream,
+  author  = {{Margaret Rouse}},
+  title   = {Data Stream},
+  url     = {https://www.techopedia.com/definition/6757/data-stream},
+  urldate = {2025-08-28}
+}
+
+@article{10.1145/1282427.1282421,
+author = {Ford, Bryan},
+title = {Structured streams: a new transport abstraction},
+year = {2007},
+issue_date = {October 2007},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {37},
+number = {4},
+issn = {0146-4833},
+url = {https://doi.org/10.1145/1282427.1282421},
+doi = {10.1145/1282427.1282421},
+abstract = {Internet applications currently have a choice between stream and datagram transport abstractions. Datagrams efficiently support small transactions and streams are suited for long-running conversations, but neither abstraction adequately supports applications like HTTP that exhibit a mixture of transaction sizes, or applications like FTP and SIP that use multiple transport instances. Structured Stream Transport (SST) enhances the traditional stream abstraction with a hierarchical hereditary structure, allowing applications to create lightweight child streams from any existing stream. Unlike TCP streams, these lightweight streams incur neither 3-way handshaking delays on startup nor TIME-WAIT periods on close. Each stream offers independent data transfer and flow control, allowing different transactions to proceed in parallel without head-of-line blocking, but all streams share one congestion control context. SST supports both reliable and best-effort delivery in a way that semantically unifies datagrams with streams and solves the classic "large datagram" problem, where a datagram's loss probability increases exponentially with fragment count. Finally, an application can prioritize its streams relative to each other and adjust priorities dynamically through out-of-band signaling. A user-space prototype shows that SST is TCP-friendly to within 2\%, and performs comparably to a user-space TCP and to within 10\% of kernel TCP on a WiFi network.},
+journal = {SIGCOMM Comput. Commun. Rev.},
+month = aug,
+pages = {361–372},
+numpages = {12},
+keywords = {web transport, transport protocols, stream, reliable, multimedia, mobility, fairness, datagram, best-effort, TCP, SST}
+}
+
+@inproceedings{sst,
+author = {Ford, Bryan},
+title = {Structured streams: a new transport abstraction},
+year = {2007},
+isbn = {9781595937131},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1282380.1282421},
+doi = {10.1145/1282380.1282421},
+abstract = {Internet applications currently have a choice between stream and datagram transport abstractions. Datagrams efficiently support small transactions and streams are suited for long-running conversations, but neither abstraction adequately supports applications like HTTP that exhibit a mixture of transaction sizes, or applications like FTP and SIP that use multiple transport instances. Structured Stream Transport (SST) enhances the traditional stream abstraction with a hierarchical hereditary structure, allowing applications to create lightweight child streams from any existing stream. Unlike TCP streams, these lightweight streams incur neither 3-way handshaking delays on startup nor TIME-WAIT periods on close. Each stream offers independent data transfer and flow control, allowing different transactions to proceed in parallel without head-of-line blocking, but all streams share one congestion control context. SST supports both reliable and best-effort delivery in a way that semantically unifies datagrams with streams and solves the classic "large datagram" problem, where a datagram's loss probability increases exponentially with fragment count. Finally, an application can prioritize its streams relative to each other and adjust priorities dynamically through out-of-band signaling. A user-space prototype shows that SST is TCP-friendly to within 2\%, and performs comparably to a user-space TCP and to within 10\% of kernel TCP on a WiFi network.},
+booktitle = {Proceedings of the 2007 Conference on Applications, Technologies, Architectures, and Protocols for Computer Communications},
+pages = {361–372},
+numpages = {12},
+keywords = {web transport, transport protocols, stream, reliable, multimedia, mobility, fairness, datagram, best-effort, TCP, SST},
+location = {Kyoto, Japan},
+series = {SIGCOMM '07}
+}
+
+@misc{rfc9260,
+    series =    {Request for Comments},
+    number =    9260,
+    howpublished =  {RFC 9260},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9260},
+    url =       {https://www.rfc-editor.org/info/rfc9260},
+    author =    {Randall R. Stewart and Michael Tüxen and karen Nielsen},
+    title =     {{Stream Control Transmission Protocol}},
+    pagetotal = 133,
+    year =      2022,
+    month =     jun,
+    abstract =  {This document describes the Stream Control Transmission Protocol (SCTP) and obsoletes RFC 4960. It incorporates the specification of the chunk flags registry from RFC 6096 and the specification of the I bit of DATA chunks from RFC 7053. Therefore, RFCs 6096 and 7053 are also obsoleted by this document. In addition, RFCs 4460 and 8540, which describe errata for SCTP, are obsoleted by this document. SCTP was originally designed to transport Public Switched Telephone Network (PSTN) signaling messages over IP networks. It is also suited to be used for other applications, for example, WebRTC. SCTP is a reliable transport protocol operating on top of a connectionless packet network, such as IP. It offers the following services to its users: The design of SCTP includes appropriate congestion avoidance behavior and resistance to flooding and masquerade attacks.},
+}
+
+@misc{rfc4960,
+    series =    {Request for Comments},
+    number =    4960,
+    howpublished =  {RFC 4960},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC4960},
+    url =       {https://www.rfc-editor.org/info/rfc4960},
+    author =    {Randall R. Stewart},
+    title =     {{Stream Control Transmission Protocol}},
+    pagetotal = 152,
+    year =      2007,
+    month =     sep,
+    abstract =  {This document obsoletes RFC 2960 and RFC 3309. It describes the Stream Control Transmission Protocol (SCTP). SCTP is designed to transport Public Switched Telephone Network (PSTN) signaling messages over IP networks, but is capable of broader applications. SCTP is a reliable transport protocol operating on top of a connectionless packet network such as IP. It offers the following services to its users: -- acknowledged error-free non-duplicated transfer of user data, -- data fragmentation to conform to discovered path MTU size, -- sequenced delivery of user messages within multiple streams, with an option for order-of-arrival delivery of individual user messages, -- optional bundling of multiple user messages into a single SCTP packet, and -- network-level fault tolerance through supporting of multi-homing at either or both ends of an association. The design of SCTP includes appropriate congestion avoidance behavior and resistance to flooding and masquerade attacks. {[}STANDARDS-TRACK{]}},
+}
+
 @Comment{jabref-meta: databaseType:bibtex;}
