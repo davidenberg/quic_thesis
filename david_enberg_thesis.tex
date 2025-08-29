@@ -502,6 +502,7 @@ Tölö, 24 November 2025\\
 \begin{tabular}{ll}
 ACK & acknowledgment \\
 HOL & Head-of-line \\
+HTTP & HyperText Transfer Protocol \\
 IP & Internet Protocol \\
 ISN & Initial Sequence Number \\
 NAT & Network Address Translator \\
@@ -839,6 +840,46 @@ to a backup path in case the primary network path is experiencing issues. The mi
 allows continued communication without breaking the association\cite{rfc9260}.
 
 \subsection{HTTP and its evolutions}
+
+The HyperText Transfer Protocol (HTTP), is a protocol stemming from the early days 
+of the World Wide Web, defining a protocol that would allow a server and a client
+to talk to each other. HTTP allows a client to request different resource from a 
+web server, may that be javascript, css, images, multimedia files or something else.
+The high-level idea of HTTP is that a client request a resource from the server,
+and the server, if possible and permitted, responds with the requested resource.
+HTTP defines the formats of these messages, which are written in American Standard Code for Information Interchange (ASCII),
+making the message human readable directly on the wire, without having to interpret 
+them. There are a set of HTTP request methods defined for the message, such as
+the GET method for requesting a resource, and POST for posting data to the server\cite{compute_rnetworking}.
+
+The first version of HTTP, HTTP/1.0 was defined in RFC 1945\cite{rfc1945}. HTTP/1.0
+used non-persistent connection, and had no concept of multiplexing. It was a fairly
+basic protocol, working on a request-response principle, with each request opening
+its own TCP connection. HTTP/1.1 defines three request methods. GET to request data
+from the server, POST to post data to the server and HEAD, which is similar to GET,
+but request that only the HTTP header be returned in the response, not the architectural
+body of the response\cite{rfc1945}. What is notable for HTTP/1.0 is that it actually
+did not suffer from HOL-blocking of TCP, like most of its successors. Because each
+request opened a new TCP connection, there was not concept of HOL blocking as the
+requests were entirely independent of one another. This was however not a very efficient
+resource usage, as perform multiple three-way TCP handshakes to load a simple web page
+added significant overhead. 
+
+HTTP/1.0 was iterated upon and became HTTP/1.1, which was initially defined in
+RFC 2616\cite{rfc2616}. HTTP/1.1 improved upon HTTP/1.0, adding support for several
+new features. First, persistent connections allow multiple requests to be sent over one connection,
+cutting down on the number of connections that need to be opened to load a set of resources.
+Second, pipelining allows multiple request to be made, without having to wait for the
+previous request to return. This is not quite yet true multiplexing, as the responses
+need to be returned in the same order as the request were made, causing HOL blocking
+of subsequent requests in case of loss\cite{rfc2616}. Third, with the Introduction
+of HTTP over TLS, HTTPS, it was now possible to set up more secure, encrypted communications,
+in stead of transmitting data in cleartext\cite{rfc2818}.
+\subsubsection{SPDY}
+
+\subsubsection{HTTP/2}
+
+\subsubsection{HTTP/3}
 
 \subsection{TLS}
 
