@@ -512,6 +512,7 @@ RFC & Request For Comment \\
 RTT & Round-Tripe Time \\
 SCTP & Stream Control Transmission Protocol \\
 SMB & Server Message Block \\
+SSL & Secure Socket Layer \\
 SST & Structured Stream Transport \\
 TCP & Transmission Control Protocol \\
 TLS & Transport Layer Security \\
@@ -841,6 +842,19 @@ allows continued communication without breaking the association\cite{rfc9260}.
 
 \subsection{HTTP and its evolutions}
 
+\begin{table}[h]
+	\centering
+	\caption{Comparison of HTTP Versions}
+	\label{tab:http_versions}
+	\begin{tabular}{lllll}
+	\textbf{Version} & \textbf{HTTP/1.1} & \textbf{SPDY} & \textbf{HTTP/2} & \textbf{HTTP/3} \\
+	\textbf{Transport}    & TCP     & TCP & TCP & QUIC    \\
+	\textbf{Multiplexing} & Pipelining    & Over TCP & Over TCP & QUIC multiplexing    \\
+	\textbf{Compression}  & No    & SPDY specific & HPACK & QPACK    \\
+	\textbf{Server Push} & No & Yes & Yes & Yes \\
+	\end{tabular}
+\end{table}
+
 The HyperText Transfer Protocol (HTTP), is a protocol stemming from the early days 
 of the World Wide Web, defining a protocol that would allow a server and a client
 to talk to each other. HTTP allows a client to request different resource from a 
@@ -852,6 +866,7 @@ making the message human readable directly on the wire, without having to interp
 them. There are a set of HTTP request methods defined for the message, such as
 the GET method for requesting a resource, and POST for posting data to the server\cite{compute_rnetworking}.
 
+A comparison of HTTP version can be seen in Table~\ref{tab:http_versions}. 
 The first version of HTTP, HTTP/1.0 was defined in RFC 1945\cite{rfc1945}. HTTP/1.0
 used non-persistent connection, and had no concept of multiplexing. It was a fairly
 basic protocol, working on a request-response principle, with each request opening
@@ -877,11 +892,141 @@ of HTTP over TLS, HTTPS, it was now possible to set up more secure, encrypted co
 in stead of transmitting data in cleartext\cite{rfc2818}.
 \subsubsection{SPDY}
 
+The SPDY protocol was designed by Google to improve latency of web pages, as compared
+to HTTP/1.1. The SPDY protocol was designed work as an extension to HTTP/1.1,
+slotting into the session layer and largely defining how HTTP traffic is sent over the
+wire, with somed additional improvements to the HTTP protocol. In practice SPDY
+introduced three improvements, multiplexed streams, header compression and server push capabilities\cite{spdy}.
+
+SPDY introduced multiplexing of HTTP streams, allowing for an unlimited number
+of multiplexed streams over one TCP connection. As compared to HTTP/1.1's pipelining,
+the true multiplexing of SPDY allows the server to responds to requests in any order,
+instead of being forced to follow the request order. This allowed for a second improvement,
+where a client could attach a priority to the requests, signaling to the server
+which resources should be prioritized, especially in congested channels. To limit
+the number of bytes that have to be sent over the wire SPDY implemented HTTP header
+compressions, sending the header in a compressed format instead of ASCII. Additionally
+SPDY added server push and server hint features. Server push allows the server to
+send a resource to the client, without the client having request the resource first.
+Server hint is similar to server push, but instead of sending the resource, the
+server sends a hint to the client with a suggestion that the client should request
+a specific resource\cite{spdy}.
 \subsubsection{HTTP/2}
+
+HTTP/2 is standardized in RFC 9113\cite{rfc9113}, is the evolution from HTTP/1.1.
+It implements some of the ideas from SPDY, with the original specification for
+HTTP/2, RFC 7540\cite{rfc7540}, acknowledging the contributions made by the SPDY
+team. The HTTP/2 protocol uses the same semantics as HTTP/1.1, but like SPDY
+improves on the transport of the HTTP data between endpoints. HTTP/2 implements
+streams and stream multiplexing, stream prioritization, header compression and
+server push capabilities. Likey SPDY, HTTP/2 support multiplex, independently
+mutiplexed streams, allowing multiple parallel requests over one TCP connection.
+Stream priority allows the client to signal which requests are more important to
+be filled, and in case no priority is given, the server may choose to determine
+priority based on other information\cite{rfc9113}. For header compression, HTTP/2 implements a
+dedicated compression algorithm called HPACK, defined in RFC 7541\cite{rfc7541}.
+HPACK not only implements compression, but the algorithm also helps in reducing
+redundant header fields, by preventing the same static header fields from
+being sent over and over again\cite{rfc7541}. HTTP/2 supports server push capabilities,
+allowing the server to send unprompted resource to a client, usually by estimating
+the requests that the client likely will make in the future, in that way improving
+latency\cite{rfc9114}.
+
+Even though HTTP/2 implements stream multiplexing, it still suffers from HOL blocking
+simply due to the fact that HTTP/2 streams are created on top of a single TCP
+connection. This means that the requests wont block each other, but in case of
+packet loss, the TCP HOL blocking will cause all requests to stall while waiting
+for \cite{rfc9113}. This highlights the fact that despite improvements in the
+HTTP protocol, the HOL blocking issue may not be solved as long as the protocol
+is running on top of TCP.
 
 \subsubsection{HTTP/3}
 
+HTTP/3, as defined in RFC 9114\cite{rfc9114}, is as of writing the final evolution
+of the HTTP protocol. It was specifically designed to be ran on top of QUIC,
+taking advantage of the improvments offered by the QUIC transport protocol. Like HTTP/2,
+the HTTP semantics stays largely the same, but improvements are made to take advantage
+of the new transport. HTTP/3 includes support for transport level multiplexing,
+transport level encryption and connection mgiration. The most significant advantage
+offer by HTTP/3 is the improvements to transport level HOL-blocking. Because HTTP/3
+takes advantage of native QUIC streams for its multiplexing, which are entirely independent
+on the transport level, even packet loss wont affect unrelated streams. This allows
+HTTP/3 to take full advantage of multiplexing requests to load resources, without
+bottlenecking from the transport layer. QUIC offers an improved conenction setup
+time as compared to HTTP/2, as HTTP/2 uses TCP + TLS, requiring multiple RTTs to
+establish a secure connection. HTTP/3 utilizes the fact that QUIC has the TLS
+hanshake integrated into the QUIC transport handshake, potentially reducing
+connection setup time to 1 RTT. In some cases it is even possible to use 0-RTT
+data transfer to instantaneously transfer data wihtout waiting for the conneciton
+to be set up. Connection migration of QUIC allows connection to stay active for mobile
+users, even in the face of network changes\cite{rfc9114}. As with HTTP/2, HTTP/3 uses header compression,
+but HPACK has been replace by QPACK, which improves on HPACK by better taking advantage
+of QUIC's features, improving HOL blocking issues with only a slighty degradation
+in compression rate\cite{rfc9204}.
+
+
 \subsection{TLS}
+The Transport Layer  Security (TLS) protocol is an evolution from the Secure Socket Layer (SSL)\cite{rfc6101} protocol.
+TLS aims to secure communication between two endpoints. The TLS protocol provides three
+properties to the communication. First authentication, with the server side of the
+communication always being authenticated, and the client side optionally being
+authenticated. Second confidentiality, TLS ensures that data sent between the
+endpoints is encrypted and ensured, ensuring that only the intended recipient is
+able to decrypt and read the data. Finally integrity, data transmitted through
+a TLS tunnel cannot be tampered with, wihouth alerting the recipient\cite{rfc8446}.
+
+The TLS protocol consist of two components, First, the hanshake protocol is used to
+establish the connection, being responsible for authentication, negotiation and creating
+the key material used for encryption. Second, the record protocol is responsible
+for encrypting and transmitting the data. The name comes from the fact that the data
+to be transmitted is split into a series of records, all of which are individually
+encrypted and tranmitted. The TLS protocol is designed to be a general purpose
+security protocol, as it only requires to be ran on a reliable transport, and in
+principle any application protocol may be ran on top of TLS\cite{rfc8446}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Diagram of TLS handshake between a client and a server}, height=9cm]{./images/tls_handshake.png}
+	\caption{The TLS 1.3 Handshake}
+	\label{fig:tls_handshake}
+\end{figure}
+The TLS hanshake is the most important part when establishing a TLS session. In
+TLS 1.2 and earlier the hanshake required 2 RTTs before application data could be sent
+securely, but since TLS 1.3 the hanshake has been streamlined into 1-RTT, with the
+possibility of 0-RTT data transfer, at the cost of perfect forward secrecy. The TLS 1.3
+hanshake is outlined in Figure~\ref{fig:tls_handshake} where the asterisk indicated optional
+or alternative parts of the message, curly brackes indicate handshake secret protected and
+square brackets indicate full application protection of data. The handshake begins with a ClientHello message,
+containing a nonce, the protocol version and
+either a pair of Diffie-Hellman key share or a set of pre-shared key labels. The server responds
+with a ServHello, containing key shares, certificate if it used in authentication of the server
+and possible extensions, such as CertificateVerify request if the server requests the client
+to be authenticated via a certificate as well. The certificate and CertificateRequest as
+well as Extensions are protected with keys derived during the handshake process. These
+are different from the secrets used to protect application data and does not guarantee
+perfect forward secrecy. The combination of ClientHello and ServerHello is used to
+create the shared keys. Finally the client responds, acknowledging that the process is finished\cite{rfc8446}.
+
+Normally the hanshake adds additional overhead to connection setup. With TLS 1.2 and
+lower adding an additional 2+ RTTs of latency, and TLS 1.3 adding 1-RTT of latency.
+However the QUIC protocol integrates the TLS 1.3 hanshake into the transport layer protocol,
+allowing both hanshake to be made in parallel, negating the latency impact, but more
+on this in Chapter~\ref{sec:quic}. Once the hanshake is finnished and the TLS session setup,
+the record protocol takes over. The record layer splits the application data into
+appropriate chunks, which are then encrypted and integrity protected. And transmits
+these via the underlying, reliable transport. 
+
+The first versions of TLS, TLS 1.0 and 1.1, defined in RFC 2246\cite{rfc2246} and
+RFC 4346\cite{rfc4346}, improved upon SSL but were deprecated in 2021 via RFC 8996\cite{rfc8996},
+due to the fact that these algorithms rely on weak cryptographic algorithms. The TLS 1.2
+protocl improved upon its predecessor by introducing more secure cryptographic algorithms and
+authenticated encryption\cite{rfc5246}, and removing backwards compatibility with
+SSL via RFC 6176\cite{rfc6176}. Finally, as mentioned earlier in this section,
+TLS 1.3 is the latest version of the TLS protocol. It removed support for legacy
+cryptographic algortihms, added the 1-RTT hanshake and 0-RTT data transfer, among other
+cryptographic improvements\cite{rfc8446}.
+
+\subsubsection{DTLS}
 
 \subsection{Network Storage Protocols}
 
@@ -1136,7 +1281,7 @@ and finally the packet payload\cite{rfc9000}.
 	\end{tabular}
 \end{table}
 The long header packet type numbers differs between QUIC version 1 and version 2, as
-is outline in Table~\ref{tab:quic_long_header_types}. Intial packets are used to initiate the connection and transmit
+is outlined in Table~\ref{tab:quic_long_header_types}. Intial packets are used to initiate the connection and transmit
 the initial TLS hanshake. The Handshake packet carries the subsequent
 cryptographic messages, after the intial exchange. In case the connection attempt is
 a resumption, the client may use the 0-RTT packe type to transmit encrypted application
