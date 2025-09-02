@@ -501,6 +501,8 @@ Tölö, 24 November 2025\\
 
 \begin{tabular}{ll}
 ACK & acknowledgment \\
+DFS & Distributed File System \\
+DTLS & Datagram Transport Layer Security \\
 HOL & Head-of-line \\
 HTTP & HyperText Transfer Protocol \\
 IP & Internet Protocol \\
@@ -723,6 +725,7 @@ the other endpoint that one side has closed its side of the communication. The
 closed endpoint may continue receiving data until the other endpoint also closes
 it side\cite{rfc793}.
 \subsubsection{User Datagram Protocol \label{UDP}}
+\label{sec:udp}
 \begin{figure}[b]
 	\centering
 	\includegraphics[alt={A block diagram of the UDP header format, detailing its fields and their sizes.}, height=4cm]{./images/udp_header.png}
@@ -966,6 +969,7 @@ in compression rate\cite{rfc9204}.
 
 
 \subsection{TLS}
+\label{sec:tls}
 The Transport Layer  Security (TLS) protocol is an evolution from the Secure Socket Layer (SSL)\cite{rfc6101} protocol.
 TLS aims to secure communication between two endpoints. The TLS protocol provides three
 properties to the communication. First authentication, with the server side of the
@@ -1028,13 +1032,109 @@ cryptographic improvements\cite{rfc8446}.
 
 \subsubsection{DTLS}
 
-\subsection{Network Storage Protocols}
+As mentioned in Section~\ref{sec:tls}, the TLS protocol is designed to run on top
+of a reliable transport. However, it is quite common for application to run on top
+of UDP, which as mentioned in Section~\ref{sec:udp}, makes no guarantees for reliability.
+To solve this problem and provide protection for datagram based applications,
+Datagram Transport Layer Security (DTLS) is designed to overcome the challenges
+of securing an unreliable transport. There are four main reasons the TLS cannot
+be used directly on top of UDP. First, TLS uses an implicit sequence number as a
+nonce, meaning that TLS records being delivered out of order causes the decryption
+process to fail. Second, the TLS hanshake is rigid, the right messages has to arrive
+in the right order for the hanshake to succeed. Third, handshake messages may be 
+larger than one datagram, causing fragmentation. Finally, UDP is susceptible to
+Denial-of-Service (DoS)\cite{rfc9147}.
 
-\subsubsection{SMB}
+To handle packet loss, DTLS uses a retransmission timer to enable retransmission of
+lost packets, such as part of the handshake. Reordering is mitigated by assigning
+an explicit packet number, enbaling the receiving party to process the received
+messages in the correct order. DTLS adds support for fragmentation of handshake message,
+the sending part can split the handshake message into multiple parts that all fit
+inside a datagram, and the receiving party can the reassemble the hanshake message
+from the fragments. To combat DoS attacks,  DTLS implements a HelloRetryRequest message,
+which contains a cookie, that then has to be included in the ClientHello message
+to be accepted by the server. Optionally, DTLS includes replay detection and protection\cite{rfc9147}.
 
-\subsubsection{NFS}
+DTLS is designed to be as close to TLS as possible in capabilities and funcitonalities.
+DTLS follows TLS versioning, with the latest, DTLS 1.3, being defined in RFC 9147\cite{rfc9147}.
+Like TLS 1.3, DTLS 1.3 implements the improved 1-RTT handshake, enforces stronger
+cryptographic algorithms than earlier versions and adds support for 0-RTT data transfer,
+however 0-RTT data transfer requires that replay protection is enabled on the connection\cite{rfc9147}.
 
+\subsection{DFS}
 
+Distributed File Systems (DFS) allow clients to communicate with servers, enabling
+the clients to manipulate the files as if they were stored on their local machine.
+DFS's abstract away the complexities of distributed data access, exposing a set
+of file operations to the clients, allowing them to among other create, delete, read
+and write files. The DFS ensures consistency, reliability and access between different
+clients and access points\cite{os_concepts}. Currently, the most widely adopted
+distributed file systems is the Server Message Block (SMB)\cite{smb2} and the
+Network File System (NFS)\cite{rfc7530}. Both protocols provide file system access
+over a network, but they differ significantly in design, environment and features.
+
+\subsubsection{Server Message Block}
+
+The Server Message Block (SMB) protocol is a stateful protocol, and is a protocol designed for
+sharing files printers and other resources over a network. It was originally created
+in the early 1980s, and later adopted and extended by Microsoft\cite{samba_myths}.
+The protocol has undergone several iterations since that time. While the underlying
+concepts of SMB has stayed the same, later revisions, that is SMB version 2.0 and forwards,
+differs heavily from earlier version SMB 2.0 introduced different packet formats, and reduced
+the chattiness of the protocol, among other improvements. SMB 3.0 introduced encrypted trafic,
+multichannel support and integration with RDMA in the form of SMB Direct. Since SMB 3.1.1 the
+protocol has added support for using the QUIC protocol as a transport\cite{smb2}.
+
+The main distinguishing characteristics of the SMB protocol is its stateful design.
+The server maintains information about the state of a session, such as file handles,
+locks and leases over the lifetime of a session. This allows the SMB protocol to
+guarantee consistency and helps in coordinating multiple, concurrent clients. As 
+the development of the SMB protocol has largely been a result of Microsoft's effort,
+the protocol is deeply integrated into Windows authentication and authorization,
+supporting NTLM and Kerberos authentication, and integrates as part of Active Directory Domain
+services\cite{smb2}.
+
+\subsubsection{Network File System}
+
+The NFS protocol was introduced by Sun Microsystems in 1984, aiming to be a protocol
+for enabling remote access to filesystem between different UNIX machines. NFS was
+designed to be a simple and open filesystem, making it easy to port to different
+machines.In contrast to the SMB protocol, the NFS protocol was designed to be a 
+stateless protocol. This simplified processing, as each request contained all necessary
+information to complete the request, and in case the request failed the client could
+simply try again. Recovery from error states was simple as no sessions had to be
+reestablished. The sateless design came with drawbacks,
+for example two concurrent clients trying to write the same file could cause the
+write to be interleaved, causing unintended outcomes, as the writes would simply
+be processed in the order they arrived\cite{nfs_design}.
+
+Over time the NFS protocol has evolved, with the latest version NFSv4.2 being
+defined in RFC 7862\cite{rfc7862}. NFSv4 introduced a stateful protocol, and
+introduced features such as file locking, multipath and compound operations, alongside performance
+improvements and improved authentication support for stronger security\cite{rfc7530}.
+NFSv4.1 introduced NFS sessions and parallel access to data, as well as improving support
+for clustered solutions\cite{rfc8881}, while
+NFSv4.2 introduces support for server side operations, and sparse files\cite{rfc7862}.
+
+\begin{table}[h]
+	\centering
+	\caption{Comparison of SMB and NFS}
+	\label{tab:smb_nfs}
+	\begin{tabular}{lll}
+	\textbf{Protocol} & \textbf{SMB} & \textbf{NFS} \\
+	\textbf{Environment}    & Windows     & UNIX    \\
+	\textbf{Resources} &  Files, directories, printers, network resources   & Files and directories     \\
+	\textbf{Sessions}  & Stateful  & Stateless v2/v3, Stateful v4    \\
+	\end{tabular}
+\end{table}
+
+Table~\ref{tab:smb_nfs} gives an overview of the major differences of SMB and
+NFS. SMB provides many different features, a natively stateful protocol for sharing
+all kinds of resources, and a solution that is very Windows centric, with UNIX based
+system requiring a third party solution for support, such as Fusion File Share or
+Samba. In comparison, NFS is a lightweight, easy to setup protocol that is purely
+focused on file and directory sharing, and which is heavily integrated into many
+different UNIX based operating systems.
 \clearpage
 
 \section{QUIC}
