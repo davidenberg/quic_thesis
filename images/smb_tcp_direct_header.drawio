@@ -1,0 +1,19 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0" version="28.1.2">
+  <diagram name="Page-1" id="npBIhtGl461E2MBbq7YV">
+    <mxGraphModel dx="1426" dy="787" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZZesttGwEtAWEYn74NZ--1" value="&lt;div&gt;Zero Byte&lt;/div&gt;&lt;div&gt;&lt;b&gt;1 Byte&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="174" y="110" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZZesttGwEtAWEYn74NZ--2" value="&lt;div&gt;StreamProtocolLength&lt;/div&gt;&lt;b&gt;3 Bytes&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="294" y="110" width="360" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ZZesttGwEtAWEYn74NZ--6" value="&lt;div&gt;SMB2Message&lt;/div&gt;&lt;div&gt;&lt;b&gt;Variable Length&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="174" y="170" width="480" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

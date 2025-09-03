@@ -1688,13 +1688,131 @@ do, is a preferred address. This allows servers to accept incoming connection
 on one address, and then quickly transfer the connection to a separeate, prefered
 address, performing path validation against the client from the new address\cite{rfc9000}.
 
-
-
 \clearpage
 
 \section{The Server Message Block protocol}
 \label{sec:smb}
-\subsection{Information about the SMB protocol}
+
+The main purpose of the SMB protocol is to share files and directories over a network.
+The SMB protocol is a stateful protocol, where clients initatiate connections,
+an authenticated session is created and requests are sent over the connection, allowing
+the client to performan file operations, but also additionally access other resources
+such as printers. There currently exists 2 major versions of the SMB protocol,
+the original SMB protocol, sometimes refered to as the CIFS protocols, which later
+evolved into the SMB 2 Protocol, that encapsulates SMB Versions 2 and 3\cite{smb2_tech}. reference
+to the SMB protocol in this and following section will refer to the SMB 2 protocol,
+and the legacy SMB protocol will be referenced as SMB 1 for clairy, however it will
+not be covered by in depth by this thesis. This section of the thesis will give a
+technical overview of the SMB protocol.
+
+\begin{table}[h]
+\centering
+\caption{Comparison of SMB protocol dialects}
+\label{tab:smb_dialects}
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\textbf{Dialect} & \textbf{Introduced in} & \textbf{Key Features}\\ \hline
+SMB 1.0 & 2000 & Basic file and printer sharing \\ \hline
+SMB 2.0 & 2006 & Reduced chattiness, new packet format, support of symbolic links \\ \hline
+SMB 2.1 & 2009 & Opportunistic locks, minor performance enhancements \\ \hline
+SMB 3.0 & 2012 & Encryption of traffic, multichannel support, SMB Direct (RDMA), transparent failover, Directory Leasing \\ \hline
+SMB 3.0.2 & 2013 & Unbuffered read and write \\ \hline
+SMB 3.1.1 & 2016 & Support QUIC as a transport, RDMA encryption, Improved cryotography support \\ \hline
+\end{tabular}
+\end{table}
+
+Within the larger versions of the SMB protocol there exists minor versions, referred
+to as dialects. Within the SMB 2 protocol the following dialects exists, SMB 2,
+SMB 2.1, SMB 3.0, SMB 3.0.2 and SMB 3.1.1. The basic funcionality of the SMB protocol
+was already defined in SMB 1, allowing clients to connect to shares and perform file
+operations. As can be seen in the overview given by Table~\ref{tab:smb_dialects},
+the protocol has been continously improved by then, adding support for, among other
+fatures, encryption and alternative transports\cite{smb2_tech}.
+
+The SMB protocol places itself in the application layer, it does not stand on its
+own but relies on other protocols for some of its functionality. To enable authentication
+of clients, the SMB protocol uses the Simple and Protected GSS-API Negotiation (SPNEGO), as
+defined in RFC 4178\cite{rfc4178}. The SPNEGO protocol exposes a common interface
+that may be used by for authentication with the help of other authentication protocols.
+In the case of the SMB protocol the SPNEGO protocols rely on Kerberos Authentication, as
+defined in RFC 4120\cite{rfc4120}, or the New Teachnology LAN Manager (NTLM) protocol,
+as defined in {[MS-NLMP]}\cite{ntlm_tech}.
+
+The SMB protocol is designed to be ran on top of a reliable transport. historically
+this was NetBIOS over TCP, later standardized to the more common TCP. As outlined earlier
+in this section, later versions of the SMB protocol supports alternative transport. The
+SMB dialects >= 3.0 supports use of RDMA via SMB direct, for improved performance.
+The latest version of the SMB protocol, 3.1.1 added support for the QUIC protocol,
+which comes with increased security guarantees and potentially improved performance
+for mobile applications\cite{smb2_tech}.
+
+\subsection{SMB message structure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={A block diagram of the SMB Direct TCP header format, detailing its fields and their sizes.}, height=3cm]{./images/smb_tcp_direct_header.drawio.png}
+	\caption{The SMB Direct TCP header}
+	\label{fig:direct_tcp_header}
+\end{figure}
+
+
+
+The SMB protocol uses the Direct TCP packet header, as shown in Figure~\ref{fig:direct_tcp_header}.
+It begins with a zero byte, followed by a 3 Byte StreamProtocolLength field which
+indicates the length of the SMB2 message. Following this is the actual SMB2 message.
+The first part of the SMB2 Message contains the SMB2 packet header. There are 2 versions
+of the header, an aynchronouns and synchronous header, for asynchronous and synchronous
+requests respectively. The first 32 bytes of the SMB2 packet header is common for both
+request types, as may be seen from Figure~\ref{fig:smb2_transport_header}. The SMB2 Transport
+Header begins with the 4 byte Protocol Id field, which is always set to 0x424D53FE,
+or when converted to ASCII and in network byte order, 0xFE, S, M, B. The following field
+is the StructureSize, which is set to 64, which is the total size of the header. Next
+is the CreditCharge, this indicates how many credits the request consumes, more on
+the SMB credit system later in this chapter. Following this is a field that is 
+interpreted differently for the client and the server, and depending on dialect.
+On the client side, if the dialect is at least SMB 3.0, this field indicates Channel,
+for dialects < 3.0, this field is reserved. From the Server side this field indicates
+the status that in response to any request. The 2 byte command field is used to 
+indicate the command of the request or response, Table~\ref{tab:smb_commands} contains
+a list of all possible SMB2 commands.
+
+\begin{table}[h]
+\centering
+\caption{SMB Commands}
+\label{tab:smb_commands}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Name} & \textbf{Value}\\ \hline
+SMB2 NEGOTIATE & 0x0000 \\ \hline
+SMB2 SESSION\_SETUP & 0x0001 \\ \hline
+SMB2 LOGOFF & 0x0002 \\ \hline
+SMB2 TREE\_CONNECT & 0x0003 \\ \hline
+SMB2 TREE\_DISCONNECT & 0x0004 \\ \hline
+SMB2 CREATE & 0x0005 \\ \hline
+SMB2 CLOSE & 0x0006 \\ \hline
+SMB2 FLUSH & 0x0007 \\ \hline
+SMB2 READ & 0x0008 \\ \hline
+SMB2 WRITE & 0x0009 \\ \hline
+SMB2 LOCK & 0x000A \\ \hline
+SMB2 IOCTL & 0x000B \\ \hline
+SMB2 CANCEL & 0x000C \\ \hline
+SMB2 ECHO & 0x000D \\ \hline
+SMB2 QUERY\_DIRECTORY & 0x000E \\ \hline
+SMB2 CHANGE\_NOTIFY & 0x000F \\ \hline
+SMB2 QUERY\_INFO & 0x0010 \\ \hline
+SMB2 SET\_INFO & 0x0011 \\ \hline
+SMB2 OPLOCK\_BREAK & 0x0012 \\ \hline
+SMB2 SERVER\_TO\_CLIENT\_NOTIFICATION (ASYNC only) & 0x0013 \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={A block diagram of the SMB2 Packet header common fields format, detailing its fields and their sizes.}, height=11cm]{./images/smb_packet_header_common.png}
+	\caption{The SMB Direct TCP header}
+	\label{fig:smb2_transport_header}
+\end{figure}
+
 \clearpage
 \section{Implementing QUIC as transport for SMB server}
 \label{sec:implementation}
