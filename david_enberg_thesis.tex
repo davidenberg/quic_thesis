@@ -1755,8 +1755,6 @@ for mobile applications\cite{smb2_tech}.
 	\label{fig:direct_tcp_header}
 \end{figure}
 
-
-
 The SMB protocol uses the Direct TCP packet header, as shown in Figure~\ref{fig:direct_tcp_header}.
 It begins with a zero byte, followed by a 3 Byte StreamProtocolLength field which
 indicates the length of the SMB2 message. Following this is the actual SMB2 message.
@@ -1774,7 +1772,79 @@ On the client side, if the dialect is at least SMB 3.0, this field indicates Cha
 for dialects < 3.0, this field is reserved. From the Server side this field indicates
 the status that in response to any request. The 2 byte command field is used to 
 indicate the command of the request or response, Table~\ref{tab:smb_commands} contains
-a list of all possible SMB2 commands.
+a list of all possible SMB2 commands. Following this is the 2 byte credit request and
+response field, which contains information about requested credits. The flags field
+contains flags for determining how the packet should be processed. In the SMB
+protocol it is possible to concatenate multiple requests into one packet. This is then
+indicate vai the NextCommand field, that indicates the offset to the next request.
+Finally, the MessageId is the unique identifier that identifies the specific
+request and its corresponding response. In addition, the asynchronous header contains an AsyncId for identifieng the asynchronous,
+operation, a SessionId that identifies the session, and in case the message is signed,
+the signature. The synchronous header also contains the signature and messageId, but instead
+of the AsyncId the synchronous header contains the TreeId, more on this later. Following
+the SMB2 packet header is the SMB2 Protocol Message, which has a variable legnth depending
+on the command code and if it is a request or a response\cite{smb2_tech}.
+
+\subsection{SMB connection lifetime}
+
+The SMB connections beginns by establishing a connect via the transport protocol
+of choice, as discussen in Section~\ref{sec:smb}, this may be TCP, RDMA or QUIC.
+Once the connections is established the first message sent from the client is
+the SMB2 NEGOTIATE message. The client sends an array of supported dialects,
+and in response the server selects the greates common dialect that is supported
+by both. In the SMB2 NEGOTIATE response the server also indicates its capabilities,
+such as transport encryption in the case of QUIC transport. Once the dialect and
+capabilities has been negotiated, the next step in the process is authenticating
+the user. This is done via the SMB2 SESSION\_SETUP message. As dicussed in Scetion~\ref{sec:smb},
+this is done via the SPNEGO protocol, and the underlying protocol used for authentication
+is either NTLM or Kerberos. For kerberos authentication the client authenticates
+against a domain controller, which issues a ticket to the client that can be used for
+authentication. In case Kerberos authentication is not available, the client may
+authenticate via NTLM. This works by the server sending a challenge to the client,
+and using the client password as a shared secret, the response to the challenge is
+calculated, and sent back to the server, which verifies the response and authenticates
+the client\cite{smb2_tech}.
+
+Once the connection is established and the client is authenticated, it may now connect
+to a share exported by the server. This is done via the SMB2 TREE\_CONNECT request.
+The client requests to connect to a specific share, identified with the path name
+in the form {\textbackslash\textbackslash}server{\textbackslash}share. The server
+tries to find the requested share, and if successful and the client has appropriate
+access rights, allocates a specific tree connect object to store information abouth the session,
+and this objects is identified via a TreeId that is sent back to the client, alongside
+the share type, disk, pipe or printer. In addition,
+the server returns information about the share capabilities, suchs a continous availability
+or scaleout capabilities\cite{smb2_tech}.
+
+Having connected to the share the client is now able to perform the main meat of the
+transaction, that is file operations. The client can use SMB2 CREATE to create
+or open files, SMB2 CLOSE to close or delete files, SMB2 WRITE and READ to write and
+read to a file correspondingly, or SMB2 QUERY\_DIRECTORY to list the available files.
+Once a file is opened it is identified by an opaque file handle, called an open, returned by the server.
+Subsequent file operations are then done via this handle, and the server and client
+store the associated information inside a table.
+As the SMB protocol is stateful, all the requests are associated with a certain
+session, and the requests are handled in accordance with the clients capabilities
+and authorization. To limit the number of outstanding requests any client has at
+any one time, the SMB protocol uses what is refered to as a credit system. Every
+client has a certain number of credits, that are consumed upon sending any request.
+The number of credits is equal to the size of the request, or the expected size of
+the response, whichever is larger, divided by 65536 plus 1. It is up to the client
+to request credits as they are consumed, and the server should grant credits when
+requested, to avoid a situation where the client reaches 0 credits, as without
+any credits the client cannot request any more credits and is then stuck\cite{smb2_tech}.
+
+When the client is finished with a share it is time to disconnect and log off. The
+disconnection is performed via a SMB2 TREE\_DISCONNECT message, using the TreeId
+provided earlier when connection was setup to the share. If the client is done with its
+operations, it can log off from the server via the SMB2 LOGOFF message, allowing
+the client to cut all connections to the server. This section only covers the most
+relevant process and possibilities of using the SMB protocol to access a shared resource.
+For further reference the Microsoft Technical documentationcite\cite{smb2_tech} outlines all possible
+scenarios, and is available for futher reading into the technical specifics of the
+SMB protocol messages and functionalities.
+
+\subsection{SMB over alternative transports}
 
 \begin{table}[h]
 \centering
