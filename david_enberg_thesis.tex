@@ -1755,6 +1755,13 @@ for mobile applications\cite{smb2_tech}.
 	\label{fig:direct_tcp_header}
 \end{figure}
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={A block diagram of the SMB2 Packet header common fields format, detailing its fields and their sizes.}, height=11cm]{./images/smb_packet_header_common.png}
+	\caption{The SMB Direct TCP header}
+	\label{fig:smb2_transport_header}
+\end{figure}
+
 The SMB protocol uses the Direct TCP packet header, as shown in Figure~\ref{fig:direct_tcp_header}.
 It begins with a zero byte, followed by a 3 Byte StreamProtocolLength field which
 indicates the length of the SMB2 message. Following this is the actual SMB2 message.
@@ -1784,6 +1791,36 @@ the signature. The synchronous header also contains the signature and messageId,
 of the AsyncId the synchronous header contains the TreeId, more on this later. Following
 the SMB2 packet header is the SMB2 Protocol Message, which has a variable legnth depending
 on the command code and if it is a request or a response\cite{smb2_tech}.
+
+\begin{table}[h]
+\centering
+\caption{SMB Commands}
+\label{tab:smb_commands}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Name} & \textbf{Value}\\ \hline
+SMB2 NEGOTIATE & 0x0000 \\ \hline
+SMB2 SESSION\_SETUP & 0x0001 \\ \hline
+SMB2 LOGOFF & 0x0002 \\ \hline
+SMB2 TREE\_CONNECT & 0x0003 \\ \hline
+SMB2 TREE\_DISCONNECT & 0x0004 \\ \hline
+SMB2 CREATE & 0x0005 \\ \hline
+SMB2 CLOSE & 0x0006 \\ \hline
+SMB2 FLUSH & 0x0007 \\ \hline
+SMB2 READ & 0x0008 \\ \hline
+SMB2 WRITE & 0x0009 \\ \hline
+SMB2 LOCK & 0x000A \\ \hline
+SMB2 IOCTL & 0x000B \\ \hline
+SMB2 CANCEL & 0x000C \\ \hline
+SMB2 ECHO & 0x000D \\ \hline
+SMB2 QUERY\_DIRECTORY & 0x000E \\ \hline
+SMB2 CHANGE\_NOTIFY & 0x000F \\ \hline
+SMB2 QUERY\_INFO & 0x0010 \\ \hline
+SMB2 SET\_INFO & 0x0011 \\ \hline
+SMB2 OPLOCK\_BREAK & 0x0012 \\ \hline
+SMB2 SERVER\_TO\_CLIENT\_NOTIFICATION (ASYNC only) & 0x0013 \\ \hline
+\end{tabular}
+\end{table}
 
 \subsection{SMB connection lifetime}
 
@@ -1846,42 +1883,38 @@ SMB protocol messages and functionalities.
 
 \subsection{SMB over alternative transports}
 
-\begin{table}[h]
-\centering
-\caption{SMB Commands}
-\label{tab:smb_commands}
-\begin{tabular}{|l|l|}
-\hline
-\textbf{Name} & \textbf{Value}\\ \hline
-SMB2 NEGOTIATE & 0x0000 \\ \hline
-SMB2 SESSION\_SETUP & 0x0001 \\ \hline
-SMB2 LOGOFF & 0x0002 \\ \hline
-SMB2 TREE\_CONNECT & 0x0003 \\ \hline
-SMB2 TREE\_DISCONNECT & 0x0004 \\ \hline
-SMB2 CREATE & 0x0005 \\ \hline
-SMB2 CLOSE & 0x0006 \\ \hline
-SMB2 FLUSH & 0x0007 \\ \hline
-SMB2 READ & 0x0008 \\ \hline
-SMB2 WRITE & 0x0009 \\ \hline
-SMB2 LOCK & 0x000A \\ \hline
-SMB2 IOCTL & 0x000B \\ \hline
-SMB2 CANCEL & 0x000C \\ \hline
-SMB2 ECHO & 0x000D \\ \hline
-SMB2 QUERY\_DIRECTORY & 0x000E \\ \hline
-SMB2 CHANGE\_NOTIFY & 0x000F \\ \hline
-SMB2 QUERY\_INFO & 0x0010 \\ \hline
-SMB2 SET\_INFO & 0x0011 \\ \hline
-SMB2 OPLOCK\_BREAK & 0x0012 \\ \hline
-SMB2 SERVER\_TO\_CLIENT\_NOTIFICATION (ASYNC only) & 0x0013 \\ \hline
-\end{tabular}
-\end{table}
+The SMB protocol currently supports 4 transports, TCP, RDMA, QUIC and the
+deprecated TCP over NetBIOS. The standard transport in most scenarios is TCP,
+but the protocol is moving towards the use of alternative transports to improve
+performance and security. The SMB protocol supports RDMA via SMB Direct. The goal
+of RDMA is to allow remote direct memory access, that is reading from and writing
+to a remote memory buffer, withouth having to copy the data. This copy saves CPU
+cycles, and in that ways requires less processing power and improves throughput
+by using specific network adapters with support for RDMA\cite{rfc5040}.
+Likewise, the goal of SMB Direct is to improve performance by utilizing RDMA
+and multichannel. SMB multichannel then allows the client to open multiple connections
+to the server, improving performance by transfering data in parallel. Encryption is
+supported since SMB 3.1.1 by encrypting the payloads before they are sent over the
+wire\cite{smb_direct}.
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={A block diagram of the SMB2 Packet header common fields format, detailing its fields and their sizes.}, height=11cm]{./images/smb_packet_header_common.png}
-	\caption{The SMB Direct TCP header}
-	\label{fig:smb2_transport_header}
-\end{figure}
+From the perspective of this thesis, the more interesting alternative transport is
+SMB over QUIC. As discussed in Section~\ref{sec:quic}, the QUIC protocol brings
+many advantages over legacy TCP transports. QUIC enables transport-level encryption
+that leverages TLS 1.3 for actually secure cryptography, multiple logical streams
+to combat HOL blocking, moving the traffic to port 443 to avoid the common port
+blocking of SMB port 445 and connections migration. The biggest improvement to the
+SMB protocol is the inclusion of transport level ecnryption. While SMB version >= 3
+supports per share based encryption, the cryptographic analysis is outside the scope
+of this thesis, but benefits of TLS 1.3, such as perfect forward secrecy is not
+part of standard SMB encryption\cite{smb_quic}. SMB over QUIC supports negotiating
+transport level encryption in the transport capabilities of the negotiate protocol
+request. This allows the client and server to skip SMB level encryption, even though
+it is enabled on a share, allowing the communication to entirely rely on QUIC for
+secure communications\cite{smb2_tech}. Additionally SMB over QUIC supports a concept
+that is called client access control. As outlined in earlier sections, in TLS 1.3,
+during the handshake,  there is the possibility for the server to request that the client
+provides its own certificate for authentication purposes. The server can then use
+that certificate to determine if the client should be able to connect to the share\cite{smb_quic_cac}.
 
 \clearpage
 \section{Implementing QUIC as transport for SMB server}
