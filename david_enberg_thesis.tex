@@ -501,6 +501,7 @@ Tölö, 24 November 2025\\
 
 \begin{tabular}{ll}
 ACK & acknowledgment \\
+ALPN & Application Layer Protocol Negotiation \\
 DFS & Distributed File System \\
 DTLS & Datagram Transport Layer Security \\
 HOL & Head-of-line \\
@@ -1919,7 +1920,96 @@ that certificate to determine if the client should be able to connect to the sha
 \clearpage
 \section{Implementing QUIC as transport for SMB server}
 \label{sec:implementation}
+The QUIC protocol, as outlined in Chapter~\ref{sec:quic}, currently has no kernel
+level implementation in Linux, instead relying on user space libraries for support.
+This was a concious design decision for the protocol, allowing for different
+implementations and easier iterations and switching betweeen different stacks.
+There exists many different implementations of QUIC, such as lsquic developed by
+LiteSpeed, quiche developed by cloudflare and MsQuic developed by microsoft\cite{quic_implementations}.
+There is also an active effort to develop a version of QUIC for the Linux kernel,
+driven by Xin Long\cite{quic_linux_kernel}. For the purposes of this thesis the
+MsQuic library was chosen as the library that is used to implement the QUIC transport
+layer. The reasoning behind this choice was twofold. Firstly, the MsQuic library
+shows promising performance numbers when compared to other libraries\cite{quic_perf}.
+Secondly, as the only SMB over QUIC client available is the Microsoft client, it is
+advantageous to use the same implementation both in the server and the client,
+to ensure maximum compatibility. This section of the thesis will outline the
+architecture and API of the MsQuic library, as well as describe the design of
+a QUIC transport layer using the MsQuic library, and the process of integrating
+the QUIC transport layer into the Fusion SMB server.
+
 \subsection{MsQuic architecture and API}
+
+The MsQuic library is a cross-platform implementation of the QUIC transport protocol,
+implemented as a shared library written in C, with additional support for development
+in C++, Rust and C\#. It is open source and licensed under the MIT-license. The library
+utilizes the Windows Secure Channel (Schannel) suite for cryptography implementations
+on Windows, and for Linux based machines the library uses a custom fork of the
+OpenSSL library to provide support for QUIC specific cryptography\cite{msquic}. The
+library uses an asynchronous processing model, where the caller create callback functions
+and registers those with different MsQuic objects, such as listeners and connections.
+This callback handlers are then invoked to handle events that occur, such as receiving
+a new connection request or receiving data on a stream\cite{msquic_docs}. 
+
+\subsubsection{High level architecture}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of the high level object model of the MsQuic library, including relationships}, height=11cm]{./images/msquic_architecture.png}
+	\caption{High Level MsQuic Object Model}
+	\label{fig:msquic_arch}
+\end{figure}
+
+The MsQuic library abstracts away the concept of networking sockets, instead opting
+for a object based model, which can be seen in Figure~\ref{fig:msquic_arch}. The
+MsQuic library model includes 5 main types of objects, the Registration, Configuration,
+Listener, Connection and Stream objects. The hierarchy of these objects can be seen
+in Figure~\ref{fig:msquic_arch}. All function calls are done in relation to one of
+these objects with the exception of the call to intialize the library, which returns
+a function table of MsQuic functions, and the corresponding call to close the library\cite{msquic_docs}.
+
+The registration object represents the execution context for the transport, being
+responsible for the connection logic and creating the threads that are used for
+processing. All other objects are created under the registration, and each registration
+is completely independent from one another, with resources and scope not being
+shared between different registrations. In practice this means that generally one
+application uses only one registrations\cite{msquic_docs}.
+
+The configuration object stores the settings that are used in configuring the MsQuic
+library. These include QUIC transport settings, as well as security configurations. Everything
+from intial receiver windows, idle timeout timers to the congestion algorithm used
+may be configured. The comprehensive list of configuration parameters may be found
+in the MsQuic documentation. In addition, each of the MsQuic objects have specific
+parameters that may be configured, and the certificate as well as its parameters
+is separately configured, for example configuring requesting a certificate from the client
+and allowed cipher suites. The configuration object also stores a list of
+Application Layer Protocol Negotiation (ALPN) IDs that the server supports\cite{msquic_docs}.
+For reference SMB over QUIC simply uses the ALPN ID "smb".
+
+Following this is the listener object, which is responsible for listening for
+and accepting incoming connections. The listener object uses a callback function
+that is responsible for handling incoming connections. The callback function decides
+if the incoming connections is accepted, and if it is a connection object is created
+in response\cite{msquic_docs}.
+
+The Connection object represents the QUIC connection between two peers. On the client
+side this connection is explicitly created via a function call, while on the server
+side it is created in the listenere callback. The connection object contains information
+about the connection, and it is expected to handle events related to connection setup,
+stream creation and connection teardown, either as a result of an error or from one
+of the peers closing the connection\cite{msquic_docs}.
+
+The most important object type is the stream object, as it is responsible for
+the data transfer between the peers. As dicussed in Section~\ref{sec:quic}, there
+can be a theoritical unlimited number of streams on top of a connection, but in
+practice the maximum number is configured in the MsQuic library, with separate
+limits for unidirectional and bidirectional streams. New streams can be created
+either by the client or the server, and with the other party being notified of
+the event. When sending data the MsQuic library takes temporary ownership of the
+buffer, copying the data internally and queuing the data to be sent. This allows
+the MsQuic library to "keep the pipe full", aiming to not let the stream sit unecesarily
+idle. It is also possible to disable this internal buffering, instead making the
+caller responsible for queuing enough sends to prevent idleing the connection\cite{msquic_docs}.
 
 \subsection{Fusion SMB server QUIC transport layer design}
 \clearpage
