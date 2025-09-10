@@ -1939,7 +1939,7 @@ a QUIC transport layer using the MsQuic library, and the process of integrating
 the QUIC transport layer into the Fusion SMB server.
 
 \subsection{MsQuic architecture and API}
-
+\label{sec:msquic}
 The MsQuic library is a cross-platform implementation of the QUIC transport protocol,
 implemented as a shared library written in C, with additional support for development
 in C++, Rust and C\#. It is open source and licensed under the MIT-license. The library
@@ -1949,7 +1949,7 @@ OpenSSL library to provide support for QUIC specific cryptography\cite{msquic}. 
 library uses an asynchronous processing model, where the caller create callback functions
 and registers those with different MsQuic objects, such as listeners and connections.
 This callback handlers are then invoked to handle events that occur, such as receiving
-a new connection request or receiving data on a stream\cite{msquic_docs}. 
+a new connection request, a stream opened or closed, or receiving data on a stream\cite{msquic_docs}. 
 
 \subsubsection{High level architecture}
 
@@ -2011,7 +2011,140 @@ the MsQuic library to "keep the pipe full", aiming to not let the stream sit une
 idle. It is also possible to disable this internal buffering, instead making the
 caller responsible for queuing enough sends to prevent idleing the connection\cite{msquic_docs}.
 
+Receiving data happens via a receive event, that gets passed to the callback function.
+This includes references to buffers that contains the received data. The data can
+then either be processed inside the callback, or passed along to a separate
+thread to be processed. Either way, the caller needs to signal to the library when
+the data has been processed, giving back ownership of the buffers to the library. This
+also indicates that the caller is ready to receive more data. Normally only one receive
+event can be active at one time, i.e. the library won't indicate that more data is
+available before the application has signaled that the previous set of data is
+done processing. Alternatively, the MsQuic library support Multi-receive mode,
+where the library will keep creating receive events when data is available, and
+it is up to the caller to keep track of the number of bytes processed, and report
+this back to the library. This enables more efficient processing of data when the
+processing is done in a separate thread\cite{msquic_docs}.
+
 \subsection{Fusion SMB server QUIC transport layer design}
+
+As discussed in earlier section, network communication using TCP experience
+some drawbacks related to the fundemental design of the protocol, drawbacks
+which the QUIC protocol aims to solve. This section describes the design of a
+QUIC transport layer for the Fusion SMB server, utilizing the MsQuic library for
+implementing QUIC functionality. The decision to use the MsQuic library is discussed
+earlier in Section~\ref{sec:implementation}. The main goal of this project is to create
+a QUIC transport layers that supports all the necessary QUIC features such that it
+is able to communicate with and establish a connection with the Microsoft SMB over
+QUIC client. A secondary goal is to design the QUIC transport layer in such a way
+that the performance, measured via throughput during various workloads, is comparable
+to the standard SMB stack using TCP on an encrypted share. This allows the QUIC transport
+layer to work as an improvement to the standard TCP transport layer, with improved
+security via TLS 1.3, resilience to SMB port blocking from ISPs and connection migration
+support, especially for mobile users.
+
+\subsubsection{MsQuic Integration into Fusion SMB}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of the flow between Fusion SMB and MsQuic}, height=7.4cm]{./images/MsQuic_integration.png}
+	\caption{MsQuic integration with Fusion SMB}
+	\label{fig:msquic_int}
+\end{figure}
+
+The generic transport layer interface of the Fusion SMB server uses a set of functions
+that is called by the server to interact with the transport, such as for creating,
+destroying, listening for incoming connection and receiving and transmitting data.
+This requires a little bit of work around when integrating the MsQuic library, as
+it does not conform to standard BSD-style socket semantics. Figure~\ref{fig:msquic_int}
+give a high-level overview of the interface between the QUIC transport layer and the
+rest of the server. The processing begins by creating the specific transport, which
+is configured inside the configuration. This causes the server to create one of two
+new types of transport, IPV4\_QUIC or IPV6\_QUIC. During the creation the MsQuic
+library is initialized, and the specific configuration options are read in and stored,
+such as listening interface and TLS credentials, which are needed later. A listener
+object is created, and starts listening for incoming connections. When a connection
+arrives via a QUIC\_LISTENER\_EVENT\_NEW\_CONNECTION event, the listener accepts the connection, and passes it along to the
+connection object. The connection object continues the handshake by using the TLS
+credentials stored earlier, and creates an internal connection object storing
+the connection information that is necessary for the protocol. This internal connection
+object is passed back to the Fusion SMB server, that stores the connection internally
+as active. The connection is now set up, and the connection object continues waiting
+until a QUIC\_CONNECTION\_EVENT\_PEER\_STREAM\_STARTED event arrives, indicating
+that a new stream, with associated data has been opened. This causes a stream object
+to be created, with its associated callback function set. The stream object works
+as a middle layer between the Fusion SMB server and the QUIC transport, receiving
+data into a receive buffer for the server, and transmitting data from the server to
+the client, enabling communication between the peers.
+
+\subsubsection{QUIC transport layer data path}
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of the receive buffer of the QUIC layer}, height=3cm]{./images/quic_buffer.png}
+	\caption{QUIC transport layer receive buffer}
+	\label{fig:msquic_buf}
+\end{figure}
+
+When implementing the QUIC layer, we want to use the multi-receive mode of the MsQuic
+library, as outlined in Section~\ref{sec:msquic}, due to the improved performance
+this offers the application. In practice this means that as soon as data is available,
+the stream callback is invoked with a QUIC\_STREAM\_EVENT\_RECEIVE event, containing
+the received data. This data should then be processed aynchronously, that is not in
+the callback handler, in the Fusion SMB servers internal threads. To accomplish this,
+when data is received, we copy the reference to the received buffer into a separate
+data structure, as seen in Figure~\ref{fig:msquic_buf}, consisting of a linked list
+of buffers. This choice was done as we do not guarantee that we are able to drain 
+the incoming data faster than it arrives, and the linked list structure allows
+the total buffer size to grow dynamically. This also allows the processing in the
+callback function to be swift, quickly freeing up the worker thread for additional processing.
+This solution simplifies integration with our existin RX interface, as the RX threads
+expect socket semantics, that is issuing read calls to read in data, instead of the
+event driven model of the MsQuic library. The linked list then works as a middle
+layer, allowing the RX interface to work with the QUIC transport layer, withouth modification.
+When draining the receive buffer the caller begins from the head, reading in as
+much data as necessary, updating the offset, and if the head is completely drained,
+moves onto the next element in the list.
+
+The steps of receiving data and getting it into the Fusion SMB core can be seen in Figure~\ref{fig:msquic_rx}.
+When data has arrived, and the buffer information been copied into the list, the
+next step is checking if the buffer is currently actively being drained. If it is,
+we signal to the draining thread that there is more data available to be read. Otherwise,
+we send an internal IPC message to the RX threads, signaling that there is data available
+on this connection and for a RX thread to start processing. From the callback function
+we return STATUS\_PENDING to the MsQuic library, signaling that the data is being
+processed in a separate thread. Once the RX thread has finished draining the buffers,
+it calls StreamReceiveComplete() with the number of bytes drained, signaling to the
+MsQuic library that the processing of the received data is at least partially complete. 
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of the flow when receiving data using the MsQuic library}, height=13cm]{./images/receive_flow.png}
+	\caption{QUIC transport layer receive flow}
+	\label{fig:msquic_rx}
+\end{figure}
+
+The transmission of data is less involved than recieving data, as can be seen
+in Figure~\ref{fig:msquic_tx}. When data is to be transmitted it is stored in
+an array of buffers in the iovec format. When transmitting the data the MsQuic
+library expects the buffers to be in its own internal QUIC\_BUFFER format,
+so the iovecs could be cast to QUIC\_BUFFER, but as the MsQuic call to transmit
+data, StreamSend(), is non-blocking, it is not guaranteed that by the time the buffers
+are freed in the TX thread, that the MsQuic library has had time to transmit them yet.
+So to simplyfy lifetime tracking of the buffers we instead copy them into new QUIC\_BUFFERS.
+The original buffers are freed as soon as the StreamSend() call returns, while the new
+buffers get freed once transmission is complete, as signaled by a STREAM\_SEND\_COMPLETE
+event in the MsQuic stream callback thread.
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of the flow when sending data using the MsQuic library}, height=13cm]{./images/send_flow.png}
+	\caption{QUIC transport layer transmission flow}
+	\label{fig:msquic_tx}
+\end{figure}
+
+Testing against Microsoft's SMB over QUIC client shows that the client utilizes the
+QUIC transport in the same way that it would use a TCP transport, that is it only
+open a single stream per connection. This greatly simplifies processing of received
+and transmitted data, as there is no need to track an arbitrary number of streams
+per connection.
+
 \clearpage
 \section{Performance and interoperability benchmarking}
 \label{sec:benchmark}
