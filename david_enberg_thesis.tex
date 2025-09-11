@@ -2146,23 +2146,107 @@ and transmitted data, as there is no need to track an arbitrary number of stream
 per connection.
 
 \clearpage
-\section{Performance and interoperability benchmarking}
+\section{Benchmarking}
 \label{sec:benchmark}
 \subsection{Test environment}
 
 \subsubsection{Hardware environment}
 
 \subsubsection{SMB over QUIC implementations analyzed}
+As part of this thesis two different SMB over QUIC implementations were considered
+for comparison as part of the benchmarking.
+\paragraph{Windows SMB over QUIC client and server:}
 
-\paragraph{Windows SMB client/server}
+The Windows SMB over QUIC implementation provided by microsoft is currently
+the only production-ready and deployed implementations of SMB over QUIC. This implementation
+serves as the baselines for the tests. The server will be the main target of comparison,
+as the client will be used in all tests, being the only available SMB over QUIC client.
 
-\paragraph{Fusion SMB server}
+\paragraph{Fusion SMB server:}
+
+The Fusion SMB server, with the prototype QUIC transport layer as described in
+Chapter~\ref{sec:implementation}, will be the second item of comparison. The performance
+of the Fusion SMB server with the MsQuic library for transport capabilities will
+be compared to the Windows implementation.
+
+\subsubsection{Benchmarking Software}
+The MsQuic repository contains a tool for testing the performance of MsQuic called
+SecNetPerf\footnote{\url{https://github.com/microsoft/msquic/tree/main/src/perf}},
+which implements a QUIC performance protocol defined in \cite{banks-quic-performance-00}.
+The tool enables the testing of link throughput, which means that the tool is used
+to get a baseline performance of MsQuic over the link used for testing, which can then
+be compared to the throughput of the SMB over QUIC solution, to determine the overhead
+introduced by the implementation of the QUIC transport layer together with the SMB protocol.
+
+To ensure reproducibility and comparability of the results, all benchmarks are ran
+using the Flexible I/O (fio) tester \footnote{\url{https://fio.readthedocs.io/en/latest/fio_doc.html}},
+which enables running synthetic workloads on the shares. The fio tester supports
+many different scenarios, workloads as well fine grained control over parameters
+such as file and block size, sequential and random reads as well as time based workloads.
+
+The final tool for running benchmarks is frametest\footnote{\url{https://support.dvsus.com/hc/en-us/articles/212925466-How-to-use-frametest}}, which simulates the workload of
+reading and writing media frames to and from a disk. This allows us to mimic media
+workloads, which is a common use case for the SMB protocol, and see the impact
+the QUIC protocol has on performance.
 
 \subsection{Test scenarios}
 
-\subsubsection{interoperability tests}
+\subsubsection{Interoperability tests}
 
-\subsubsection{Becnhmarking workloads}
+The first step in testing, before performance evaluation, is to make sure that
+the two implementations outlined are able to connection, authenticate and setup
+the SMB session. Using the Windows SMB over QUIC client, it is ensured that it
+is able to connect to the server, receive and accept the server certificate, and
+furthermore perform some basic file operations to ensure that the data transfer is
+working properly. Additionally, the connection should remain stable during the lifetime
+of the connection, and teardown should be handled gracefully.
+
+\subsubsection{Becnhmarking scenarios}
+
+The exact commands used in running the benchmarks are available in Appendix~\ref{app:bench}.
+The test were chosen in such a way as to both benchmark the solutions under optimal conditions,
+as well as represent real world scenarios.
+
+\paragraph{SecNetPerf:}
+For runnning the SecNetPerf performance test to get a overview of the link speed,
+we run two tests, one checking the link speed both ways. The test is run with the maximum
+throughput execution profile, and run for 60 seconds, first testing uplink speed,
+then downlink speed (from the perspective of the client). This gives a base value for
+what the optimal throughput is expected to be, as logically the addition of the
+overhead of QUIC transport layer, SMB protocol and filesystem IO should not improve
+performance. This tests also should work as a check that the enironment is correctly
+set up, as unexpected results may point to problems in the configuration.
+
+\paragraph{FIO Scenario 1: Sequential read andwrite of single large file}
+
+The sequential read and write of one file is used to establish baseline numbers
+for the performance of the transport. The test is designed such that it puts little
+strain on the filesystem IO, instead having the transport layer as the primary 
+bottleneck for performance. The tests is run for a time of 120 seconds, against a
+pre-allocated file, allowing for maximum throughput testing during continous load.
+This tests uses a large block size to maximize the performance.
+
+\paragraph{FIO Scenario 2: Random read and writes of a single large file}
+
+In comparison to scenario 1, where the maximum throughput is tested, scenario 2
+with random reads and writes instead test the performance when there is a lot of
+small operations, instead focusing on the I/O operations per second (IOPS). To simulate
+this workload a small blocksize is used, and random write and read. This corresponds
+to workloads where many small operations are done consistently, for example in
+spreadsheets.
+
+\paragraph{FIO Scenario 3: Read and write of many small files}
+
+The final FIO scenario is the reading and writing of many small files concurrently,
+testing workloads where there is a lot of concurrency. This allows the benchmarking
+of a scenario with many processes simoultaneously performing workloads, stress
+testing different parts of the processing than scenario 1 and 2.
+
+\paragraph{Frametest}
+
+The final test scenario is using frametest. Frametest allows for simulating
+writing and reading media shares. This enables synthetic benchmarking of media
+workloads, a very common metric for filesharing solutions.
 
 \subsection{Results}
 \clearpage
@@ -2179,5 +2263,35 @@ per connection.
 %%
 %%\nocite{*} % print uncited references in the bibliography
 \printbibliography[heading=bibintoc] %, add the title to the table of conten
+
+\thesisappendix
+
+\section{Benchmark commands}
+\label{app:bench}
+\begin{verbatim}
+	SecNetPerf:
+	./secnetperf -target:<server hostname> -exec:maxtput
+	-<down/up>:60s -ptput:1
+
+	FIO scenario 1 (single sequential)
+	fio --name=single-seq -rw=<write/read> --filesize=5g -bs=1m
+	--nrfiles=1 --ioengine=windowsaio --iodepth=4 --direct=1
+	--time_based --ramp_time=15 --run_time=120 --fallocate=native
+
+	FIO scenario 2 (single random)
+	fio --name=single-rand -rw=rand<write/read> --size=1g -bs=4k
+	--nrfiles=1 --ioengine=windowsaio --iodepth=16 --direct=1
+	--time_based --ramp_time=15 --run_time=120 --fallocate=native
+	--numjobs=4 --group_reporting
+
+	FIO scenario 3 (multiple random)
+	fio --name=large-rand -rw=rand<write/read> --filesize=100k
+	-bs=1m --nrfiles=16 --ioengine=windowsaio --iodepth=4
+	--direct=1 --time_based --ramp_time=15 --run_time=120
+	--fallocate=native --create-serialize=0
+
+	Frametest
+	./frametest -<w/r> 4k -n 4500 -t8 PATH
+\end{verbatim}
 
 \end{document}
