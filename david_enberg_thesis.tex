@@ -538,31 +538,31 @@ UDP & User Datagram Protocol \\
 \thispagestyle{empty}
 
 In modern communication networks, reliable, secure and high-performance internet
-transport protocols has become a cornerstone of communication over the internet,
+transport protocols have become a cornerstone of communication over the internet,
 being essential for applications ranging from web browsing and multimedia sharing
-to enterprise level file sharing. The Transmission Control Protocol (TCP)\cite{rfc793}
-has served as the solution of choice for reliable communication for over 4 decades.
-Side-by-side with TCP, the User Datagram Protocol (UDP)\cite{rfc768} has been
+to enterprise level file sharing. The Transmission Control Protocol (TCP)~\cite{rfc793}
+has served as the solution of choice for reliable communication for over four decades.
+Side-by-side with TCP, the User Datagram Protocol (UDP)~\cite{rfc768} has been
 used for application with high requirements on latency, with no guarantees of
 reliability. As the application demands move towards higher throughput, lower latency
-and increased security demands, the inherent limitations of TCP has become apparent.
+and increased security demands, the inherent limitations of TCP have become apparent.
 
 One demanding use of internet transports is remote file access, present at both
-the enterprise and consumer level. The Server Message Block (SMB)\cite{smb2}, is a
+the enterprise and consumer level. The Server Message Block (SMB)~\cite{smb2} is a
 widely adopted protocol for sharing files over a network, with implementations available
-in Windows, Linux and embedded systems. Traditionally the SMB protocol has used
-TCP to ensure reliable delivery\cite{smb2}. However, the increasing demand of modern
+in Windows, Linux and embedded systems. Traditionally, the SMB protocol has used
+TCP to ensure reliable delivery~\cite{smb2}. However, the increasing demand of modern
 use cases, with mobile users and more security demanding applications, is increasingly
 highlighting the limitations of TCP.
 
 Recently, a new transport protocol, QUIC, has been developed to address
-the issues and shortcomings of TCP. QUIC was initially developed by Google\cite{quic_transport_protocol_design},
-and later standardized by the IETF in RFC 9000\cite{rfc9000}. QUIC implements transport
-level multiplexing, encryption and authentication via TLS 1.3, and improved connection
-setup latency as parts of its design\cite{rfc9000,rfc9001}. QUIC has already been
-widely deployed as a foundation for HTTP/3\cite{rfc9114}, supporting large-scale
-web applications. But QUIC was not only developed as transport protocol for web applications,
-also finding use as a general-purpose transport protocol\cite{rfc9000}. One of these is 
+the issues and shortcomings of TCP. QUIC was initially developed by Google~\cite{quic_transport_protocol_design},
+and later standardized by the Internet Engineering Task Force (IETF) in Request for Comments (RFC) 9000~\cite{rfc9000}.
+QUIC implements transport level multiplexing, encryption and authentication via TLS 1.3, and improved connection
+setup latency as parts of its design~\cite{rfc9000,rfc9001}. QUIC has already been
+widely deployed as a foundation for HTTP/3~\cite{rfc9114}, supporting large-scale
+web applications. However, QUIC was not only developed as a transport protocol for web applications,
+but also as a general-purpose transport protocol~\cite{rfc9000}. One of these applications is 
 to serve as a transport protocol for the SMB protocol.
 
 Although TCP has served as the reliable transport protocol for SMB during the last
@@ -570,28 +570,27 @@ decades, it has several well-known drawbacks in modern networking environments.
 First, TCP suffers from head-of-line (HOL) blocking, which can significantly
 impact performance in lossy environments. Second, TCP combined with TLS requires
 additional messages during the connection setup, the handshake, negatively affecting
-the latency of connections, especially affecting short communications. Finally,
-TCP suffers heavily from protocol ossification, different middleboxes, firewalls and
-operating system (OS) implementations makes changes difficult and slow to propagate\cite{quic_transport_protocol_design}.
+the latency of connections, especially for short communications. Finally,
+TCP heavily suffers from protocol ossification: different middleboxes, firewalls and
+operating system (OS) implementations make changes difficult and slow to propagate~\cite{quic_transport_protocol_design}.
 
-Although the improvements brought on by QUIC has been widely studied in the context
-of web traffic\cite{quic_better_for_what,evaluating_quic_perf,quic_and_tcp_performance},
+Even though the improvements brought on by QUIC have been widely studied in the context
+of web traffic~\cite{quic_better_for_what,evaluating_quic_perf,quic_and_tcp_performance},
 no studies have been done on the performance of SMB using the QUIC transport protocol.
 While the support for alternative transport protocols in the SMB protocol, mainly
-RDMA and QUIC, has been defined and implemented by Microsoft\cite{smb2}, formal
-efforts into researching and comparing the performance of these alternative transport
-is non-existent. There is also no current implementation of SMB over QUIC for Linux
-based system, with currently the only available implementation being in Windows machines.
-SMB suffers in the context of network reachability, as following a number of exploits,
-many internet service providers choose to block port 445, which is the port used
-by SMB, as many exploits over the internet target this specific port, resulting
-in normal SMB traffic being blocked as well\cite{bitag_port_blocking}.
+RDMA and QUIC, has been defined and implemented by Microsoft~\cite{smb2}, formal
+efforts into researching and comparing the performance of these alternative transports
+are non-existent. There is also no current implementation of SMB over QUIC for Linux
+based systems, with currently the only available implementation being in Windows machines.
+SMB suffers in the context of network reachability, as many internet service providers
+choose to block the port used by SMB due to several exploits targeting this specific port,
+resulting in normal SMB traffic being blocked as well~\cite{bitag_port_blocking}.
 
-A possible solution to address the limitation present in TCP is the use of
+A possible solution to address the limitation present in TCP is using
 QUIC as an alternative transport protocol. Via combining QUIC's multiplexed transport,
 and SMB semantics for remote file access, this approach could mitigate the adverse effects of
-HOL blocking, improve latency of the connection and improve deployment to users space
-applications. Additionally, since QUIC is design with mobile users in mind, it could
+HOL blocking, improve latency of the connection and improve deployment to user space
+applications. Additionally, since QUIC is designed with mobile users in mind, it could
 improve the reliability of the SMB protocol in diverse mobile environments, especially
 for mobile users. By moving from the traditional TCP port 445 to UDP port 443,
 SMB over QUIC in essence would mimic normal web traffic, circumventing the blocking
@@ -599,31 +598,29 @@ of SMB traffic that is commonly done for TCP.
 
 The objective of this thesis is to design, implement and benchmark a QUIC transport
 layer for an SMB server. The aim is to develop a working prototype that can be used to
-test performance, interoperability and compare against standard SMB over TCP solutions.
+test performance and interoperability and compare it against standard SMB over TCP solutions.
 In order to develop this solution, the thesis will implement a QUIC transport layer. This
-will be accomplished by using the MsQuic library\cite{msquic}. This QUIC transport layer
-will the be integrated into Fusion SMB, an SMB server developed by Tuxera\cite{fusion}.
-The thesis will perform a series of performance benchmarks and interoperability tests,
+will be accomplished by using the MsQuic library~\cite{msquic}. This QUIC transport layer
+will then be integrated into Fusion SMB, an SMB server developed by Tuxera~\cite{fusion}.
+The thesis will conduct a series of performance benchmarks and interoperability tests,
 focusing on throughput and compatibility.
 
 This thesis is limited to supporting a QUIC transport layer using MsQuic. Other
 potential QUIC libraries are beyond the scope of this thesis, as there is no
 unified interface between the libraries, resulting in the work done to get one
-library working is not transferable to another library. The performance evaluations
+library working not being transferable to another library. The performance evaluations
 are limited to different throughput tests, including several different workloads, representative of
-real world enterprise and customer use cases.
-Other tests that will not be considered is latency and benchmarking connection creation,
+real-world enterprise and customer use cases.
+Other tests that will not be considered are latency and benchmarking connection creation,
 as the only available client is the Microsoft Windows SMB over QUIC client, which is
-limited in the number of connections. Questions such as large scale deployments,
+limited in the number of connections. Questions such as large-scale deployments,
 multi-node setups and integration into cloud architecture remains outside the scope
 of this thesis.
 
-\subsection{Thesis structure}
-
 The rest of this thesis is structured as follows. Chapter~\ref{sec:background} provides
 background on internet transport protocols and network storage protocols. Chapter~\ref{sec:quic} introduces
-QUIC, the motivations for its creations and it architecture. Chapter~\ref{sec:smb} gives
-and overview of the SMB protocol. Chapter~\ref{sec:implementation} describes the design
+QUIC, the motivations for its creation and its architecture. Chapter~\ref{sec:smb} gives
+an overview of the SMB protocol. Chapter~\ref{sec:implementation} describes the design
 and implementation of a QUIC transport layer for the Fusion SMB server. Chapter~\ref{sec:benchmark}
 presents the test environment, workloads and the resulting performance numbers. Finally, Chapter~\ref{sec:conclusion}
 discusses the findings and possible future work.
@@ -646,11 +643,11 @@ protocol between hosts in a packet switched network. The TCP is connection-orien
 providing reliable, end-to-end, bi-directional communication between a pair of processes, in the
 form of a continuous stream of bytes. The TCP protocol is designed to fit into
 a layered hierarchy of protocols, slotting
-in on top of the internet protocol (IP)\cite{rfc791}. IP handles the addressing
+in on top of the internet protocol (IP)~\cite{rfc791}. IP handles the addressing
 and routing of datagrams between the hosts, while TCP aims to ensure that
 information is delivered correctly, in order, and without duplications, without
 any reliability guarantees needed from the underlying protocol, which may lose,
-fragment or reorder the datagrams\cite{rfc793}.
+fragment or reorder the datagrams~\cite{rfc793}.
 
 TCP ensures reliable communication by using a system of sequence numbers and
 acknowledgments (ACKs). Each transmitted byte of data is assigned a sequence
@@ -668,7 +665,7 @@ information about the transmission. The data stored about the data stream, socke
 sequence numbers and windows sizes, is referred to as a connection. The network
 address and port tuple is referred to as a socket, and a pair of sockets is used
 in identifying the connection. Using this mechanic to uniquely identify connections,
-allows for multiple processes to simultaneously communicate using the TCP\cite{rfc793}.
+allows for multiple processes to simultaneously communicate using the TCP~\cite{rfc793}.
 
 \begin{figure}[t]
 	\centering
@@ -704,7 +701,7 @@ containing information about the source and destination addresses, as well as th
 protocol number and tcp packet length. In case the URG bit is set in the flags field,
 the 2 byte urgent pointer header field indicates where the urgent data ends. Finally
 the options field contains extension to the normal TCP header, containing among other, options
-for maximum segment size and multipath TCP\cite{rfc8684}.
+for maximum segment size and multipath TCP~\cite{rfc8684}.
 
 To ensure reliable delivery of TCP segments, each segment is assigned a sequence number.
 This allows the receiver to reconstruct segments delivered out of order, and additionally
@@ -713,7 +710,7 @@ expected sequence number, to signal to the sender that the data was successfully
 The sequence number is a 32 bit number, with the initial sequence number (ISN)
 selected randomly at the time when the TCP connection is established. This ensures that
 sequence numbers from stale connections have a low probability of overlapping with
-any active connection\cite{rfc793}.
+any active connection~\cite{rfc793}.
 
 The TCP connection is established via a three-way handshake. The client sends
 a TCP packet with the SYN bit set in the flags field, this packet contains the
@@ -724,7 +721,7 @@ this the client and server are synchronized, and communication may begin. A peer
 may terminate its side of the connection by sending a FIN packet, signaling to
 the other endpoint that one side has closed its side of the communication. The
 closed endpoint may continue receiving data until the other endpoint also closes
-it side\cite{rfc793}.
+it side~\cite{rfc793}.
 \subsubsection{User Datagram Protocol \label{UDP}}
 \label{sec:udp}
 \begin{figure}[b]
@@ -735,7 +732,7 @@ it side\cite{rfc793}.
 \end{figure}
 The UDP, which was defined by RFC 768, is designed to
 enable programs to transmit self-contained messages, know as datagrams, over a
-packet-switched network. The UDP is designed to run on top of the IP\cite{rfc791},
+packet-switched network. The UDP is designed to run on top of the IP~\cite{rfc791},
 using IP addresses and port numbers for addressing. The UDP is by design connectionless,
 providing no guarantees for datagram delivery, duplicate datagrams or in-order
 delivery. In exchange, the UDP aims to minimize the overhead present in the protocol.
@@ -744,10 +741,10 @@ instead datagrams can be transmitted directly, and they should be designed in
 such a way that they can stand on their own. The UDP header, as seen in figure~\ref{fig:udp_header}
 is only 8 bytes long,
 consisting of the source and destination port, as well as the length of the datagram
-and a checksum to verify the received datagram\cite{rfc768}. Even though UDP has
+and a checksum to verify the received datagram~\cite{rfc768}. Even though UDP has
 a checksum field its use varies depending on the implementation. Some implementations
 may discard the datagram, or alternatively pass it along to the application with a 
-warning, as UDP provides no way to recover from broken datagrams\cite{compute_rnetworking}. The minimal UDP
+warning, as UDP provides no way to recover from broken datagrams~\cite{compute_rnetworking}. The minimal UDP
 header (8 bytes) combined with the lack of a handshake makes UDP a protocol with
 the bare minimum needed for datagram transfer.
 Generally, UDP is used for applications where low latency is a requirement and some
@@ -757,7 +754,7 @@ handle missing, reordered or duplicate datagrams.
 \subsection{Streams}
 
 A data stream is defined as a set of digital signals that is used to transmit
-information\cite{data_stream}. In practice, when talking about internet
+information~\cite{data_stream}. In practice, when talking about internet
 transport protocols, a data stream refers to a ordered, series of bytes that is
 used to transmit information. For TCP this holds true, even though TCP splits
 the transmitted data into packets, from the application point of view the
@@ -773,14 +770,14 @@ of TCP and UDP, and in the process solve some of the issues present in the legac
 transport protocols.
 \subsubsection{SST}
 
-The Structured Stream Transport (SST) was introduced in \cite{sst} with the aim
+The Structured Stream Transport (SST) was introduced in ~\cite{sst} with the aim
 of extending TCP semantics, by introducing a hierarchical structure, allowing
 child streams to be created on top of an existing streams. These streams can
 be created without having to set up new connections, making them much more lightweight
 than TCP applications. The SST supports multiplexed streams, allowing the streams
 to exists in parallel, alleviating the issues of HOL blocking as each stream uses
 independent flow control. The SST also supports independent stream prioritization
-as well as reliable and best effort (unreliable) delivery\cite{sst}.
+as well as reliable and best effort (unreliable) delivery~\cite{sst}.
 
 There were three primary reasons for creating a new protocols, the SST. First, while
 TCP is better suited for long connection and large data transfers, UDP excels
@@ -791,7 +788,7 @@ data transfers until retransmission. Finally, some protocols such as HTTP/1.0
 has bad utilization of network resources, as they are design to run on top of TCP
 and open a new TCP connection for each and every resource that is loaded. This
 was somewhat remedied in HTTP/1.1 with the serializing of requests over one connection,
-but at the time of the SST's creation it had yet to be widely implemented\cite{sst}.
+but at the time of the SST's creation it had yet to be widely implemented~\cite{sst}.
 
 \begin{figure}[h]
 	\centering
@@ -814,13 +811,13 @@ as loss on one stream still enables the other streams to keep transmitting while
 the erroneous stream independently recovers. SST also implements a second type of stream,
 while the normal stream is semantically similar to TCP, the ephemeral stream is closer
 to UDP. Ephemeral streams allows the application to have short communications as part
-of the larger connection, without any additional overhead\cite{sst}.
+of the larger connection, without any additional overhead~\cite{sst}.
 
 
 \subsubsection{SCTP}
 
-The Stream Control Transmission Protocol (SCTP), was first defined in RFC 4960\cite{rfc4960}, and
-which was then later replaced by RFC 9260\cite{rfc4960}. SCTP was originally implemented
+The Stream Control Transmission Protocol (SCTP), was first defined in RFC 4960~\cite{rfc4960}, and
+which was then later replaced by RFC 9260~\cite{rfc4960}. SCTP was originally implemented
 to carry Public Switched Telephone Network (PSTN) messages, but was later standardizes
 to a general purpose protocol. SCTP is a connection based protocol, with connections
 referred to as association, and is designed to be ran on top of IP. As a contrast
@@ -829,7 +826,7 @@ messages between application. A message is sent on one end in one operation, and
 the whole message is received on the other end, in one operation. A series of these
 messages then form the stream inside SCTP. SCTP natively supports multiplexing of these streams, addressing TCP's issue
 of HOL blocking. This is a significant improvement for PSTN messagingn, where control
-messages must not be delayed by data loss in other streams\cite{rfc9260}.
+messages must not be delayed by data loss in other streams~\cite{rfc9260}.
 
 In SCTP user messages are split into SCTP DATA chunks, which are bundled together
 with SCTP Control chunks together with a common header to form the SCTP packet. While
@@ -837,12 +834,12 @@ there may be multiple chunks inside one SCTP packet, each chunk only contains th
 of one message. Multiple sequences, streams, of these chunks may be sent in parallel
 over one association, enabling multiplexed streams. SCTP support both ordered and
 unordered message streams, allowing messages to potentially be delivered out-of-order,
-which may be preferable for certain kinds of data, such as control data\cite{rfc9260}.
+which may be preferable for certain kinds of data, such as control data~\cite{rfc9260}.
 
 SCTP supports multihoming, allowing the protocol to simultaneously bind to multiple
 different addresses and ports. This improves resilience, allowing the traffic to migrated
 to a backup path in case the primary network path is experiencing issues. The migration
-allows continued communication without breaking the association\cite{rfc9260}.
+allows continued communication without breaking the association~\cite{rfc9260}.
 
 \subsection{HTTP and its evolutions}
 
@@ -868,16 +865,16 @@ and the server, if possible and permitted, responds with the requested resource.
 HTTP defines the formats of these messages, which are written in American Standard Code for Information Interchange (ASCII),
 making the message human readable directly on the wire, without having to interpret 
 them. There are a set of HTTP request methods defined for the message, such as
-the GET method for requesting a resource, and POST for posting data to the server\cite{compute_rnetworking}.
+the GET method for requesting a resource, and POST for posting data to the server~\cite{compute_rnetworking}.
 
 A comparison of HTTP version can be seen in Table~\ref{tab:http_versions}. 
-The first version of HTTP, HTTP/1.0 was defined in RFC 1945\cite{rfc1945}. HTTP/1.0
+The first version of HTTP, HTTP/1.0 was defined in RFC 1945~\cite{rfc1945}. HTTP/1.0
 used non-persistent connection, and had no concept of multiplexing. It was a fairly
 basic protocol, working on a request-response principle, with each request opening
 its own TCP connection. HTTP/1.1 defines three request methods. GET to request data
 from the server, POST to post data to the server and HEAD, which is similar to GET,
 but request that only the HTTP header be returned in the response, not the architectural
-body of the response\cite{rfc1945}. What is notable for HTTP/1.0 is that it actually
+body of the response~\cite{rfc1945}. What is notable for HTTP/1.0 is that it actually
 did not suffer from HOL-blocking of TCP, like most of its successors. Because each
 request opened a new TCP connection, there was not concept of HOL blocking as the
 requests were entirely independent of one another. This was however not a very efficient
@@ -885,22 +882,22 @@ resource usage, as perform multiple three-way TCP handshakes to load a simple we
 added significant overhead. 
 
 HTTP/1.0 was iterated upon and became HTTP/1.1, which was initially defined in
-RFC 2616\cite{rfc2616}. HTTP/1.1 improved upon HTTP/1.0, adding support for several
+RFC 2616~\cite{rfc2616}. HTTP/1.1 improved upon HTTP/1.0, adding support for several
 new features. First, persistent connections allow multiple requests to be sent over one connection,
 cutting down on the number of connections that need to be opened to load a set of resources.
 Second, pipelining allows multiple request to be made, without having to wait for the
 previous request to return. This is not quite yet true multiplexing, as the responses
 need to be returned in the same order as the request were made, causing HOL blocking
-of subsequent requests in case of loss\cite{rfc2616}. Third, with the Introduction
+of subsequent requests in case of loss~\cite{rfc2616}. Third, with the Introduction
 of HTTP over TLS, HTTPS, it was now possible to set up more secure, encrypted communications,
-in stead of transmitting data in cleartext\cite{rfc2818}.
+in stead of transmitting data in cleartext~\cite{rfc2818}.
 \subsubsection{SPDY}
 
 The SPDY protocol was designed by Google to improve latency of web pages, as compared
 to HTTP/1.1. The SPDY protocol was designed work as an extension to HTTP/1.1,
 slotting into the session layer and largely defining how HTTP traffic is sent over the
 wire, with somed additional improvements to the HTTP protocol. In practice SPDY
-introduced three improvements, multiplexed streams, header compression and server push capabilities\cite{spdy}.
+introduced three improvements, multiplexed streams, header compression and server push capabilities~\cite{spdy}.
 
 SPDY introduced multiplexing of HTTP streams, allowing for an unlimited number
 of multiplexed streams over one TCP connection. As compared to HTTP/1.1's pipelining,
@@ -914,12 +911,12 @@ SPDY added server push and server hint features. Server push allows the server t
 send a resource to the client, without the client having request the resource first.
 Server hint is similar to server push, but instead of sending the resource, the
 server sends a hint to the client with a suggestion that the client should request
-a specific resource\cite{spdy}.
+a specific resource~\cite{spdy}.
 \subsubsection{HTTP/2}
 
-HTTP/2 is standardized in RFC 9113\cite{rfc9113}, is the evolution from HTTP/1.1.
+HTTP/2 is standardized in RFC 9113~\cite{rfc9113}, is the evolution from HTTP/1.1.
 It implements some of the ideas from SPDY, with the original specification for
-HTTP/2, RFC 7540\cite{rfc7540}, acknowledging the contributions made by the SPDY
+HTTP/2, RFC 7540~\cite{rfc7540}, acknowledging the contributions made by the SPDY
 team. The HTTP/2 protocol uses the same semantics as HTTP/1.1, but like SPDY
 improves on the transport of the HTTP data between endpoints. HTTP/2 implements
 streams and stream multiplexing, stream prioritization, header compression and
@@ -927,26 +924,26 @@ server push capabilities. Likey SPDY, HTTP/2 support multiplex, independently
 mutiplexed streams, allowing multiple parallel requests over one TCP connection.
 Stream priority allows the client to signal which requests are more important to
 be filled, and in case no priority is given, the server may choose to determine
-priority based on other information\cite{rfc9113}. For header compression, HTTP/2 implements a
-dedicated compression algorithm called HPACK, defined in RFC 7541\cite{rfc7541}.
+priority based on other information~\cite{rfc9113}. For header compression, HTTP/2 implements a
+dedicated compression algorithm called HPACK, defined in RFC 7541~\cite{rfc7541}.
 HPACK not only implements compression, but the algorithm also helps in reducing
 redundant header fields, by preventing the same static header fields from
-being sent over and over again\cite{rfc7541}. HTTP/2 supports server push capabilities,
+being sent over and over again~\cite{rfc7541}. HTTP/2 supports server push capabilities,
 allowing the server to send unprompted resource to a client, usually by estimating
 the requests that the client likely will make in the future, in that way improving
-latency\cite{rfc9114}.
+latency~\cite{rfc9114}.
 
 Even though HTTP/2 implements stream multiplexing, it still suffers from HOL blocking
 simply due to the fact that HTTP/2 streams are created on top of a single TCP
 connection. This means that the requests wont block each other, but in case of
 packet loss, the TCP HOL blocking will cause all requests to stall while waiting
-for \cite{rfc9113}. This highlights the fact that despite improvements in the
+for ~\cite{rfc9113}. This highlights the fact that despite improvements in the
 HTTP protocol, the HOL blocking issue may not be solved as long as the protocol
 is running on top of TCP.
 
 \subsubsection{HTTP/3}
 
-HTTP/3, as defined in RFC 9114\cite{rfc9114}, is as of writing the final evolution
+HTTP/3, as defined in RFC 9114~\cite{rfc9114}, is as of writing the final evolution
 of the HTTP protocol. It was specifically designed to be ran on top of QUIC,
 taking advantage of the improvments offered by the QUIC transport protocol. Like HTTP/2,
 the HTTP semantics stays largely the same, but improvements are made to take advantage
@@ -963,22 +960,22 @@ hanshake integrated into the QUIC transport handshake, potentially reducing
 connection setup time to 1 RTT. In some cases it is even possible to use 0-RTT
 data transfer to instantaneously transfer data wihtout waiting for the conneciton
 to be set up. Connection migration of QUIC allows connection to stay active for mobile
-users, even in the face of network changes\cite{rfc9114}. As with HTTP/2, HTTP/3 uses header compression,
+users, even in the face of network changes~\cite{rfc9114}. As with HTTP/2, HTTP/3 uses header compression,
 but HPACK has been replace by QPACK, which improves on HPACK by better taking advantage
 of QUIC's features, improving HOL blocking issues with only a slighty degradation
-in compression rate\cite{rfc9204}.
+in compression rate~\cite{rfc9204}.
 
 
 \subsection{TLS}
 \label{sec:tls}
-The Transport Layer  Security (TLS) protocol is an evolution from the Secure Socket Layer (SSL)\cite{rfc6101} protocol.
+The Transport Layer  Security (TLS) protocol is an evolution from the Secure Socket Layer (SSL)~\cite{rfc6101} protocol.
 TLS aims to secure communication between two endpoints. The TLS protocol provides three
 properties to the communication. First authentication, with the server side of the
 communication always being authenticated, and the client side optionally being
 authenticated. Second confidentiality, TLS ensures that data sent between the
 endpoints is encrypted and ensured, ensuring that only the intended recipient is
 able to decrypt and read the data. Finally integrity, data transmitted through
-a TLS tunnel cannot be tampered with, wihouth alerting the recipient\cite{rfc8446}.
+a TLS tunnel cannot be tampered with, wihouth alerting the recipient~\cite{rfc8446}.
 
 The TLS protocol consist of two components, First, the hanshake protocol is used to
 establish the connection, being responsible for authentication, negotiation and creating
@@ -987,7 +984,7 @@ for encrypting and transmitting the data. The name comes from the fact that the 
 to be transmitted is split into a series of records, all of which are individually
 encrypted and tranmitted. The TLS protocol is designed to be a general purpose
 security protocol, as it only requires to be ran on a reliable transport, and in
-principle any application protocol may be ran on top of TLS\cite{rfc8446}.
+principle any application protocol may be ran on top of TLS~\cite{rfc8446}.
 
 \begin{figure}[h]
 	\centering
@@ -1010,7 +1007,7 @@ to be authenticated via a certificate as well. The certificate and CertificateRe
 well as Extensions are protected with keys derived during the handshake process. These
 are different from the secrets used to protect application data and does not guarantee
 perfect forward secrecy. The combination of ClientHello and ServerHello is used to
-create the shared keys. Finally the client responds, acknowledging that the process is finished\cite{rfc8446}.
+create the shared keys. Finally the client responds, acknowledging that the process is finished~\cite{rfc8446}.
 
 Normally the hanshake adds additional overhead to connection setup. With TLS 1.2 and
 lower adding an additional 2+ RTTs of latency, and TLS 1.3 adding 1-RTT of latency.
@@ -1021,15 +1018,15 @@ the record protocol takes over. The record layer splits the application data int
 appropriate chunks, which are then encrypted and integrity protected. And transmits
 these via the underlying, reliable transport. 
 
-The first versions of TLS, TLS 1.0 and 1.1, defined in RFC 2246\cite{rfc2246} and
-RFC 4346\cite{rfc4346}, improved upon SSL but were deprecated in 2021 via RFC 8996\cite{rfc8996},
+The first versions of TLS, TLS 1.0 and 1.1, defined in RFC 2246~\cite{rfc2246} and
+RFC 4346~\cite{rfc4346}, improved upon SSL but were deprecated in 2021 via RFC 8996~\cite{rfc8996},
 due to the fact that these algorithms rely on weak cryptographic algorithms. The TLS 1.2
 protocl improved upon its predecessor by introducing more secure cryptographic algorithms and
-authenticated encryption\cite{rfc5246}, and removing backwards compatibility with
-SSL via RFC 6176\cite{rfc6176}. Finally, as mentioned earlier in this section,
+authenticated encryption~\cite{rfc5246}, and removing backwards compatibility with
+SSL via RFC 6176~\cite{rfc6176}. Finally, as mentioned earlier in this section,
 TLS 1.3 is the latest version of the TLS protocol. It removed support for legacy
 cryptographic algortihms, added the 1-RTT hanshake and 0-RTT data transfer, among other
-cryptographic improvements\cite{rfc8446}.
+cryptographic improvements~\cite{rfc8446}.
 
 \subsubsection{DTLS}
 
@@ -1044,7 +1041,7 @@ nonce, meaning that TLS records being delivered out of order causes the decrypti
 process to fail. Second, the TLS hanshake is rigid, the right messages has to arrive
 in the right order for the hanshake to succeed. Third, handshake messages may be 
 larger than one datagram, causing fragmentation. Finally, UDP is susceptible to
-Denial-of-Service (DoS)\cite{rfc9147}.
+Denial-of-Service (DoS)~\cite{rfc9147}.
 
 To handle packet loss, DTLS uses a retransmission timer to enable retransmission of
 lost packets, such as part of the handshake. Reordering is mitigated by assigning
@@ -1054,13 +1051,13 @@ the sending part can split the handshake message into multiple parts that all fi
 inside a datagram, and the receiving party can the reassemble the hanshake message
 from the fragments. To combat DoS attacks,  DTLS implements a HelloRetryRequest message,
 which contains a cookie, that then has to be included in the ClientHello message
-to be accepted by the server. Optionally, DTLS includes replay detection and protection\cite{rfc9147}.
+to be accepted by the server. Optionally, DTLS includes replay detection and protection~\cite{rfc9147}.
 
 DTLS is designed to be as close to TLS as possible in capabilities and funcitonalities.
-DTLS follows TLS versioning, with the latest, DTLS 1.3, being defined in RFC 9147\cite{rfc9147}.
+DTLS follows TLS versioning, with the latest, DTLS 1.3, being defined in RFC 9147~\cite{rfc9147}.
 Like TLS 1.3, DTLS 1.3 implements the improved 1-RTT handshake, enforces stronger
 cryptographic algorithms than earlier versions and adds support for 0-RTT data transfer,
-however 0-RTT data transfer requires that replay protection is enabled on the connection\cite{rfc9147}.
+however 0-RTT data transfer requires that replay protection is enabled on the connection~\cite{rfc9147}.
 
 \subsection{DFS}
 
@@ -1069,22 +1066,22 @@ the clients to manipulate the files as if they were stored on their local machin
 DFS's abstract away the complexities of distributed data access, exposing a set
 of file operations to the clients, allowing them to among other create, delete, read
 and write files. The DFS ensures consistency, reliability and access between different
-clients and access points\cite{os_concepts}. Currently, the most widely adopted
-distributed file systems is the Server Message Block (SMB)\cite{smb2} and the
-Network File System (NFS)\cite{rfc7530}. Both protocols provide file system access
+clients and access points~\cite{os_concepts}. Currently, the most widely adopted
+distributed file systems is the Server Message Block (SMB)~\cite{smb2} and the
+Network File System (NFS)~\cite{rfc7530}. Both protocols provide file system access
 over a network, but they differ significantly in design, environment and features.
 
 \subsubsection{Server Message Block}
 
 The Server Message Block (SMB) protocol is a stateful protocol, and is a protocol designed for
 sharing files printers and other resources over a network. It was originally created
-in the early 1980s, and later adopted and extended by Microsoft\cite{samba_myths}.
+in the early 1980s, and later adopted and extended by Microsoft~\cite{samba_myths}.
 The protocol has undergone several iterations since that time. While the underlying
 concepts of SMB has stayed the same, later revisions, that is SMB version 2.0 and forwards,
 differs heavily from earlier version SMB 2.0 introduced different packet formats, and reduced
 the chattiness of the protocol, among other improvements. SMB 3.0 introduced encrypted trafic,
 multichannel support and integration with RDMA in the form of SMB Direct. Since SMB 3.1.1 the
-protocol has added support for using the QUIC protocol as a transport\cite{smb2}.
+protocol has added support for using the QUIC protocol as a transport~\cite{smb2}.
 
 The main distinguishing characteristics of the SMB protocol is its stateful design.
 The server maintains information about the state of a session, such as file handles,
@@ -1093,7 +1090,7 @@ guarantee consistency and helps in coordinating multiple, concurrent clients. As
 the development of the SMB protocol has largely been a result of Microsoft's effort,
 the protocol is deeply integrated into Windows authentication and authorization,
 supporting NTLM and Kerberos authentication, and integrates as part of Active Directory Domain
-services\cite{smb2}.
+services~\cite{smb2}.
 
 \subsubsection{Network File System}
 
@@ -1107,15 +1104,15 @@ simply try again. Recovery from error states was simple as no sessions had to be
 reestablished. The sateless design came with drawbacks,
 for example two concurrent clients trying to write the same file could cause the
 write to be interleaved, causing unintended outcomes, as the writes would simply
-be processed in the order they arrived\cite{nfs_design}.
+be processed in the order they arrived~\cite{nfs_design}.
 
 Over time the NFS protocol has evolved, with the latest version NFSv4.2 being
-defined in RFC 7862\cite{rfc7862}. NFSv4 introduced a stateful protocol, and
+defined in RFC 7862~\cite{rfc7862}. NFSv4 introduced a stateful protocol, and
 introduced features such as file locking, multipath and compound operations, alongside performance
-improvements and improved authentication support for stronger security\cite{rfc7530}.
+improvements and improved authentication support for stronger security~\cite{rfc7530}.
 NFSv4.1 introduced NFS sessions and parallel access to data, as well as improving support
-for clustered solutions\cite{rfc8881}, while
-NFSv4.2 introduces support for server side operations, and sparse files\cite{rfc7862}.
+for clustered solutions~\cite{rfc8881}, while
+NFSv4.2 introduces support for server side operations, and sparse files~\cite{rfc7862}.
 
 \begin{table}[h]
 	\centering
@@ -1146,20 +1143,20 @@ a need for improved security. For many years now, the TCP has been the de-facto
 solution for reliable and secure, when combined with Transport Layer Security (TLS), communications. However,
 TCP was developed in a time where security and latency where not considerations,
 at least not in the same way as in todays landscape. Over the years there have
-been efforts to enhance TCP, such as multipath TCP\cite{rfc8684} and combining
-TCP and TLS in HTTPS\cite{rfc2818} to improve security. This section of the thesis
+been efforts to enhance TCP, such as multipath TCP~\cite{rfc8684} and combining
+TCP and TLS in HTTPS~\cite{rfc2818} to improve security. This section of the thesis
 will cover QUIC, a transport protocol developed to overcome the limitations and
-improve the performance as compared to the TCP\cite{quic_transport_protocol_design}.
+improve the performance as compared to the TCP~\cite{quic_transport_protocol_design}.
 
 The importance of the QUIC protocol is not to be underestimated. It represents
 a substantial change to the internet's transport layer, the first one in over
 two decades. QUIC was initially developed by Google, and then later standardized
-in RFC 9000\cite{rfc9000}. QUIC is designed to address the issues experienced
+in RFC 9000~\cite{rfc9000}. QUIC is designed to address the issues experienced
 by TCP, with a focus on optimizing for web traffic. The main issues being the
 Head-of-line (HOL) blocking, but also aiming to improve on other aspects,
 such as integrating the TLS handshake into the transport handshake. A decision
 that was made for QUIC specifically was to move the protocol out of the kernel
-space and into the user space, allowing for rapid development and innovation\cite{quic_transport_protocol_design}.
+space and into the user space, allowing for rapid development and innovation~\cite{quic_transport_protocol_design}.
 
 This chapter of the thesis will outline the limitations of TCP that led to the
 development of QUIC, give an overview of the architecture and logic that drives
@@ -1183,7 +1180,7 @@ Head-of-Line (HOL) blocking, where any lost packet will block the delivery of
 all subsequent packets until the missing packet has been retransmitted. This
 can potentially amplify issues in the network, increasing delays, decreasing
 throughput and worsening the user experience. To combat this limitation, modern
-network protocols, such as HTTP/2\cite{rfc9113}, have introduced measures to
+network protocols, such as HTTP/2~\cite{rfc9113}, have introduced measures to
 combat the issue. HTTP/2 introduced multiplexing of multiple requests over one
 connection, allowing multiple application-level streams, for example for different
 resources such as images or javascript, to be multiplexed over a single TCP
@@ -1195,7 +1192,7 @@ stream still caused all other unrelated streams over the same connection to stal
 even if their packets were successfully delivered, until the offending packet
 could be retransmitted. This in practice means that much of the improvements made
 by HTTP/2 in this regard was negated by the issues of TCP, particularly in lossy
-environments\cite{http2_vs_1}.
+environments~\cite{http2_vs_1}.
 
 \subsubsection{Handshake Delay}
 A limitation of the TCP stack is the delay caused by the TCP handshake. As discussed
@@ -1205,10 +1202,10 @@ addition, most application use TLS for security, and historically the TLS 1.2 ha
 and setup adds two additional RTTs of delay. While network bandwidth is ever increasing,
 much of the communication done on the internet consist of short dialogues, that
 are significantly impacted by the additional overhead brought on by the TCP plus TLS
-handshake\cite{quic_transport_protocol_design}.
+handshake~\cite{quic_transport_protocol_design}.
 
 Some of the latency brought on by the TLS handshake is addressed by TLS 1.3, adding
-support for 1-RTT and 0-RTT handshakes, at the cost of perfect forward secrecy\cite{rfc8446}. Even with
+support for 1-RTT and 0-RTT handshakes, at the cost of perfect forward secrecy~\cite{rfc8446}. Even with
 these enhancements, the TCP plus TLS handshake takes a minimum of 1,5 RTTs, due to the separation
 of connection and security handshake.
 
@@ -1222,7 +1219,7 @@ issue for TCP enhancements, and entirely new protocols have no chance of reachin
 their destination, without explicitly adding support in all necessary middleboxes.
 To get around this, protocol designer have to design their protocols from the ground
 up to be middlebox proof, such as QUIC encapsulating its protocol inside UDP as an
-anti-ossification measure\cite{Ossification}.
+anti-ossification measure~\cite{Ossification}.
 
 A related issue of rolling out enhancements to existing protocols is that the
 network stack tends to be part of the Operating System (OS) kernel. The networking
@@ -1231,7 +1228,7 @@ changes to existing protocols. With todays upgrade frequency it can take years
 to roll out simple changes to the networking stack. QUIC moves the deployment of the 
 protocol to the user space, improving the speed of development and deployment,
 and opening up the space for multiple actors to create their own implementations of
-the protocol\cite{quic_transport_protocol_design}.
+the protocol~\cite{quic_transport_protocol_design}.
 
 \subsection{Background and evolution}
 As discussed in Section \ref{quic_motivation}, the combinations of TCP, TLS and HTTP/2 are
@@ -1242,7 +1239,7 @@ HOL blocking, improved latency and circumventing protocol ossification. The answ
 was the protocol that would later be standardized into QUIC, early on know as gQUIC.
 QUIC began development back in 2012, by Jim Roskind, an engineer at google. Initially
 the motivation for developing a new transport protocol was to improve support for
-the now deprecated SPDY protocol\cite{googleQUICDesign}. QUIC was designed to run over
+the now deprecated SPDY protocol~\cite{googleQUICDesign}. QUIC was designed to run over
 UDP, by encapsulating the protocol frames into UDP datagrams, and encrypting the contents,
 the protocol could effectively sidestep the issues of middlebox interference, allowing
 for rapid deployment without any necessary modifications to existing infrastructure.
@@ -1257,7 +1254,7 @@ the connection is dropped, and has to be reestablished. To combat this QUIC uses
 Connection IDs to identify connections, allowing the connection to resume when
 there is some change in network. QUIC was widely deployed on Google's front end servers,
 and by 2017 it was already estimated that QUIC represented 7\% of global internet
-traffic\cite{quic_transport_protocol_design}.
+traffic~\cite{quic_transport_protocol_design}.
 
 QUIC was submitted to the IETF for consideration in 2016, and a working group
 was created for the purposes of standardizing QUIC. The goals of the working group
@@ -1267,15 +1264,15 @@ was reworked into two types, a long and a short header, that was mostly encrypte
 to prevent middlebox interference. Loss detection and congestion control mechanics
 were updated, flow control semantics were separated into per stream and per connection
 limits and version negotiation was introduced to enable future compatibility of the
-protocol\cite{rfc9000}. In the end the protocol was standardized in a number of RFCs.
-RFC 9000\cite{rfc9000} defines QUICs core transport mechanics, RFC 9001\cite{rfc9001} defines the use of TLS 1.3
-and RFC 9002\cite{rfc9002} describes the loss detection and congestion control algorithms used by the
-protocol. In addition, RFC 8999\cite{rfc8999} defines some version-independent
+protocol~\cite{rfc9000}. In the end the protocol was standardized in a number of RFCs.
+RFC 9000~\cite{rfc9000} defines QUICs core transport mechanics, RFC 9001~\cite{rfc9001} defines the use of TLS 1.3
+and RFC 9002~\cite{rfc9002} describes the loss detection and congestion control algorithms used by the
+protocol. In addition, RFC 8999~\cite{rfc8999} defines some version-independent
 properties of QUIC, aligning QUICK packets, headers and versioning between
 different versions of the protocol. Following the standardization the adoption
 of QUIC has been quick. Chromium, and by extensions all chromium based browsers
-has supported QUIC since before it was standardized\cite{chromium_quic}. Both
-Firefox\cite{firefox_quic} and Safari\cite{safari_quic} added support for QUIC
+has supported QUIC since before it was standardized~\cite{chromium_quic}. Both
+Firefox~\cite{firefox_quic} and Safari~\cite{safari_quic} added support for QUIC
 soon after the standards were published. QUIC has shown the viability and potential
 of deploying network protocols to the user space, enabling rapid adoption without
 OS kernel updates.
@@ -1299,20 +1296,20 @@ works to the advantage of the designer when building a protocol on top of UDP, a
 the designer the freedom they need to implemnt their own semantics, withouth risking
 interference from the underlying protocol. UDP provides the basic datagram services
 that are then enhanced by the QUIC protocol, ensuring a secure, reliable and performant
-protocol\cite{quic_transport_protocol_design}.
+protocol~\cite{quic_transport_protocol_design}.
 
 From an architectural perspective, QUIC incorporates three main layers, a transport
 layer, a security layer and an application interface. From the bottom up, UDP provides
 minimal mechanism for transmitting datagrams, withouth any guarantees. On top of this
 QUIC implements its own transport layer, handling the multiplexing of datastreams,
 ensuring reliable and in-order delivery of data as well as connection management
-mechanics\cite{rfc9000}. QUIC security layer is fully integrated into the protocol, using TLS 1.3
+mechanics~\cite{rfc9000}. QUIC security layer is fully integrated into the protocol, using TLS 1.3
 for encryption of wire traffic, as well as authentication and authorization of peers, ensuring
 secure communications between the endpoints. The security layer also protects most of
 the packet headers, leaving only the necessary info for routing and version control
-visible on the wire\cite{rfc9001}. The final layer exposes a standardized application
+visible on the wire~\cite{rfc9001}. The final layer exposes a standardized application
 interface that can support virtually any application-layer protocol, the most prominent
-one being HTTP/3\cite{rfc9113}.
+one being HTTP/3~\cite{rfc9113}.
 
 One of the main innovation made by the QUIC protocol is the concept of transport-level,
 mutiplexed and independent data streams. Any QUIC conneciton may contain one or multiple
@@ -1321,14 +1318,14 @@ HOL blocking issues, as if the application is using multiple streams, when loss 
 only the stream on which the loss occured will be blocked. While the lossy stream is
 blocking and waiting for retransmission, the other streams can continue sending as 
 normal. QUIC uses per connection limits for the number of streams and per stream
-flow control limits\cite{rfc9000}.
+flow control limits~\cite{rfc9000}.
 
 Connection management and and identification in QUIC differs in the IP-port tuple
 combination that is tranditionally used in TCP. QUIC connection are identified by a
 connection ID, which are independtly selected by the endpoints. The purpose of the
 connection IDs is to allow the conneciton to survive changes in the network, for example
 when a mobile users moves from a local network to cellular. The migration is done transparently
-and securly, allowing the application to continue operations withouth interruption\cite{rfc9000}.
+and securly, allowing the application to continue operations withouth interruption~\cite{rfc9000}.
 
 \subsection{Packet and Frame Structure}
 
@@ -1367,7 +1364,7 @@ the RTT. Following the two reserverd bits is the key phase bit, used to keep
 track of the keys that are used to protect the packet. The packet number length
 is the length of the packet number field minus one. Lastly is the destination ID
 again indicating the recipient, the packet number used for protocols semantics
-and finally the packet payload\cite{rfc9000}.
+and finally the packet payload~\cite{rfc9000}.
 
 \begin{table}[tb]
 	\centering
@@ -1388,7 +1385,7 @@ cryptographic messages, after the intial exchange. In case the connection attemp
 a resumption, the client may use the 0-RTT packe type to transmit encrypted application
 data as part of the hanshake, basing the encryption on previously established keys. The
 Retry packet type may be used by the server to force the client to
-validate its address\cite{rfc9000}.
+validate its address~\cite{rfc9000}.
 
 In QUIC there is only one short-header packet type, know as the 1-RTT packet. It is
 used for the bulk of communication, taking advantage of the more compact short
@@ -1414,7 +1411,7 @@ the connection staus alive, CRYPTO frams for carrying TLS hanshake data and CONN
 to terminate the connection. These are the most important frame types, with an
 extensive list being available in RFC 9000 chapter 19 Frame Types and Formats. Together,
 these frames allow for great control of transport functionality, allowing for explicit
-control of the semantics\cite{rfc9000}.
+control of the semantics~\cite{rfc9000}.
 
 \subsection{Streams}
 
@@ -1431,7 +1428,7 @@ by the flow control. The different streams are identified via a unique identifie
 the stream ID, which is a 62-bit integer. The reasoning for using a 62-bit integer is
 that the two remaining bits are used to distinguish between unidirectional and bidirectional
 streams, as well as identify the initiator of the stream, which may be either the
-client or server\cite{rfc9000}.
+client or server~\cite{rfc9000}.
 
 The lifetime of a stream is explicitly managed by the peers. The stream is first
 created by sending a stream frame, containing the stream ID of the stream that is
@@ -1441,7 +1438,7 @@ the application is done with the stream, it may be closed by sending a stream
 frame with the FIN bit set, or alternatively send a RESET\_STREAM to abruptly end the
 stream, signaling that no further data will be sent. On the receiver end the receiver
 can read data from the stream, and may end the stream by sending a STOP\_SENDING frame,
-signaling that no more data will be accepted on the stream\cite{rfc9000}.
+signaling that no more data will be accepted on the stream~\cite{rfc9000}.
 
 The desing of QUIC streams is such that it directly addresses TCP's HoL blocking
 issue. In TCP, the in-order delivery guarantee is implement on an entire connection,
@@ -1452,11 +1449,11 @@ only blocks the specific stream that packet belonged to, allowing the other stre
 that may exists on the same connection to keep transmitting while the erronous
 stream retransmits. This feature also works in the favor for control data,
 as control frames is transmitted separately from the stream frames, they are not
-affected by loss on any of the data streams\cite{rfc9000}. An example of this advantage
+affected by loss on any of the data streams~\cite{rfc9000}. An example of this advantage
 in action is in the HTTP/3 protocol. Here each client request is mapped to its own
 bidirectional QUIC stream, and unidirectional streams are used for control and
 push streams. HTTP/3 implementations should support at least 100 concurrent streams
-taking advantage of the multiplexing afforded by QUIC\cite{rfc9114}. When a client
+taking advantage of the multiplexing afforded by QUIC~\cite{rfc9114}. When a client
 visits a web page, it may open tens of streams simultaneously, to fetch HTML, CSS,
 JavaScript, images and font. If a packet containing part of an image is lost, QUIC
 enables the HTML and CSS streams to continue delivering, improving render times
@@ -1492,7 +1489,7 @@ due to the flow control limits. Similarly the limit on the number of streams tha
 may be opened is set during the connectiion initialization phase. It may the layer be
 increased by sending a MAX\_STREAMS frame, and similarly to the data flow control limits,
 the streams limits may only be increased, not decreased. The sender can signal to the
-receiver that it would like to open more streams by sending a STREAMS\_BLOCKED frame\cite{rfc9000}.
+receiver that it would like to open more streams by sending a STREAMS\_BLOCKED frame~\cite{rfc9000}.
 This granular control allows the protocol implementations to adapt the flow control
 according to the environment, enabling improved performance especially in dynamic environments.
 
@@ -1510,16 +1507,16 @@ numbers. Loss can either be detected vi acknowledgement-based detection,
 if a packet that is considered in-flight and is unacknowledged, but a packet
 sent after the potential lost packet has been acknowledged, and enough time has passed
 since the packet was sent. Alternatively, a Probe Timeout (PTO) causes one or two
-datagrams to be sent out, expecting a response to test the reachability of the peer\cite{rfc9002}.
+datagrams to be sent out, expecting a response to test the reachability of the peer~\cite{rfc9002}.
 
 The QUIC protocol provides a set of generical signals that are design to support
 multiple different sender-side congestion algorithms. A congestion algorithm similar
-to TCP NewReno\cite{rfc6582} is outlined in RFC 9002. However, a sender is free to
+to TCP NewReno~\cite{rfc6582} is outlined in RFC 9002. However, a sender is free to
 choose any one algorithm they feel suits there use case, such as CUBIC, given that they conform
-to the congestion control algorithms oulined in RFC 8085\cite{rfc8085}. One option
+to the congestion control algorithms oulined in RFC 8085~\cite{rfc8085}. One option
 is to use QUIC packets which contain only ACK frames, as these do not count towards
 the flow control limits, but the loss of these packets can be detected by the QUIC
-algorithm\cite{rfc9002}.
+algorithm~\cite{rfc9002}.
 
 The algorithm oulined in RFC 9002 begins in slow start, setting the initial congestion
 window to 10 times the maximum datagram size. When in slow start the sender increases
@@ -1537,7 +1534,7 @@ the congestion window by one maximum datagram size for each complete congestion
 window that has been acknowledged. In case loss is detected the sender goes back
 into recovery mode. In case persisent congestion is detected, that is the continuous
 loss of all sent packets, the sender reenters slow start mode, and the process
-starts over\cite{rfc9002}.
+starts over~\cite{rfc9002}.
 
 In the QUIC algorithm there may be a situation where reordering of packets causes
 the receiver to receiver packets to which it does not have the necessary keys to
@@ -1549,21 +1546,21 @@ congestion, and these packet should also be accounted for as being in-flight. Th
 sender should pace the sending of its packets, as large bursts of packets may induce 
 congestion or packet loss. A lack of application data or pacing on the part of the
 sender may cause the congestion window to be underutilized. In this case the congestion
-window should not be increased\cite{rfc9002}.
+window should not be increased~\cite{rfc9002}.
 
 \subsection{Connections}
 
 The QUIC protocol is a stateful, connection-oriented protocol where the QUIC
 connection functions as the shared state between peers. Connections are created
 via a handshake, during which both the transport and security hanshake is performed,
-with the security handshake being based in TLS 1.3\cite{rfc9001}. The handshake establishes
+with the security handshake being based in TLS 1.3~\cite{rfc9001}. The handshake establishes
 the connection, and the parameters for the connection are declared. The parameters
 are individually decided by the peers, and the opposite peer needs to comply with
 the conditions set. It is possible via 0-RTT data transfer to transfer application
 data as part of the initial message, before the server has responded, and the server
 may already start sending data before the final hanshake message from the client.
 This allows the protocol to exchange some security guarantess for improved latency
-when establishing a connection\cite{rfc9000}.
+when establishing a connection~\cite{rfc9000}.
 
 \subsubsection{Connections and Identifiers}
 \label{sec:connections_ids}
@@ -1575,7 +1572,7 @@ to changes in the lower level protocols, such as IP addresses changing when a cl
 moves from one network to another. In case of connection migration from one network to
 another the connection ID used is also changed at the same time. This is to prevent
 passive listener from tracking a peer from one network to another, which could be
-done via correlating connection IDs\cite{rfc9000}.
+done via correlating connection IDs~\cite{rfc9000}.
 
 In a QUIC connection each peer decides the connection ID for the other peer. Initially
 the connection IDs are issued during the handshake phase, and the connection ID is
@@ -1592,7 +1589,7 @@ frame implicitly requests the peer to issue a new connection ID to replace the o
 that has just been removed. A connection ID must not be retired withouth alerting the peer,
 and the number of connection IDs that have been locally retired, that is the connection
 ID is retired and a RETIRE\_CONNECTION\_ID fram has been sent, but no acknowledgement
-has yet been received, should be kept to a limited number\cite{rfc9000}.
+has yet been received, should be kept to a limited number~\cite{rfc9000}.
 
 When a QUIC packet is received it is attempted to match this packet to an existing
 connection. If the recepient is a server it is also possible that the incoming
@@ -1601,7 +1598,7 @@ with any connectino ID of any existing connection, and the packet is not part of
 initializing a new connection, then a Stateless Reset may be sent in response. If
 a packet is received, but it is not consistant with the connection, the packets
 are discarded. Such a scenario could be incorrect versioning or inability to
-decrypt the packet\cite{rfc9000}.
+decrypt the packet~\cite{rfc9000}.
 
 \subsubsection{Connection Lifetime}
 
@@ -1622,7 +1619,7 @@ the TLS ServerHello message, and a Handshake Packet containing EncryptedExtensio
 well as its certificate and possibly the CeritifcateVerify message in case the client
 should be authenticated as well. The client then responds with a Handshake message
 containing the TLS Finished message, which signals the completion of the hanshake,
-and application data can now flow securely\cite{rfc9000, rfc9001}.
+and application data can now flow securely~\cite{rfc9000, rfc9001}.
 
 It is possible to transmit data before the cryptographic handshake has been complete,
 albeit with some drawbacks. In Figure~\ref{fig:quic_handshake} the opportunities
@@ -1636,7 +1633,7 @@ be refered to as "0.5-RTT", but the data is carried inside a 1-RTT packet. This 
 the drawback of transmitting data before the client has authenticated, which means
 that the server should avoid transmitting sensitive data during this transfer. Similarly,
 once the client has completed the cryptographic hanshake it may already start
-transmitting data alongside the TLS Finished message\cite{rfc9000, rfc9001}.
+transmitting data alongside the TLS Finished message~\cite{rfc9000, rfc9001}.
 
 There are three ways in which a QUIC connection may be terminated. First via an
 idle timeout. The idle timeout is configured in the transport parameters, via the
@@ -1666,7 +1663,7 @@ be closed and the state discarded. As discussed in Section~\ref{sec:connections_
 one of the motivation for adding connection IDs was to improve the resilience of
 connections, allowing the connections to survive changes in network. The connection IDs
 are selected by the endpoints, and allows the packets to be correctly routed,
-even if the IP address or port of either endpoints changes for any reason\cite{rfc9000}.
+even if the IP address or port of either endpoints changes for any reason~\cite{rfc9000}.
 
 As changes in network port or address may be involuntary, which might happen as a
 result from NAT rebinding or network change, there may be a situation where
@@ -1675,7 +1672,7 @@ path validation. Path validation is done via sending a PATH\_CHALLENGE frame, co
 a random or hard to guess payload. The peer receives the PATH\_CHALLENGE, and responds
 with a PATH\_RESPONSE frame, echoing the payload from the PATH\_CHALLENGE frame.
 In this way the path is validated one way. The peer may include its own PATH\_CHALLENGE
-frame alongside the PATH\_RESPONDE, to validate reachability the other way\cite{rfc9000}.
+frame alongside the PATH\_RESPONDE, to validate reachability the other way~\cite{rfc9000}.
 
 Conneciton migration may also be initialized explicitly, by sending packets from
 a new local address. In this case both peers must ensure reachability on the
@@ -1687,7 +1684,7 @@ is the same for explicit and implicit migration. A server will not initialize a
 connection migration, this is exclusively done by the client. What a server may
 do, is a preferred address. This allows servers to accept incoming connection
 on one address, and then quickly transfer the connection to a separeate, prefered
-address, performing path validation against the client from the new address\cite{rfc9000}.
+address, performing path validation against the client from the new address~\cite{rfc9000}.
 
 \clearpage
 
@@ -1700,7 +1697,7 @@ an authenticated session is created and requests are sent over the connection, a
 the client to performan file operations, but also additionally access other resources
 such as printers. There currently exists 2 major versions of the SMB protocol,
 the original SMB protocol, sometimes refered to as the CIFS protocols, which later
-evolved into the SMB 2 Protocol, that encapsulates SMB Versions 2 and 3\cite{smb2_tech}. reference
+evolved into the SMB 2 Protocol, that encapsulates SMB Versions 2 and 3~\cite{smb2_tech}. reference
 to the SMB protocol in this and following section will refer to the SMB 2 protocol,
 and the legacy SMB protocol will be referenced as SMB 1 for clairy, however it will
 not be covered by in depth by this thesis. This section of the thesis will give a
@@ -1728,16 +1725,16 @@ SMB 2.1, SMB 3.0, SMB 3.0.2 and SMB 3.1.1. The basic funcionality of the SMB pro
 was already defined in SMB 1, allowing clients to connect to shares and perform file
 operations. As can be seen in the overview given by Table~\ref{tab:smb_dialects},
 the protocol has been continously improved by then, adding support for, among other
-fatures, encryption and alternative transports\cite{smb2_tech}.
+fatures, encryption and alternative transports~\cite{smb2_tech}.
 
 The SMB protocol places itself in the application layer, it does not stand on its
 own but relies on other protocols for some of its functionality. To enable authentication
 of clients, the SMB protocol uses the Simple and Protected GSS-API Negotiation (SPNEGO), as
-defined in RFC 4178\cite{rfc4178}. The SPNEGO protocol exposes a common interface
+defined in RFC 4178~\cite{rfc4178}. The SPNEGO protocol exposes a common interface
 that may be used by for authentication with the help of other authentication protocols.
 In the case of the SMB protocol the SPNEGO protocols rely on Kerberos Authentication, as
-defined in RFC 4120\cite{rfc4120}, or the New Teachnology LAN Manager (NTLM) protocol,
-as defined in {[MS-NLMP]}\cite{ntlm_tech}.
+defined in RFC 4120~\cite{rfc4120}, or the New Teachnology LAN Manager (NTLM) protocol,
+as defined in {[MS-NLMP]}~\cite{ntlm_tech}.
 
 The SMB protocol is designed to be ran on top of a reliable transport. historically
 this was NetBIOS over TCP, later standardized to the more common TCP. As outlined earlier
@@ -1745,7 +1742,7 @@ in this section, later versions of the SMB protocol supports alternative transpo
 SMB dialects >= 3.0 supports use of RDMA via SMB direct, for improved performance.
 The latest version of the SMB protocol, 3.1.1 added support for the QUIC protocol,
 which comes with increased security guarantees and potentially improved performance
-for mobile applications\cite{smb2_tech}.
+for mobile applications~\cite{smb2_tech}.
 
 \subsection{SMB message structure}
 
@@ -1791,7 +1788,7 @@ operation, a SessionId that identifies the session, and in case the message is s
 the signature. The synchronous header also contains the signature and messageId, but instead
 of the AsyncId the synchronous header contains the TreeId, more on this later. Following
 the SMB2 packet header is the SMB2 Protocol Message, which has a variable legnth depending
-on the command code and if it is a request or a response\cite{smb2_tech}.
+on the command code and if it is a request or a response~\cite{smb2_tech}.
 
 \begin{table}[h]
 \centering
@@ -1841,7 +1838,7 @@ authentication. In case Kerberos authentication is not available, the client may
 authenticate via NTLM. This works by the server sending a challenge to the client,
 and using the client password as a shared secret, the response to the challenge is
 calculated, and sent back to the server, which verifies the response and authenticates
-the client\cite{smb2_tech}.
+the client~\cite{smb2_tech}.
 
 Once the connection is established and the client is authenticated, it may now connect
 to a share exported by the server. This is done via the SMB2 TREE\_CONNECT request.
@@ -1852,7 +1849,7 @@ access rights, allocates a specific tree connect object to store information abo
 and this objects is identified via a TreeId that is sent back to the client, alongside
 the share type, disk, pipe or printer. In addition,
 the server returns information about the share capabilities, suchs a continous availability
-or scaleout capabilities\cite{smb2_tech}.
+or scaleout capabilities~\cite{smb2_tech}.
 
 Having connected to the share the client is now able to perform the main meat of the
 transaction, that is file operations. The client can use SMB2 CREATE to create
@@ -1870,7 +1867,7 @@ The number of credits is equal to the size of the request, or the expected size 
 the response, whichever is larger, divided by 65536 plus 1. It is up to the client
 to request credits as they are consumed, and the server should grant credits when
 requested, to avoid a situation where the client reaches 0 credits, as without
-any credits the client cannot request any more credits and is then stuck\cite{smb2_tech}.
+any credits the client cannot request any more credits and is then stuck~\cite{smb2_tech}.
 
 When the client is finished with a share it is time to disconnect and log off. The
 disconnection is performed via a SMB2 TREE\_DISCONNECT message, using the TreeId
@@ -1878,7 +1875,7 @@ provided earlier when connection was setup to the share. If the client is done w
 operations, it can log off from the server via the SMB2 LOGOFF message, allowing
 the client to cut all connections to the server. This section only covers the most
 relevant process and possibilities of using the SMB protocol to access a shared resource.
-For further reference the Microsoft Technical documentationcite\cite{smb2_tech} outlines all possible
+For further reference the Microsoft Technical documentationcite~\cite{smb2_tech} outlines all possible
 scenarios, and is available for futher reading into the technical specifics of the
 SMB protocol messages and functionalities.
 
@@ -1891,12 +1888,12 @@ performance and security. The SMB protocol supports RDMA via SMB Direct. The goa
 of RDMA is to allow remote direct memory access, that is reading from and writing
 to a remote memory buffer, withouth having to copy the data. This copy saves CPU
 cycles, and in that ways requires less processing power and improves throughput
-by using specific network adapters with support for RDMA\cite{rfc5040}.
+by using specific network adapters with support for RDMA~\cite{rfc5040}.
 Likewise, the goal of SMB Direct is to improve performance by utilizing RDMA
 and multichannel. SMB multichannel then allows the client to open multiple connections
 to the server, improving performance by transfering data in parallel. Encryption is
 supported since SMB 3.1.1 by encrypting the payloads before they are sent over the
-wire\cite{smb_direct}.
+wire~\cite{smb_direct}.
 
 From the perspective of this thesis, the more interesting alternative transport is
 SMB over QUIC. As discussed in Section~\ref{sec:quic}, the QUIC protocol brings
@@ -1907,15 +1904,15 @@ blocking of SMB port 445 and connections migration. The biggest improvement to t
 SMB protocol is the inclusion of transport level ecnryption. While SMB version >= 3
 supports per share based encryption, the cryptographic analysis is outside the scope
 of this thesis, but benefits of TLS 1.3, such as perfect forward secrecy is not
-part of standard SMB encryption\cite{smb_quic}. SMB over QUIC supports negotiating
+part of standard SMB encryption~\cite{smb_quic}. SMB over QUIC supports negotiating
 transport level encryption in the transport capabilities of the negotiate protocol
 request. This allows the client and server to skip SMB level encryption, even though
 it is enabled on a share, allowing the communication to entirely rely on QUIC for
-secure communications\cite{smb2_tech}. Additionally SMB over QUIC supports a concept
+secure communications~\cite{smb2_tech}. Additionally SMB over QUIC supports a concept
 that is called client access control. As outlined in earlier sections, in TLS 1.3,
 during the handshake,  there is the possibility for the server to request that the client
 provides its own certificate for authentication purposes. The server can then use
-that certificate to determine if the client should be able to connect to the share\cite{smb_quic_cac}.
+that certificate to determine if the client should be able to connect to the share~\cite{smb_quic_cac}.
 
 \clearpage
 \section{Implementing QUIC as transport for SMB server}
@@ -1925,12 +1922,12 @@ level implementation in Linux, instead relying on user space libraries for suppo
 This was a concious design decision for the protocol, allowing for different
 implementations and easier iterations and switching betweeen different stacks.
 There exists many different implementations of QUIC, such as lsquic developed by
-LiteSpeed, quiche developed by cloudflare and MsQuic developed by microsoft\cite{quic_implementations}.
+LiteSpeed, quiche developed by cloudflare and MsQuic developed by microsoft~\cite{quic_implementations}.
 There is also an active effort to develop a version of QUIC for the Linux kernel,
-driven by Xin Long\cite{quic_linux_kernel}. For the purposes of this thesis the
+driven by Xin Long~\cite{quic_linux_kernel}. For the purposes of this thesis the
 MsQuic library was chosen as the library that is used to implement the QUIC transport
 layer. The reasoning behind this choice was twofold. Firstly, the MsQuic library
-shows promising performance numbers when compared to other libraries\cite{quic_perf}.
+shows promising performance numbers when compared to other libraries~\cite{quic_perf}.
 Secondly, as the only SMB over QUIC client available is the Microsoft client, it is
 advantageous to use the same implementation both in the server and the client,
 to ensure maximum compatibility. This section of the thesis will outline the
@@ -1945,11 +1942,11 @@ implemented as a shared library written in C, with additional support for develo
 in C++, Rust and C\#. It is open source and licensed under the MIT-license. The library
 utilizes the Windows Secure Channel (Schannel) suite for cryptography implementations
 on Windows, and for Linux based machines the library uses a custom fork of the
-OpenSSL library to provide support for QUIC specific cryptography\cite{msquic}. The
+OpenSSL library to provide support for QUIC specific cryptography~\cite{msquic}. The
 library uses an asynchronous processing model, where the caller create callback functions
 and registers those with different MsQuic objects, such as listeners and connections.
 This callback handlers are then invoked to handle events that occur, such as receiving
-a new connection request, a stream opened or closed, or receiving data on a stream\cite{msquic_docs}. 
+a new connection request, a stream opened or closed, or receiving data on a stream~\cite{msquic_docs}. 
 
 \subsubsection{High level architecture}
 
@@ -1966,14 +1963,14 @@ MsQuic library model includes 5 main types of objects, the Registration, Configu
 Listener, Connection and Stream objects. The hierarchy of these objects can be seen
 in Figure~\ref{fig:msquic_arch}. All function calls are done in relation to one of
 these objects with the exception of the call to intialize the library, which returns
-a function table of MsQuic functions, and the corresponding call to close the library\cite{msquic_docs}.
+a function table of MsQuic functions, and the corresponding call to close the library~\cite{msquic_docs}.
 
 The registration object represents the execution context for the transport, being
 responsible for the connection logic and creating the threads that are used for
 processing. All other objects are created under the registration, and each registration
 is completely independent from one another, with resources and scope not being
 shared between different registrations. In practice this means that generally one
-application uses only one registrations\cite{msquic_docs}.
+application uses only one registrations~\cite{msquic_docs}.
 
 The configuration object stores the settings that are used in configuring the MsQuic
 library. These include QUIC transport settings, as well as security configurations. Everything
@@ -1983,21 +1980,21 @@ in the MsQuic documentation. In addition, each of the MsQuic objects have specif
 parameters that may be configured, and the certificate as well as its parameters
 is separately configured, for example configuring requesting a certificate from the client
 and allowed cipher suites. The configuration object also stores a list of
-Application Layer Protocol Negotiation (ALPN) IDs that the server supports\cite{msquic_docs}.
+Application Layer Protocol Negotiation (ALPN) IDs that the server supports~\cite{msquic_docs}.
 For reference SMB over QUIC simply uses the ALPN ID "smb".
 
 Following this is the listener object, which is responsible for listening for
 and accepting incoming connections. The listener object uses a callback function
 that is responsible for handling incoming connections. The callback function decides
 if the incoming connections is accepted, and if it is a connection object is created
-in response\cite{msquic_docs}.
+in response~\cite{msquic_docs}.
 
 The Connection object represents the QUIC connection between two peers. On the client
 side this connection is explicitly created via a function call, while on the server
 side it is created in the listenere callback. The connection object contains information
 about the connection, and it is expected to handle events related to connection setup,
 stream creation and connection teardown, either as a result of an error or from one
-of the peers closing the connection\cite{msquic_docs}.
+of the peers closing the connection~\cite{msquic_docs}.
 
 The most important object type is the stream object, as it is responsible for
 the data transfer between the peers. As dicussed in Section~\ref{sec:quic}, there
@@ -2009,7 +2006,7 @@ the event. When sending data the MsQuic library takes temporary ownership of the
 buffer, copying the data internally and queuing the data to be sent. This allows
 the MsQuic library to "keep the pipe full", aiming to not let the stream sit unecesarily
 idle. It is also possible to disable this internal buffering, instead making the
-caller responsible for queuing enough sends to prevent idleing the connection\cite{msquic_docs}.
+caller responsible for queuing enough sends to prevent idleing the connection~\cite{msquic_docs}.
 
 Receiving data happens via a receive event, that gets passed to the callback function.
 This includes references to buffers that contains the received data. The data can
@@ -2023,7 +2020,7 @@ done processing. Alternatively, the MsQuic library support Multi-receive mode,
 where the library will keep creating receive events when data is available, and
 it is up to the caller to keep track of the number of bytes processed, and report
 this back to the library. This enables more efficient processing of data when the
-processing is done in a separate thread\cite{msquic_docs}.
+processing is done in a separate thread~\cite{msquic_docs}.
 
 \subsection{Fusion SMB server QUIC transport layer design}
 
@@ -2172,7 +2169,7 @@ be compared to the Windows implementation.
 \subsubsection{Benchmarking Software}
 The MsQuic repository contains a tool for testing the performance of MsQuic called
 SecNetPerf\footnote{\url{https://github.com/microsoft/msquic/tree/main/src/perf}},
-which implements a QUIC performance protocol defined in \cite{banks-quic-performance-00}.
+which implements a QUIC performance protocol defined in ~\cite{banks-quic-performance-00}.
 The tool enables the testing of link throughput, which means that the tool is used
 to get a baseline performance of MsQuic over the link used for testing, which can then
 be compared to the throughput of the SMB over QUIC solution, to determine the overhead
