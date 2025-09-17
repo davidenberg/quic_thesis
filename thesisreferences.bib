@@ -925,4 +925,50 @@ keywords = {QUIC, High-rate links, Performance evaluation, Transport protocols},
     abstract =  {The QUIC performance protocol provides a simple, general-purpose protocol for testing the performance characteristics of a QUIC implementation. With this protocol a generic server can support any number of client-driven performance tests and configurations. Standardizing the performance protocol allows for easy comparisons across different QUIC implementations.},
 }
 
+@misc{rfc7413,
+    series =    {Request for Comments},
+    number =    7413,
+    howpublished =  {RFC 7413},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC7413},
+    url =       {https://www.rfc-editor.org/info/rfc7413},
+    author =    {Yuchung Cheng and Jerry Chu and Sivasankar Radhakrishnan and Arvind Jain},
+    title =     {{TCP Fast Open}},
+    pagetotal = 26,
+    year =      2014,
+    month =     dec,
+    abstract =  {This document describes an experimental TCP mechanism called TCP Fast Open (TFO). TFO allows data to be carried in the SYN and SYN-ACK packets and consumed by the receiving end during the initial connection handshake, and saves up to one full round-trip time (RTT) compared to the standard TCP, which requires a three-way handshake (3WHS) to complete before data can be exchanged. However, TFO deviates from the standard TCP semantics, since the data in the SYN could be replayed to an application in some rare circumstances. Applications should not use TFO unless they can tolerate this issue, as detailed in the Applicability section.},
+}
+
+@Online{fast_open_problem,
+  url     = {https://lwn.net/Articles/458610/},
+  author  = {Jonathan Corbet},
+  title   = {LPC: Making the net go faster},
+  urldate = {2025-09-17}
+}
+
+@Online{cloudflare_radar,
+  url     = {https://radar.cloudflare.com/},
+  author  = {Cloudflare},
+  title   = {Cloudflare Radar},
+  urldate = {2025-09-17}
+}
+
+@techreport{ietf-tcpm-tcp-edo-15,
+    number =    {draft-ietf-tcpm-tcp-edo-15},
+    type =      {Internet-Draft},
+    institution =   {Internet Engineering Task Force},
+    publisher = {Internet Engineering Task Force},
+    note =      {Work in Progress},
+    url =       {https://datatracker.ietf.org/doc/draft-ietf-tcpm-tcp-edo/15/},
+    author =    {Dr. Joseph D. Touch and Wesley Eddy},
+    title =     {{TCP Extended Data Offset Option}},
+    pagetotal = 23,
+    year =      2025,
+    month =     may,
+    day =       31,
+    abstract =  {TCP segments include a Data Offset field to indicate space for TCP options but the size of the field can limit the space available for complex options such as SACK and Multipath TCP and can limit the combination of such options supported in a single connection. This document updates RFC 9293 with an optional TCP extension to that space to support the use of multiple large options. It also explains why the initial SYN of a connection cannot be extending a single segment.},
+}
+
+
 @Comment{jabref-meta: databaseType:bibtex;}
