@@ -2307,22 +2307,22 @@ workloads, a common metric for filesharing solutions.
 	FIO scenario 1 (single sequential)
 	fio --name=single-seq -rw=<write/read> --filesize=5g -bs=1m
 	--nrfiles=1 --ioengine=windowsaio --iodepth=4 --direct=1
-	--time_based --ramp_time=15 --run_time=120 --fallocate=native
+	--time_based --ramp_time=15 --runtime=120 --fallocate=native
 
 	FIO scenario 2 (single random)
 	fio --name=single-rand -rw=rand<write/read> --size=1g -bs=4k
 	--nrfiles=1 --ioengine=windowsaio --iodepth=16 --direct=1
-	--time_based --ramp_time=15 --run_time=120 --fallocate=native
-	--numjobs=4 --group_reporting
+	--time_based --ramp_time=15 --runtime=120 --fallocate=native
+	--numjobs=1
 
 	FIO scenario 3 (multiple random)
-	fio --name=large-rand -rw=rand<write/read> --filesize=100k
-	-bs=1m --nrfiles=16 --ioengine=windowsaio --iodepth=4
-	--direct=1 --time_based --ramp_time=15 --run_time=120
+	fio --name=multiple-rand -rw=rand<write/read> --filesize=100k
+	-bs=4k --nrfiles=16 --ioengine=windowsaio --iodepth=4
+	--direct=1 --time_based --ramp_time=15 --runtime=120
 	--fallocate=native --create-serialize=0
 
 	Frametest
-	./frametest -<w/r> 4k -n 4500 -t8 PATH
+	./frametest -<w/r> 2k -n 2000 -t8 PATH
 \end{verbatim}
 
 \end{document}
