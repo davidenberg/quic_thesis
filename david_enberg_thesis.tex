@@ -210,6 +210,8 @@
 %% the appendix. If you don't need it, remove it.
 \usepackage{longtable}
 
+\usepackage{pgfplots}
+
 %% A package for generating Creative Commons copyright terms. If you don't use
 %% the CC copyright terms, remove it, since otherwise undesired information may
 %% be added to this document's metadata.
@@ -2279,6 +2281,157 @@ writing and reading media shares. This enables synthetic benchmarking of media
 workloads, a common metric for filesharing solutions.
 
 \subsection{Results}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.25,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (MB/s),
+	symbolic x coords={Read, Write},
+    xtick=data,
+	title={Scenario 1},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(Write,497) (Read, 513)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\addplot 
+	coordinates {(Write,517) (Read, 524)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.25,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (MB/s),
+	symbolic x coords={Read, Write},
+    xtick=data,
+	title={Scenario 2},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(Write,121) (Read, 121)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\addplot 
+	coordinates {(Write,108) (Read, 132)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.25,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (iops),
+	symbolic x coords={Read, Write},
+    xtick=data,
+	title={Scenario 2 iops},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(Write,29700) (Read, 29600)};
+\addplot 
+	coordinates {(Write,10000) (Read, 10000)};
+\addplot 
+	coordinates {(Write,26500) (Read, 32300)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.25,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (MB/s),
+	symbolic x coords={Read, Write},
+    xtick=data,
+	title={Scenario 3},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(Write,102) (Read, 115)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\addplot 
+	coordinates {(Write,103) (Read, 118)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.25,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (iops),
+	symbolic x coords={Read, Write},
+    xtick=data,
+	title={Scenario 3 iops},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(Write,24900) (Read, 28000)};
+\addplot 
+	coordinates {(Write,10000) (Read, 10000)};
+\addplot 
+	coordinates {(Write,25300) (Read, 28900)};
+\addplot 
+	coordinates {(Write,10000) (Read, 10000)};
+\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.25,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (MB/s),
+	symbolic x coords={Read, Write},
+    xtick=data,
+	title={Frametest Throughput},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(Write,378) (Read, 388)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\addplot 
+	coordinates {(Write,480) (Read, 476)};
+\addplot 
+	coordinates {(Write,100) (Read, 100)};
+\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
+\end{axis}
+\end{tikzpicture}
+
 \clearpage
 \section{Conclusions}
 \label{sec:conclusion}
