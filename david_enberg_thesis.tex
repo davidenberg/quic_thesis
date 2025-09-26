@@ -581,9 +581,10 @@ Even though the improvements brought on by QUIC have been widely studied in the 
 of web traffic~\cite{quic_better_for_what,evaluating_quic_perf,quic_and_tcp_performance},
 no studies have been done on the performance of SMB using the QUIC transport protocol.
 While the support for alternative transport protocols in the SMB protocol, mainly
-Remote Direct Memory Access (RDMA) and QUIC, has been defined and implemented by Microsoft~\cite{smb2}, formal
-efforts into researching and comparing the performance of these alternative transports
-are non-existent. There is also no current implementation of SMB over QUIC for Linux
+Remote Direct Memory Access (RDMA) and QUIC, has been defined and implemented by Microsoft~\cite{smb2},
+The writer is not aware of formal
+efforts into researching and comparing the performance of these alternative transports.
+Additionally, there is no implementation know of SMB over QUIC for Linux
 based systems, with currently the only available implementation being in Windows machines.
 SMB suffers in the context of network reachability, as many internet service providers
 choose to block the port used by SMB due to several exploits targeting this specific port,
@@ -596,8 +597,8 @@ HOL blocking, improve latency of the connection and improve deployment to user s
 applications. Additionally, since QUIC is designed with mobile users in mind, it could
 improve the reliability of the SMB protocol in diverse mobile environments, especially
 for mobile users. By moving from the traditional TCP port 445 to UDP port 443,
-SMB over QUIC in essence would mimic normal web traffic, circumventing the blocking
-of SMB traffic that is commonly done for TCP.
+SMB over QUIC in essence would mimic HTTP/3 web traffic on the transport level,
+circumventing the blocking of SMB traffic that is commonly done for TCP.
 
 The objective of this thesis is to design, implement and benchmark a QUIC transport
 layer for an SMB server. The aim is to develop a working prototype that can be used to
@@ -900,6 +901,13 @@ of HTTP over TLS, HTTPS, it was now possible to set up more secure, encrypted co
 instead of transmitting data in cleartext~\cite{rfc2818}.
 \subsubsection{SPDY}
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of HTTP multiplexing.}, height=3cm]{./images/http_multiplex.png}
+	\caption{HTTP multiplexing}
+	\label{fig:http_mux}
+\end{figure}
+
 The SPDY protocol was designed by Google to improve latency of web pages, as compared
 to HTTP/1.1. The SPDY protocol was designed to work as an extension to HTTP/1.1,
 slotting into the session layer and largely defining how HTTP traffic is sent over the
@@ -907,7 +915,9 @@ wire, with some additional improvements to the HTTP protocol. In practice SPDY
 introduced three improvements, multiplexed streams, header compression and server push capabilities~\cite{spdy}.
 
 SPDY introduced multiplexing of HTTP streams, allowing for an unlimited number
-of multiplexed streams over one TCP connection. As compared to HTTP/1.1's pipelining,
+of multiplexed streams over one TCP connection. The multiplexing works by splitting
+the data into frames, which are interleaved and transmitted over a single TCP connection,
+as can be seen in Figure~\ref{fig:http_mux}. As compared to HTTP/1.1's pipelining,
 the true multiplexing of SPDY allows the server to respond to requests in any order,
 instead of being forced to follow the specific request order. This allowed for a second improvement,
 where a client could attach a priority value to the requests, signaling to the server
@@ -977,11 +987,11 @@ in compression rate~\cite{rfc9204}.
 \label{sec:tls}
 The Transport Layer  Security (TLS) protocol is an evolution from the Secure Socket Layer (SSL)~\cite{rfc6101} protocol.
 TLS aims to secure communication between two endpoints. The TLS protocol provides three
-properties to data communication. First authentication, with the server side of the
-communication always being authenticated, and the client side optionally being
-authenticated. Second confidentiality, TLS ensures that data sent between the
+properties to data communication. First, authentication: the server side of the
+communication is always authenticated, and the client side may optionally be
+authenticated. Second, confidentiality: TLS ensures that data sent between the
 endpoints is encrypted, ensuring that only the intended recipient can
-decrypt and read the data. Finally, integrity, data transmitted through
+decrypt and read the data. Finally, integrity: data transmitted through
 a TLS tunnel cannot be tampered with, without alerting the recipient~\cite{rfc8446}.
 
 The TLS protocol consists of two components, First, the handshake protocol is used to
@@ -1073,8 +1083,8 @@ the clients to manipulate the files as if they were stored on their local machin
 DFS's abstract away the complexities of distributed data access, exposing a set
 of file operations to the clients, allowing them to create, delete, read and write files among other operations.
 The DFS ensures consistency, reliability and access between different
-clients and access points~\cite{os_concepts}. Currently, the most widely adopted
-distributed file systems is the Server Message Block (SMB)~\cite{smb2} and the
+clients and access points~\cite{os_concepts}. Currently, the two most widely adopted
+distributed file systems are the Server Message Block (SMB)~\cite{smb2} and the
 Network File System (NFS)~\cite{rfc7530}. Both protocols provide file system access
 over a network, but they differ in design, environment and features.
 
@@ -1108,7 +1118,7 @@ machines. In contrast to the SMB protocol, the NFS protocol was designed to be a
 stateless protocol. This simplifies processing, as each request contains all necessary
 information to complete the request, and in case the request fails the client may
 simply try again. Recovery from error states is simpler as no sessions have to be
-reestablished. The stateless  design come with drawbacks,
+re-established. The stateless  design come with drawbacks,
 for example two concurrent clients trying to write the same file could cause the
 writes to be interleaved, causing unintended outcomes, as the writes are simply
 processed in the order they arrived~\cite{nfs_design}.
@@ -1280,7 +1290,7 @@ Connection IDs to identify the connection, allowing the connection to resume whe
 there is some change in network. QUIC was widely deployed on Google's front-end servers,
 and by 2017 it was already estimated that QUIC represented 7\% of global internet
 traffic~\cite{quic_transport_protocol_design}. Since then the adoption of QUIC has
-been rapid and according to statistics by cloudflare, QUIC makes up more than 30\% of web traffic\cite{cloudflare_radar}.
+been rapid and according to statistics by Cloudflare, QUIC makes up more than 30\% of web traffic\cite{cloudflare_radar}.
 
 QUIC was submitted to the IETF for consideration in 2016, and a working group
 was created for the purposes of standardizing QUIC. The goal of the working group
@@ -1536,8 +1546,8 @@ sent after the potentially lost packet has been acknowledged, and enough time ha
 since the first packet was sent. Alternatively, a Probe Timeout (PTO) causes one or two
 datagrams to be sent out, expecting a response to test the reachability of the peer~\cite{rfc9002}.
 
-The QUIC protocol provides a set of generical signals that are designed to support
-multiple different sender-side congestion algorithms. A congestion algorithm similar
+The QUIC protocol provides a set of generic signals that are designed to support
+multiple different sender-side congestion control algorithms. A congestion algorithm similar
 to TCP NewReno~\cite{rfc6582} is outlined in RFC 9002. However, a sender is free to
 choose any one algorithm they feel suits their use case, such as CUBIC, given that they conform
 to the congestion control algorithms outlined in RFC 8085~\cite{rfc8085}. One option
@@ -1767,9 +1777,9 @@ The SMB protocol is designed to be run on top of a reliable transport. Historica
 this was NetBIOS over TCP, later standardized to standard TCP. As outlined earlier
 in this section, later versions of the SMB protocol support alternative transports. The
 SMB dialects >= 3.0 supports use of RDMA via SMB direct, for improved performance.
-The latest version of the SMB protocol, 3.1.1 add support for the QUIC protocol,
+The latest version of the SMB protocol, 3.1.1 adds support for the QUIC protocol,
 which comes with increased security guarantees and potentially improved performance
-over tcp~\cite{smb2_tech}.
+over TCP~\cite{smb2_tech}.
 
 \subsection{SMB message structure}
 
@@ -1782,8 +1792,8 @@ over tcp~\cite{smb2_tech}.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[alt={A block diagram of the SMB2 Packet header common fields format, detailing its fields and their sizes.}, height=11cm]{./images/smb_packet_header_common.png}
-	\caption{The SMB Direct TCP header}
+	\includegraphics[alt={A block diagram of the SMB2 Packet header common fields format, detailing its fields and their sizes.}, height=14cm]{./images/smb_packet_header_common.png}
+	\caption{The SMB protocol header}
 	\label{fig:smb2_transport_header}
 \end{figure}
 
@@ -1874,7 +1884,7 @@ in the form {\textbackslash\textbackslash}server{\textbackslash}share. The serve
 tries to find the requested share, and if successful and the client has appropriate
 access rights, allocates a specific tree connect object to store information about the session.
 This object is identified via a TreeId that is sent back to the client, alongside
-the share type, disk, pipe or printer. In addition,
+the share type: disk, pipe or printer. In addition,
 the server returns information about the share capabilities, such as continuous availability
 or scaleout capabilities~\cite{smb2_tech}.
 
@@ -1924,7 +1934,7 @@ to the server, improving performance by transferring data in parallel. Encryptio
 RDMA is supported since SMB 3.1.1 by encrypting the payloads before they are sent over the
 wire~\cite{smb_direct}.
 
-From the perspective of this thesis, the most relevamt alternative transport is
+From the perspective of this thesis, the most relevant alternative transport is
 SMB over QUIC. As discussed in Section~\ref{sec:quic}, the QUIC protocol brings
 many advantages over legacy TCP transports. QUIC enables transport-level encryption
 that leverages TLS 1.3 for more secure cryptography, multiple logical streams
@@ -1951,8 +1961,8 @@ The QUIC protocol, as outlined in Chapter~\ref{sec:quic}, currently has no kerne
 level implementation in Linux, instead relying on user space libraries for support.
 This was a conscious design decision for the protocol, allowing for different
 implementations and easier iterations as well as switching between different stacks.
-There exist many different implementations of QUIC, such as lsquic developed by
-LiteSpeed, quiche developed by Cloudflare and MsQuic developed by Microsoft~\cite{quic_implementations}.
+There exist many different implementations of QUIC, such as \textit{lsquic} developed by
+LiteSpeed, \textit{quiche} developed by Cloudflare and \textit{MsQuic} developed by Microsoft~\cite{quic_implementations}.
 There is also an active effort to develop a version of QUIC for the Linux kernel,
 driven by Xin Long~\cite{quic_linux_kernel}. For the purposes of this thesis the
 MsQuic library was chosen as the library that is used to implement the QUIC transport
@@ -1995,7 +2005,7 @@ in Figure~\ref{fig:msquic_arch}. All function calls are done in relation to one 
 these objects with the exception of the call to initialize the library, which returns
 a function table of MsQuic functions, and the corresponding call to close the library~\cite{msquic_docs}.
 
-The registration object represents the execution context for the transport, being
+The Registration object represents the execution context for the transport, being
 responsible for the connection logic and creating the threads that are used for
 processing. All other objects are created under the registration, and each registration
 is completely independent from one another, with resources and scope being
@@ -2011,9 +2021,15 @@ parameters that can be configured, and the certificate as well as its parameters
 is separately configured, for example configuring requesting a certificate from the client
 and allowed cipher suites. The configuration object also stores a list of
 Application Layer Protocol Negotiation (ALPN) IDs that the server supports~\cite{msquic_docs}.
-For reference SMB over QUIC simply uses the ALPN ID "smb".
+ALPN is a TLS feature, that is designed for a situation where it is not clear which
+service a client is trying to access. This may arise when a server is running
+multiple network services that all use the same port, for example as the SMB over
+QUIC protocol uses the same UDP
+port as HTTP/3. ALPN allows the server and client to negotiation which protocol
+will be used inside the TLS tunnel, removing the need for an additional round trip to negotiate
+the used protocol separately\cite{rfc7301}. For reference SMB over QUIC simply uses the ALPN ID "smb".
 
-Following this is the listener object, which is responsible for listening for
+The listener object is responsible for listening for
 and accepting incoming connections. The listener object uses a callback function
 that is responsible for handling incoming connections. The callback function decides
 if the incoming connections is accepted, and if it is a connection object is created
@@ -2026,7 +2042,7 @@ about the connection, and it is expected to handle events related to connection 
 stream creation and connection teardown, either as a result of an error or from one
 of the peers closing the connection~\cite{msquic_docs}.
 
-The most important object type is the stream object, as it is responsible for
+The most important object type is the Stream object, as it is responsible for
 the data transfer between the peers. As discussed in Section~\ref{sec:quic}, there
 can be a theoretical unlimited number of streams on top of a connection, but in
 practice the maximum number is configured in the MsQuic library, with separate
@@ -2074,7 +2090,7 @@ support, relevant especially for mobile users.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[alt={Block diagram of the flow between Fusion SMB and MsQuic}, height=7.4cm]{./images/MsQuic_integration.png}
+	\includegraphics[alt={Block diagram of the flow between Fusion SMB and MsQuic}, height=12cm]{./images/MsQuic_integration.png}
 	\caption{MsQuic integration with Fusion SMB}
 	\label{fig:msquic_int}
 \end{figure}
@@ -2117,13 +2133,15 @@ When implementing the QUIC layer, the multi-receive mode of the MsQuic
 library, as outlined in Section~\ref{sec:msquic}, will be used due to the improved performance
 this offers the application. In practice this means that as soon as data is available,
 the stream callback is invoked with a QUIC\_STREAM\_EVENT\_RECEIVE event, containing
-the received data. This data should then be processed asynchronously, that is not in
-the callback handler, in the Fusion SMB server's internal threads. To accomplish this,
+the received data. This data should then be processed in a separate thread, that is not in
+the callback handler inside the MsQuic worker thread. This is accomplished by passing
+along the data to the Fusion SMB server's internal threads. To enable this,
 when data is received, the reference to the received buffers is copied into a separate
 data structure, as seen in Figure~\ref{fig:msquic_buf}, consisting of a linked list
 of buffers. This choice was made as it cannot be guaranteed that the servers is able to drain 
 the incoming data faster than it arrives, and the linked list structure allows
-the total buffer size to grow dynamically as needed. This also allows the processing in the
+the total buffer size to grow dynamically as needed. Notable is that the data itself
+is not copied, only the reference to it. This also allows the processing in the
 callback function to be swift, quickly freeing up the worker thread for additional processing.
 This solution simplifies integration with the existing receive interface, as the receiving threads
 expect BSD-style socket semantics, that is issuing read calls to read in data, instead of the
@@ -2153,7 +2171,7 @@ MsQuic library that the processing of the received data is at least partially co
 
 The transmission of data is less involved than receiving data, as can be seen
 in Figure~\ref{fig:msquic_tx}. When data is to be transmitted it is stored in
-an array of buffers in the iovec format. When transmitting the data the MsQuic
+an array of buffers in the iovec format\footnote{\url{https://man7.org/linux/man-pages/man3/iovec.3type.html}}. When transmitting the data the MsQuic
 library expects the buffers to be in its own internal QUIC\_BUFFER format,
 so the iovecs could simply be cast to the QUIC\_BUFFER struct. However, as the MsQuic call to transmit
 data, StreamSend(), is non-blocking, it is not guaranteed that by the time the buffers
@@ -2233,7 +2251,7 @@ additionally perform some basic file operations to ensure that the data transfer
 working properly. Additionally, the connection should remain stable during the lifetime
 of the connection, and teardown should be handled gracefully.
 
-\subsubsection{Becnhmarking scenarios}
+\subsubsection{Benchmarking scenarios}
 
 The exact commands used in running the benchmarks are available in Appendix~\ref{app:bench}.
 The tests were chosen in such a way as to both benchmark the solutions under optimal conditions,

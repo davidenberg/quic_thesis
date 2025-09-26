@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0" version="28.2.5">
+  <diagram name="Page-1" id="WeivuNJfBmx4OzAlZXEy">
+    <mxGraphModel dx="1426" dy="779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;" edge="1" parent="1" source="dfzNd_m3CNcwE50NuS4O-14" target="dfzNd_m3CNcwE50NuS4O-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-14" value="Receive event" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#0000FF;" vertex="1" parent="1">
+          <mxGeometry x="360" y="150" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="dfzNd_m3CNcwE50NuS4O-16" target="dfzNd_m3CNcwE50NuS4O-36">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="420" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-16" value="Store buffer information in transport object" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#0000FF;" vertex="1" parent="1">
+          <mxGeometry x="360" y="260" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="dfzNd_m3CNcwE50NuS4O-36" target="dfzNd_m3CNcwE50NuS4O-23">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="400" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-18" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#0000FF;" vertex="1" connectable="0" parent="dfzNd_m3CNcwE50NuS4O-17">
+          <mxGeometry x="0.175" y="-1" relative="1" as="geometry">
+            <mxPoint x="7" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0000FF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="dfzNd_m3CNcwE50NuS4O-36" target="dfzNd_m3CNcwE50NuS4O-25">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="400" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-20" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#0000FF;" vertex="1" connectable="0" parent="dfzNd_m3CNcwE50NuS4O-19">
+          <mxGeometry x="0.05" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#0000FF;" edge="1" parent="1" source="dfzNd_m3CNcwE50NuS4O-23" target="dfzNd_m3CNcwE50NuS4O-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-23" value="&lt;div&gt;Create a MSG_SMB_TRANSPORT_RX&lt;/div&gt;&lt;div&gt;event and pass the MSG to RX threads&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#0000FF;" vertex="1" parent="1">
+          <mxGeometry x="90" y="370" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#0000FF;" edge="1" parent="1" source="dfzNd_m3CNcwE50NuS4O-25" target="dfzNd_m3CNcwE50NuS4O-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-25" value="Signal to RX thread that more data is available, e.g. with a conditional variable" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#0000FF;" vertex="1" parent="1">
+          <mxGeometry x="560" y="370" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="dfzNd_m3CNcwE50NuS4O-28" target="dfzNd_m3CNcwE50NuS4O-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-27" value="RX thread drains data from the buffer" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];strokeColor=#CC0066;fillColor=none;" vertex="1" connectable="0" parent="dfzNd_m3CNcwE50NuS4O-26">
+          <mxGeometry x="-0.24" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-28" value="return STATUS_PENDING to MsQUIC" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#0000FF;" vertex="1" parent="1">
+          <mxGeometry x="360" y="480" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-29" value="Call StreamReceiveComplete to indicate that the data was succesfully processed" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#CC0066;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="340" y="630" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-30" value="Legend" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="115" y="170" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-31" value="&lt;span style=&quot;color: rgb(0, 0, 153);&quot;&gt;MsQUIC callback&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="dfzNd_m3CNcwE50NuS4O-30">
+          <mxGeometry y="30" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-32" value="&lt;span style=&quot;color: rgb(204, 0, 102);&quot;&gt;Fusion RX thread&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="dfzNd_m3CNcwE50NuS4O-30">
+          <mxGeometry y="60" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="dfzNd_m3CNcwE50NuS4O-36" value="&lt;div&gt;Is this connection&lt;/div&gt;&lt;div&gt;being processed in&lt;/div&gt;&lt;div&gt;RX thread&lt;/div&gt;" style="rhombus;whiteSpace=wrap;html=1;strokeColor=#0000FF;" vertex="1" parent="1">
+          <mxGeometry x="335" y="357.5" width="170" height="85" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
