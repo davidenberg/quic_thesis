@@ -759,7 +759,7 @@ amount of packet loss is deemed acceptable. It is then up to the application lay
 handle missing, reordered or duplicate datagrams.
 
 \subsection{Streams}
-
+\label{sec:streams}
 A data stream is defined as a set of digital signals that is used to transmit
 information~\cite{data_stream}. In practice, when talking about internet
 transport protocols, a data stream refers to an ordered series of bytes that is
@@ -778,7 +778,7 @@ transport protocols.
 
 \subsubsection{SST}
 
-The Structured Stream Transport (SST) was introduced in ~\cite{sst} with the aim
+SST was introduced in ~\cite{sst} with the aim
 of extending TCP semantics by introducing a hierarchical structure, allowing
 child streams to be created on top of an existing stream. These streams can
 be created without having to set up new connections, making them much more lightweight
@@ -787,12 +787,17 @@ to exist in parallel, alleviating the issues of HOL blocking as each stream uses
 independent flow control. SST also supports independent stream prioritization
 as well as reliable and best effort (unreliable) delivery~\cite{sst}.
 
-There were three primary reasons for creating the new protocol, SST. First, while
+There were three primary reasons for creating the new protocol, SST, that splits
+a single connection into multiple data stream . First, some protocols provide
+multiplexing on top of TCP but suffers from HOL blocking as loss will block all
+data transfers until retransmission. This issues arises as reliable communication
+protocols guarantee that all byte will be delivered in order, without any missing
+chunks. Retransmissions, especially in high latency environments, causes delivery
+delays for all of the data in the affected stream, or in the case of TCP, the
+whole connection. Secondly, while
 TCP is better suited for long connection and large data transfers, UDP excels
 in short communications where the overhead of setting up connection via TCP's three-way
-handshake provides significant overhead. Secondly, some protocols provide
-multiplexing on top of TCP but suffers from HOL blocking as loss will block all
-data transfers until retransmission. Finally, some protocols such as HTTP/1.0
+handshake provides significant overhead.  Finally, some protocols such as HTTP/1.0
 have bad utilization of network resources, as they are designed to run on top of TCP
 and open a new TCP connection for each resource that is loaded. This
 was somewhat remedied in HTTP/1.1 with the serializing of requests over one connection,
@@ -1193,12 +1198,8 @@ key issues that prompted the development of a new, modern protocol: QUIC.
 
 \subsubsection{Head-of-Line Blocking}
 \label{sec:hol}
-TCP guarantees that all frames will be delivered reliably in order. Seeing
-as a TCP connections works as a single byte-stream this results in HOL blocking,
-where any lost packet will stall the delivery of
-all subsequent packets until the missing packet has been retransmitted. This
-can potentially amplify issues in the network, increasing delays, decreasing
-throughput and worsening the user experience. To get around this limitation, modern
+As discussed in Section~\ref{sec:streams} ,TCP is negatively affected by HOL blocking.
+To get around this limitation, modern
 network protocols, such as HTTP/2~\cite{rfc9113}, have introduced measures to
 combat this issue. HTTP/2 introduced multiplexing of multiple requests over one
 connection, allowing multiple application-level streams, for example for different
@@ -1210,7 +1211,7 @@ sent over a single TCP connection. As a result, a single lost packet in the TCP
 stream still causes all other unrelated streams over the same connection to stall,
 even if their packets were successfully delivered, until the offending packet
 is be retransmitted and received. This in practice means that many of the improvements made
-by HTTP/2 in this regard are negated by the issues of TCP, particularly in lossy
+by HTTP/2 in this regard are negated by the issues of TCP, particularly in lossy or high latency
 environments~\cite{http2_vs_1}.
 
 \subsubsection{Handshake Delay}
@@ -1820,10 +1821,11 @@ contains flags for determining how the packet should be processed. In the SMB
 protocol it is possible to concatenate multiple requests into one packet. This is then
 indicated via the NextCommand field, that indicates the offset to the next request.
 Finally, the MessageId field is the unique identifier that identifies the specific
-request and its corresponding response. In addition, the asynchronous header contains an AsyncId for identifying the asynchronous
+request and its corresponding response. In addition, the asynchronous header contains
+an AsyncId for identifying the asynchronous
 operation, a SessionId that identifies the session, and in case the message is signed,
-the signature. The synchronous header also contains the signature and messageId, but instead
-of the AsyncId the synchronous header contains the TreeId, more on this later. Following
+the signature. The synchronous header likewise contains the signature and MessageId, but instead
+of the AsyncId the synchronous header contains the TreeId. Following
 the SMB2 packet header is the SMB2 Protocol Message, which has a variable length depending
 on the command code and if it is a request or a response~\cite{smb2_tech}.
 
@@ -1877,7 +1879,7 @@ and using the client password as a shared secret, the response to the challenge 
 calculated, and sent back to the server, which verifies the response and authenticates
 the client~\cite{smb2_tech}.
 
-Once the connection is established and the client is authenticated, it may now connect
+Once the SMB connection is established and the client is authenticated, it may now connect
 to a share exported by the server. This is done via the SMB2 TREE\_CONNECT request.
 The client requests to connect to a specific share, identified with the path name
 in the form {\textbackslash\textbackslash}server{\textbackslash}share. The server
@@ -1889,7 +1891,7 @@ the server returns information about the share capabilities, such as continuous 
 or scaleout capabilities~\cite{smb2_tech}.
 
 Having connected to the share the client is now able to perform the main part of the
-transaction, that is file operations. The client can use SMB2 CREATE to create
+transaction, file operations. The client can use SMB2 CREATE to create
 or open files, SMB2 CLOSE to close or delete files, SMB2 WRITE and READ to write and
 read to and from a file correspondingly, or SMB2 QUERY\_DIRECTORY to list the available files inside
 a directory.
@@ -1929,7 +1931,7 @@ to a remote memory buffer, without having to copy the data. This copy-less opera
 cycles, and in that way requires less processing power and improves throughput
 by using specific network adapters with support for RDMA~\cite{rfc5040}.
 The goal of SMB Direct is to improve performance by utilizing RDMA
-and multichannel. SMB multichannel allows the client to open multiple connections
+and multichannel. SMB multichannel allows the client to open multiple transport connections
 to the server, improving performance by transferring data in parallel. Encryption over
 RDMA is supported since SMB 3.1.1 by encrypting the payloads before they are sent over the
 wire~\cite{smb_direct}.
@@ -2140,10 +2142,16 @@ when data is received, the reference to the received buffers is copied into a se
 data structure, as seen in Figure~\ref{fig:msquic_buf}, consisting of a linked list
 of buffers. This choice was made as it cannot be guaranteed that the servers is able to drain 
 the incoming data faster than it arrives, and the linked list structure allows
-the total buffer size to grow dynamically as needed. Notable is that the data itself
-is not copied, only the reference to it. This also allows the processing in the
-callback function to be swift, quickly freeing up the worker thread for additional processing.
-This solution simplifies integration with the existing receive interface, as the receiving threads
+the total buffer size to grow dynamically as needed. This method of handling incoming
+network buffers is similar to the method used in the Linux kernel, albeit a simplified
+version, using a single-linked list instead as compared to the doubly linked list
+used in the Linux kernel\cite{linux_network_buffer}.
+As can be seen in Figure~\ref{fig:msquic_rx_data} the data is not copied until
+it reaches the internal receiving thread, with only the reference to the received buffer being
+passed around. This allows the processing in the callback function to be inexpensive,
+quickly freeing up the worker thread for additional processing.
+This solution of storing the received buffer temporarily in a linked list simplifies
+integration with the existing receive interface, as the receiving threads
 expect BSD-style socket semantics, that is issuing read calls to read in data, instead of the
 event driven model that is used by the MsQuic library. The linked list then works as a middle
 layer, allowing the receive interface to work with the QUIC transport layer without modification.
@@ -2151,6 +2159,13 @@ When draining the receive buffer the caller begins from the head, reading in as
 much data as necessary, updating the offset, and if the head is completely drained,
 moves onto the next element in the list, until the requested amount of data has
 been drained.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of how the buffer moves from MsQuic to RX thread}, height=8cm]{./images/rx_buf_flow.png}
+	\caption{Data flow from MsQuic buffer to RX thread}
+	\label{fig:msquic_rx_data}
+\end{figure}
 
 The steps of receiving data and getting it into the Fusion SMB core can be seen in Figure~\ref{fig:msquic_rx}.
 When data has arrived, and the buffer information has been copied into the receive buffer list, the
