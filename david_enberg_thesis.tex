@@ -511,6 +511,7 @@ HTTP & HyperText Transfer Protocol \\
 IP & Internet Protocol \\
 ISN & Initial Sequence Number \\
 NAT & Network Address Translator \\
+NIC & Network Interface Controller \\
 OS & Operating System \\
 RDMA & Remote Direct Memory Access \\
 RFC & Request For Comment \\
@@ -2469,9 +2470,65 @@ workloads, a common metric for filesharing solutions.
 \section{Conclusions}
 \label{sec:conclusion}
 \label{sec:summary}
+This section of the thesis will cover the key points and findings of the thesis
+and add some discussion about the state of SMB over QUIC.
 
 \subsection{Discussion}
 
+\textit{Placeholder for discussion on results}
+
+During the process of working on this thesis it became clear that the extention
+to the SMB protocol by Microsoft to support SMB over QUIC was done in such a way
+that it does not take advantage of many of the improvements offered by QUIC as compared
+to TCP. There are only two QUIC features utilized by SMB. First, transport level
+encryption with the SMB protocol moving the encryption from a per-share basis to
+instead use QUIC's native encryption. Second, SMB over QUIC implements mutual
+authentication, allowing verification of clients via certificates. However, from
+the [MS-SMB2] documentation \textit{"By default, Windows SMB2 clients and servers always use a single stream per QUIC connection.
+Sending or receiving more than one stream per connection will be blocked by the underlying transport
+QUIC."}~\cite{smb2}. This in turn results in the SMB protocol entirely neglecting
+to use one of the biggest improvements brought on by QUIC, the ability to use
+multiple streams over one connection. Following is some of the authors suggestions
+on how the SMB protocol could properly implement support for QUIC and all its
+modern features.
+
+As QUIC streams are by design lightweight, the overhead of opening new streams,
+as when compared to for example the overhead introduced by filesystem I/O, is
+negligible. The main drawback to implementing a system of multiple streams per
+connection is the increased complexity, as there are no guarantees of in-order
+delivery between the streams, a server or client might transmit two streams on after the
+other and they may arrive in the reverse order. However, the SMB protocol already
+has added support for SMB Multichannel, which enables the server and client to transmit
+and receive over multiple Network Interface Controllers (NIC), or using multiple
+paths over one NIC via Receive Side Scaling (RSS), simoultaneously. Thus the problem
+of data transfer over multiple data streams has already been solved as part of the
+protocol.
+
+The question is then concerning on how the request should be split up between different
+streams, and what the granularity of the splits could be. The naive approach
+is to map every request or compounded request to its own stream. So one stream would
+consist of a request and a response. This is similar to the methods used by DNS
+over QUIC. The advantage of this approach is that it can take full advantage of
+the multiple stream offered by QUIC, almost entirely negating HOL blocking.
+Another approach is to use streams on a per-open basis, setting up a stream
+for each file that is openend, and sending all operations concerning that file
+over the specific stream. The advantage here is lesser complexity than having
+all requests separate, while still managing to take advantage of QUIC'S advanced
+features.
+
+Not depending on how the I/O requests are split there are some other advantages
+that may be implemented as well. Some advantage could be gained by creating a
+dedicated control data stream, in addition to the data streams. The data streams
+would handle the main data transfer requests, such as as SMB2 OPEN, READ, WRITE and
+so on. By using QUIC it is possible to prioritize the streams, potentially allowing
+fast operations, such as directory listing and opens, to be completed quickly withouth
+being blocked by for example large reads and writes.
+In comparison to the data streams, the control stream would be responsible for control data, including
+but not limited to NEGOTIATE, SESSION\_SETUP, CANCEL and ECHO requests, enabling
+the control channel to handle control messages separately from the data
+transfers. An advantage of a dedicated control stream is that the SMB credit system
+could be moved there, enabling the server and client to handle credit requests
+and responses separately from other SMB commands.
 \subsection{Future work}
 
 \clearpage
