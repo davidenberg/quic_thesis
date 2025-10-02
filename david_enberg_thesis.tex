@@ -2531,6 +2531,39 @@ could be moved there, enabling the server and client to handle credit requests
 and responses separately from other SMB commands.
 \subsection{Future work}
 
+While a prototype for the QUIC transport layer has been achieved, there is still
+room for fruther development and investigation. Currently the solution works as
+as middle layer between MsQUIC and the Fusion SMB server, creating an interface
+that both sides can use for communication. While this has allowed for creating
+the prototype in the allocated timeframe, and shows promising performance when compared
+to encrypted TCP, there are still possible gains to be made. By continuing development
+it would be possible to natively support the MsQuic model, or more precisely support
+the event driven processing model presented by the MsQuic library. At the same time
+this would improve the memory management, by minimizing the amount of allocations,
+deallocations and copies that is done on the data path between the MsQuic library
+and Fusion SMB server, improving both performance and long-term stability.
+
+An aspect that was not explored by this thesis is the existance of many QUIC libraries.
+One of the advantages presented by QUIC is the fact that implementations are run
+in the user space. By prototyping any number of libraries it is possible to
+compare performance and ease-of-use, enabling a more informed decision on which
+library is desirable for use in the final version. Considering that the development
+is done for Linux based machines, one of the most promising options is the QUIC
+kernel module being developed, as outlined in Section~\ref{sec:implementation}.
+
+One of the advantages of QUIC as compared to TCP is the improved latency of connection
+establishment. By benchmarking the setup of many SMB over QUIC connections, against
+setting up SMB over encrypted TCP connections, it could highlight the performance
+difference between the implementations. However, as the Microsoft's SMB over QUIC client
+is as the time of writing the only known SMB over QUIC client, the process of setting up
+the amount of clients required for the test is far from straightforward. Once an
+alternative client is released, it may enable running connection benchmarking.
+
+As discussed the Microsoft SMB over QUIC implementation does not take advantage of
+most of QUIC's advanced features, instead opting to use QUIC in a very similar
+manner to TCP. Futher work could focus on improving the design of SMB over QUIC,
+as well as prototyping a implementation that utilizes the advantages of QUIC as
+compared to TCP.  
 \clearpage
 %% Bibliography/ list of references
 %%
