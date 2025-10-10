@@ -2250,11 +2250,6 @@ which enables running synthetic workloads on the shares. The fio tester supports
 many different scenarios, workloads as well fine-grained control over parameters
 such as file and block size, sequential and random reads as well as time based workloads.
 
-The final tool for running benchmarks is frametest\footnote{\url{https://support.dvsus.com/hc/en-us/articles/212925466-How-to-use-frametest}}, which simulates the workload of
-reading and writing media frames to and from a disk. This allows mimicing media
-workloads, which is a common use case for the SMB protocol, to see the impact that
-the QUIC protocol has on performance.
-
 \subsection{Test scenarios}
 
 \subsubsection{Interoperability tests}
@@ -2307,12 +2302,6 @@ The final FIO scenario is the reading and writing of many small files concurrent
 testing workloads where there is a lot of concurrency. This allows the benchmarking
 of a scenario with many processes simultaneously performing workloads, stress
 testing different parts of the processing than scenario 1 and 2.
-
-\paragraph{Frametest}
-
-The final test scenario is using frametest. Frametest allows for simulating
-writing and reading media shares. This enables synthetic benchmarking of media
-workloads, a common metric for filesharing solutions.
 
 \subsection{Results}
 
@@ -2437,31 +2426,6 @@ workloads, a common metric for filesharing solutions.
 	coordinates {(Write,25300) (Read, 28900)};
 \addplot 
 	coordinates {(Write,10000) (Read, 10000)};
-\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
-\end{axis}
-\end{tikzpicture}
-
-\begin{tikzpicture}
-\begin{axis}[
-    ybar,
-    enlargelimits=0.25,
-	enlarge y limits={upper=0},
-    legend style={at={(0.5,-0.15)},
-      anchor=north,legend columns=-1},
-	ylabel=Throughput (MB/s),
-	symbolic x coords={Read, Write},
-    xtick=data,
-	title={Frametest Throughput},
-	ymin=0
-    ]
-\addplot 
-	coordinates {(Write,378) (Read, 388)};
-\addplot 
-	coordinates {(Write,100) (Read, 100)};
-\addplot 
-	coordinates {(Write,480) (Read, 476)};
-\addplot 
-	coordinates {(Write,100) (Read, 100)};
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
@@ -2595,10 +2559,8 @@ compared to TCP.
 	fio --name=multiple-rand -rw=rand<write/read> --filesize=100k
 	-bs=4k --nrfiles=16 --ioengine=windowsaio --iodepth=4
 	--direct=1 --time_based --ramp_time=15 --runtime=120
-	--fallocate=native --create-serialize=0
+	--fallocate=native --create_serialize=0
 
-	Frametest
-	./frametest -<w/r> 2k -n 2000 -t8 PATH
 \end{verbatim}
 
 \end{document}
