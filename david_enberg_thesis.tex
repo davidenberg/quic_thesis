@@ -2308,6 +2308,29 @@ testing different parts of the processing than scenario 1 and 2.
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
+    enlargelimits=0.10,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (MB/s),
+	symbolic x coords={iPerf, Secnetperf up, Secnetperf down},
+    xtick=data,
+	title={Perf Results},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(iPerf,13400) (Secnetperf up, 3900) (Secnetperf down, 3200)};
+
+\addplot 
+	coordinates {(iPerf,20000) (Secnetperf up, 6100) (Secnetperf down, 3100)};
+
+\legend{Windows, Ubuntu}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
     enlargelimits=0.25,
 	enlarge y limits={upper=0},
     legend style={at={(0.5,-0.15)},
@@ -2319,16 +2342,42 @@ testing different parts of the processing than scenario 1 and 2.
 	ymin=0
     ]
 \addplot 
-	coordinates {(Write,497) (Read, 513)};
+	coordinates {(Write,432) (Read, 337)};
 \addplot 
-	coordinates {(Write,100) (Read, 100)};
+	coordinates {(Write,457) (Read, 623)};
 \addplot 
-	coordinates {(Write,517) (Read, 524)};
+	coordinates {(Write,663) (Read, 727)};
 \addplot 
-	coordinates {(Write,100) (Read, 100)};
+	coordinates {(Write,1319) (Read, 566)};
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.25,
+	enlarge y limits={upper=0},
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+	ylabel=Throughput (MB/s),
+	symbolic x coords={Read, Write},
+    xtick=data,
+	title={Scenario 1 iops},
+	ymin=0
+    ]
+\addplot 
+	coordinates {(Write,412) (Read, 321)};
+\addplot 
+	coordinates {(Write,435) (Read, 594)};
+\addplot 
+	coordinates {(Write,632) (Read, 693)};
+\addplot 
+	coordinates {(Write,1257) (Read, 539)};
+\legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
+\end{axis}
+\end{tikzpicture}
+
 
 \begin{tikzpicture}
 \begin{axis}[
@@ -2344,13 +2393,13 @@ testing different parts of the processing than scenario 1 and 2.
 	ymin=0
     ]
 \addplot 
-	coordinates {(Write,121) (Read, 121)};
+	coordinates {(Write,130) (Read, 143)};
 \addplot 
-	coordinates {(Write,100) (Read, 100)};
+	coordinates {(Write,170) (Read, 147)};
 \addplot 
-	coordinates {(Write,108) (Read, 132)};
+	coordinates {(Write,140) (Read, 140)};
 \addplot 
-	coordinates {(Write,100) (Read, 100)};
+	coordinates {(Write,216) (Read, 141)};
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
@@ -2369,13 +2418,13 @@ testing different parts of the processing than scenario 1 and 2.
 	ymin=0
     ]
 \addplot 
-	coordinates {(Write,29700) (Read, 29600)};
+	coordinates {(Write,31800) (Read, 34900)};
 \addplot 
-	coordinates {(Write,10000) (Read, 10000)};
+	coordinates {(Write,41500) (Read, 35800)};
 \addplot 
-	coordinates {(Write,26500) (Read, 32300)};
+	coordinates {(Write,34300) (Read, 34200)};
 \addplot 
-	coordinates {(Write,100) (Read, 100)};
+	coordinates {(Write,52700) (Read, 34400)};
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
@@ -2394,13 +2443,13 @@ testing different parts of the processing than scenario 1 and 2.
 	ymin=0
     ]
 \addplot 
-	coordinates {(Write,102) (Read, 115)};
+	coordinates {(Write,46) (Read, 44)};
 \addplot 
-	coordinates {(Write,100) (Read, 100)};
+	coordinates {(Write,48) (Read, 41)};
 \addplot 
-	coordinates {(Write,103) (Read, 118)};
+	coordinates {(Write,57) (Read, 53)};
 \addplot 
-	coordinates {(Write,100) (Read, 100)};
+	coordinates {(Write,85) (Read, 79)};
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
@@ -2419,13 +2468,13 @@ testing different parts of the processing than scenario 1 and 2.
 	ymin=0
     ]
 \addplot 
-	coordinates {(Write,24900) (Read, 28000)};
+	coordinates {(Write,11200) (Read, 10800)};
 \addplot 
-	coordinates {(Write,10000) (Read, 10000)};
+	coordinates {(Write,11700) (Read, 9600)};
 \addplot 
-	coordinates {(Write,25300) (Read, 28900)};
+	coordinates {(Write,13900) (Read, 12900)};
 \addplot 
-	coordinates {(Write,10000) (Read, 10000)};
+	coordinates {(Write,20900) (Read, 20200)};
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
