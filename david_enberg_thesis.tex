@@ -524,6 +524,7 @@ TCP & Transmission Control Protocol \\
 TFO & TCP Fast Open \\
 TLS & Transport Layer Security \\
 UDP & User Datagram Protocol \\
+VPN & Virtual Private Network \\
 \end{tabular}
 
 
@@ -2305,6 +2306,18 @@ testing different parts of the processing than scenario 1 and 2.
 
 \subsection{Results}
 
+This section will outline the results from the benchmarks outlined in Section~\ref{sec:benchmark}.
+For each of the scenarios there are two sets of graphs, one outlining the IO performance
+in MB/s, as well as the IOPS. As the benchmarks used consistent block sizes, it is
+expected that these two metrics are heavily correlated. Each of the scenarios were
+ran against SMB over QUIC,
+as well as against SMB using TCP. To enable a fair comparison of the results the
+benchmarks against SMB using TCP were ran on an encrypted share, to enable comparison
+of the results with the QUIC implementation which uses transport level encryption
+instead of the SMB protocol's own encryption.
+
+\begin{figure}[h]
+\centering
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
@@ -2315,7 +2328,6 @@ testing different parts of the processing than scenario 1 and 2.
 	ylabel=Throughput (MB/s),
 	symbolic x coords={iPerf, Secnetperf up, Secnetperf down},
     xtick=data,
-	title={Perf Results},
 	ymin=0
     ]
 \addplot 
@@ -2323,11 +2335,38 @@ testing different parts of the processing than scenario 1 and 2.
 
 \addplot 
 	coordinates {(iPerf,20000) (Secnetperf up, 6100) (Secnetperf down, 3100)};
-
 \legend{Windows, Ubuntu}
 \end{axis}
 \end{tikzpicture}
+\caption{Link speed throughput}
+\label{fig:perf_graph}
+\end{figure}
 
+As can be seen in Figure~\ref{fig:perf_graph}, the link speed was verified with both
+iPerf and SecNetPerf. The performance tests was run using the Windows 2025 client
+machine as the performance test client, against both the Windows 2025 and Ubuntu
+server hosts. Using the default settings of iPerf, the throughut reached 20 GB/s
+against the Ubuntu host, and 13.4 GB/s against windows. Similarly, using SecNetPerf,
+speeds of at least 3 GB/s where reached both ways, for both servers. This indicates
+that under optimal conditions, a single QUIC stream using MsQuic can at most reach
+speeds of 3GB, indicating the point where the throughput is limited by the MsQuic
+library.
+
+The interoperability of the SMB over QUIC implementation, as outline in Chapter~\ref{sec:implementation},
+was manually tested using the Windows 2025 SMB over QUIC client. This was accomplished
+by using Powershell to mount the share. By specifying \textit{/transport:quic} when
+mounting the share it is possible to force the client to exclusively try to connect
+via QUIC, completely forgoing TCP. A self-signed certificate was used in the server
+for testing purposes, and the client was configured to accept the certificate by
+specifying \textit{/skipcertcheck} when mounting the share. Via manual testing it
+was showed that the client could mount the share, create a text file, write some
+data to the file and the delete it, and finally disconnect from the server, withouth
+issues. This showed that the compatibility aspect of the implementation had been
+reached.
+
+\subsubsection{Scenario 1: Large sequential I/O}
+\begin{figure}[h]
+\centering
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
@@ -2338,7 +2377,6 @@ testing different parts of the processing than scenario 1 and 2.
 	ylabel=Throughput (MB/s),
 	symbolic x coords={Read, Write},
     xtick=data,
-	title={Scenario 1},
 	ymin=0
     ]
 \addplot 
@@ -2360,10 +2398,9 @@ testing different parts of the processing than scenario 1 and 2.
 	enlarge y limits={upper=0},
     legend style={at={(0.5,-0.15)},
       anchor=north,legend columns=-1},
-	ylabel=Throughput (MB/s),
+	ylabel=IOPS,
 	symbolic x coords={Read, Write},
     xtick=data,
-	title={Scenario 1 iops},
 	ymin=0
     ]
 \addplot 
@@ -2377,8 +2414,26 @@ testing different parts of the processing than scenario 1 and 2.
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
+\caption{Scenario 1 results: Large sequential I/O}
+\label{fig:scenario_1}
+\end{figure}
 
+The results of benchmark scenario 1 is outlined in Figure~\ref{fig:scenario_1}.
+From the graphs it is clear that there is one signifcant outlier, the throughput of
+the write workload from the Windows Client to the Windows server using encrypted TCP.
+The reason for this outlier is not evident, the gain could potentially be from offloading
+of cryptographic processing to a separate thread. For the write workload we see
+that due to this outlier the Windows SMB over QUIC implementation suffers a 65\%
+performance reduction when compared to encrypted TCP. In comparison, the Fusion QUIC
+transport prototype sees a 35\% reduction in throughput for the write workload. For the read
+workload the Windows QUIC implementation actually performed slightly better than
+using encrypted TCP, while the Fusion QUIC implementation sees a 50\% reduction in
+throughput as compared to encrypted TCP.
 
+\subsubsection{Scenario 2: Single file random I/O}
+
+\begin{figure}[h]
+\centering
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
@@ -2389,7 +2444,6 @@ testing different parts of the processing than scenario 1 and 2.
 	ylabel=Throughput (MB/s),
 	symbolic x coords={Read, Write},
     xtick=data,
-	title={Scenario 2},
 	ymin=0
     ]
 \addplot 
@@ -2411,10 +2465,9 @@ testing different parts of the processing than scenario 1 and 2.
 	enlarge y limits={upper=0},
     legend style={at={(0.5,-0.15)},
       anchor=north,legend columns=-1},
-	ylabel=Throughput (iops),
+	ylabel=IOPS,
 	symbolic x coords={Read, Write},
     xtick=data,
-	title={Scenario 2 iops},
 	ymin=0
     ]
 \addplot 
@@ -2428,7 +2481,22 @@ testing different parts of the processing than scenario 1 and 2.
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
+\caption{Scenario 2 results: single file random I/O}
+\label{fig:scenario_2}
+\end{figure}
 
+Scenario 2, in comparison to scenario 1, shows much less impact from the chosen
+transport, as seen in Figure~\ref{fig:scenario_2}. For the read workload it is
+clear that the results is inside the margin of errors, with all transport and host
+showing very similar throughput. In the case of the write workload it can be seen
+that the Windows server has slightly improved performance, but the differences between
+QUIC and TCP is more significant. For workloads that are similar to the one performed
+in Scenario 2, it can be seen that the bottleneck is not the transport layer, resulting
+in similar performance regardless if QUIC or encrypted TCP is used.
+
+\subsubsection{Scenario 3: multiple files random I/O}
+\begin{figure}[h]
+\centering
 \begin{tikzpicture}
 \begin{axis}[
     ybar,
@@ -2439,7 +2507,6 @@ testing different parts of the processing than scenario 1 and 2.
 	ylabel=Throughput (MB/s),
 	symbolic x coords={Read, Write},
     xtick=data,
-	title={Scenario 3},
 	ymin=0
     ]
 \addplot 
@@ -2461,10 +2528,9 @@ testing different parts of the processing than scenario 1 and 2.
 	enlarge y limits={upper=0},
     legend style={at={(0.5,-0.15)},
       anchor=north,legend columns=-1},
-	ylabel=Throughput (iops),
+	ylabel=IOPS,
 	symbolic x coords={Read, Write},
     xtick=data,
-	title={Scenario 3 iops},
 	ymin=0
     ]
 \addplot 
@@ -2478,6 +2544,17 @@ testing different parts of the processing than scenario 1 and 2.
 \legend{Fusion(QUIC), Windows(QUIC), Fusion(TCP), Windows(TCP)}
 \end{axis}
 \end{tikzpicture}
+\caption{Scenario 3 results: multiple files random I/O}
+\label{fig:scenario_3}
+\end{figure}
+
+In scenario 3, as illustrated in Figure~\ref{fig:scenario_3}, it can be seen that
+Windows using encrypted TCP has a significant advantage as compared to all other
+implementaitons. However, when comparing the performance of SMB over QUIC, the
+throughput of Windows and Fusion is very close, with Fusion being slightly favored
+in the read workload, and Windows having a slight advantage in the write workload.
+As in scenario two, the performance impact of using QUIC as compared to encrypted TCP is
+more significant for the Windows implementation as compared to Fusion.
 
 \clearpage
 \section{Conclusions}
@@ -2488,7 +2565,22 @@ and add some discussion about the state of SMB over QUIC.
 
 \subsection{Discussion}
 
-\textit{Placeholder for discussion on results}
+This work has been succesful in implementing a prototype QUIC transport layer
+and integrated this into the Fusion SMB server to provide SMB over QUIC functionality.
+While the protoypes performance somewhat suffers in scenarios that are heavily dependent
+on network transport throughput, it still managed to nearly matched the performance
+of encrypted TCP for workloads that are bottlenecked by the SMB protocol processing.
+The prototype is a promising first step in implementing a SMB over QUIC implementation
+for Linux based systems.
+
+While there is room for improvements in the performance of the QUIC transport layer,
+the implemented prototype still shows relatively good performance. While under ideal
+conditions the QUIC transport layer falters as compared to TCP, it must be highlighted
+that one of the main advantages of SMB over QUIC is the ability to access SMB shares from
+external networks, as compared to legacy SMB processing which is most commonly
+done on internal networks or over Virtual Private Networks (VPN). Most ISPs offers
+internet bandwidths of up to 1 Gb/s (125 MB/s), which the prototype is able to comfortably
+accomodate.
 
 During the process of working on this thesis it became clear that the extention
 to the SMB protocol by Microsoft to support SMB over QUIC was done in such a way
@@ -2554,7 +2646,12 @@ it would be possible to natively support the MsQuic model, or more precisely sup
 the event driven processing model presented by the MsQuic library. At the same time
 this would improve the memory management, by minimizing the amount of allocations,
 deallocations and copies that is done on the data path between the MsQuic library
-and Fusion SMB server, improving both performance and long-term stability.
+and Fusion SMB server, improving both performance and long-term stability. Similarly
+the focus of the prototype was ensuring stability, preventing memory leaks or errors.
+Due to the time constraint this resulted in inefficient memory management to reduce
+implementation complexity. Future work could incrementally improve memory management,
+for example by implementing pools of pre-allocated objects to store information
+about received buffers.
 
 An aspect that was not explored by this thesis is the existance of many QUIC libraries.
 One of the advantages presented by QUIC is the fact that implementations are run
