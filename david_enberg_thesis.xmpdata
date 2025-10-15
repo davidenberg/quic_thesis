@@ -1,7 +1,7 @@
-\Title {Performance of Server Message Block implementations over QUIC}
+\Title {Performance and interoperability of Server Message Block implementations over QUIC}
 \Author {David Enberg}
 \Language {en}
 \Copyright {\textcopyright \ 2025. This work is licensed under a Creative Commons "Attribution-NonCommercial-ShareAlike 4.0 International" (BY-NC-SA 4.0) license.}
 \CopyrightURL {https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en}
 \Subject {}
-\Keywords {For keywords choose\sep concepts that are\sep central to your\sep thesis}
+\Keywords {QUIC\sep Server Message Block\sep MsQuic\sep Linux}

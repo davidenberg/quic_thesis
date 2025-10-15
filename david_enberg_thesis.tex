@@ -263,7 +263,7 @@ urldate=long % date is expressed as Month dd, yyyy
 %%   is part of the metadata in the pdf/a file, and the metadata cannot contain
 %%   linebreaks.
 %%
-\thesistitle{Performance of Server Message Block implementations over QUIC}
+\thesistitle{Performance and interoperability of Server Message Block implementations over QUIC}
 %\thesistitle[Title of the thesis]{Title of\\ the thesis}
 %%
 %% Either remove or leave \thesissubtitle{} empty if you don't use it
@@ -398,8 +398,7 @@ urldate=long % date is expressed as Month dd, yyyy
 %% Thesis keywords:
 %% Note! The keywords are separated using the \spc macro
 %%
-\keywords{For keywords choose\spc concepts that are\spc central to your\spc 
-thesis}
+\keywords{QUIC\spc Server Message Block\spc MsQuic\spc Linux}
 %%
 
 %% The abstract text. This text in one paragraph is included in the metadata of
@@ -444,6 +443,24 @@ thesis}
 %% well.
 %%
 \begin{abstractpage}[english]
+	The Server Message Block (SMB) protocol, a widely adopted protocol for network
+	file sharing, traditionally relies upon TCP, which faces limitations in modern
+	networking environments. The QUIC protocol offers a modern alternative, allowing
+	for a secure, reliable transport with native multiplexing capabilities. The SMB
+	protocol has added support for QUIC, but performance analysis of the impact and
+	protocol implementations outside of Windows are limited.
+
+	In this thesis a QUIC transport layer for the Fusion SMB server was designed,
+	implemented and evaluated in the Linux user space. A prototype was
+	developed by integrating Microsoft's MsQuic library for QUIC capabilities. The
+	thesis discusses the design of the transport layer and the architectural decisions
+	made to interface with the existing server. The interoperability and performance of
+	the implementation was benchmarked against
+    Microsoft's implementation of SMB over QUIC, using several different
+	benchmarking scenarios. These results were compared to the performance of the standard
+	encrypted TCP transport. The thesis concludes by discussing the performance
+	results obtained, along with providing insights into the potential of leveraging
+	advanced QUIC features in the SMB protocol, gained during the development process.
 \end{abstractpage}
 
 %% The text in the \thesisabstract macro is stored in the macro \abstractext, so
@@ -461,16 +478,34 @@ thesis}
 %% 
 %% Respecify those fields that differ from the earlier specification or simply
 %% respecify all fields.
-\thesistitle{Utvärdering av SMB över QUIC lösningar}
-\supervisor{PhD Pasi Sarolahti}
+\thesistitle{Prestandautvärdering och interoperabilitet av SMB över QUIC lösningar}
+\supervisor{FD Pasi Sarolahti}
 \advisor{Bastian Shajit (MSc)}
 \degreeprogram{Datakommunikationsteknik}
 \collaborativepartner{Tuxera Ab}
 %\date{30.6.2025}
 %% Abstract keywords
-\keywords{tbd}
+\keywords{QUIC\spc Server Message Block\spc MsQuic\spc Linux}
 %% Abstract text
 \begin{abstractpage}[swedish]
+	Server Message Block-protokollet (SMB), ett väletablerat protokoll för
+	delning av filer över ett nätverk. Traditionellt förlitar sig SMB-protokollet
+	på TCP, som medför begränsningar i moderna nätverksmiljöer. QUIC-protokollet
+	erbjuder ett modernt alternative som möjliggör säkert och tillförlitlig
+	transport av information med inbyggt stöd för multiplexering. SMB-protokollet
+	har utvidgats för att stöda QUIC, men prestandautvärderingar och implementeringar
+	utanför Windows är begränsade.
+
+	I detta examensarbete har ett QUIC-transportlager för Fusion SMB servern designats,
+	implementerats och utvärderas i Linux användarrymd. En prototyp har utvecklas genom
+	att integrera Microsofts MsQuic bibliotek, som erbjuder stöd för QUIC funktionalitet.
+	Examensarbetet diskuterar designen av transportlagret och de beslut som tagits
+	ur ett arkitekturperspektiv, för att samverka med den existerande servern. Implementationens
+	prestanda och interoperabilitet jämfördes mot Microsofts implementation av SMB över QUIC,
+	genom ett flertal test scenarion. Resultaten jämfördes med referensvärden från
+	standardtransporten med krypterad TCP. Examensarbetet avslutas med en diskussion
+	angående resultat, samt ger insikter till potentialen att bättre utnyttja de avancerade
+	QUIC funktionerna i SMB-protokollet, insikter som erhållits under utvecklingsprocessen.
 \end{abstractpage}
 
 
@@ -586,7 +621,7 @@ While the support for alternative transport protocols in the SMB protocol, mainl
 Remote Direct Memory Access (RDMA) and QUIC, has been defined and implemented by Microsoft~\cite{smb2},
 The writer is not aware of formal
 efforts into researching and comparing the performance of these alternative transports.
-Additionally, there is no implementation know of SMB over QUIC for Linux
+Additionally, there is no known implementation of SMB over QUIC for Linux
 based systems, with currently the only available implementation being in Windows machines.
 SMB suffers in the context of network reachability, as many internet service providers
 choose to block the port used by SMB due to several exploits targeting this specific port,
@@ -644,7 +679,7 @@ understanding the QUIC protocol. Finally, this section also covers distributed
 file systems (DFS), and compares the Server Message Block (SMB) and Network File System (NFS) protocols.
 \subsection{Internet transport protocols}
 \subsubsection{Transmission Control Protocol}
-TCP, as outlined in RFC 793\cite{rfc793} is a foundational internet transport protocol. It was
+TCP, as outlined in RFC 793~\cite{rfc793} is a foundational internet transport protocol. It was
 originally published in September 1981, focusing primarily on solving military
 communication challenges. It is intended to be a highly reliable transport
 protocol between hosts in a packet switched network. TCP is connection-oriented,
@@ -653,7 +688,7 @@ form of a continuous stream of bytes. The TCP protocol is designed to fit into
 a layered hierarchy of protocols, slotting
 in on top of the internet protocol (IP)~\cite{rfc791}. IP handles the addressing
 and routing of datagrams between the hosts, while TCP aims to ensure that
-information is delivered correctly, in order, and without duplications. TCP works with
+information is delivered correctly, in order, and without duplication. TCP works with
 the assumption that the underlying protocol is unreliable and may lose,
 fragment or reorder sent datagrams~\cite{rfc793}.
 
@@ -696,7 +731,7 @@ the data begins. The reserved field following this must be 0. After this is the
 1-byte flags field
 \begin{itemize}
 	\item \textbf{URG} Urgent pointer field is set
-	\item \textbf{ACK} acknowledgement field is set
+	\item \textbf{ACK} Acknowledgement field is set
 	\item \textbf{PSH} Push function, requesting that buffered data is sent immediately to the receiver
 	\item \textbf{RST} Reset the connection
 	\item \textbf{SYN} Synchronize sequence numbers
@@ -708,7 +743,7 @@ control purposes. Following the window field is a 2-byte checksum field, used fo
 detecting corruption of the TCP-header, data payload as well as a pseudo IP header,
 containing information about the source and destination addresses, as well as the
 protocol number and TCP packet length. In case the URG bit is set in the flags field,
-the 2-byte urgent pointer header field indicates where the urgent data ends. Finally.
+the 2-byte urgent pointer header field indicates where the urgent data ends. Finally,
 the options field contains extension to the normal TCP header, containing among other, options
 for maximum segment size and multipath TCP~\cite{rfc8684}.
 
@@ -792,7 +827,7 @@ as well as reliable and best effort (unreliable) delivery~\cite{sst}.
 There were three primary reasons for creating the new protocol, SST, that splits
 a single connection into multiple data stream . First, some protocols provide
 multiplexing on top of TCP but suffers from HOL blocking as loss will block all
-data transfers until retransmission. This issues arises as reliable communication
+data transfers until retransmission. This issue arises as reliable communication
 protocols guarantee that all byte will be delivered in order, without any missing
 chunks. Retransmissions, especially in high latency environments, causes delivery
 delays for all of the data in the affected stream, or in the case of TCP, the
@@ -1200,7 +1235,7 @@ key issues that prompted the development of a new, modern protocol: QUIC.
 
 \subsubsection{Head-of-Line Blocking}
 \label{sec:hol}
-As discussed in Section~\ref{sec:streams} ,TCP is negatively affected by HOL blocking.
+As discussed in Section~\ref{sec:streams}, TCP is negatively affected by HOL blocking.
 To get around this limitation, modern
 network protocols, such as HTTP/2~\cite{rfc9113}, have introduced measures to
 combat this issue. HTTP/2 introduced multiplexing of multiple requests over one
@@ -1212,7 +1247,7 @@ sufferes from transport level HOL blocking, as the multiplexed stream is
 sent over a single TCP connection. As a result, a single lost packet in the TCP
 stream still causes all other unrelated streams over the same connection to stall,
 even if their packets were successfully delivered, until the offending packet
-is be retransmitted and received. This in practice means that many of the improvements made
+is retransmitted and received. This in practice means that many of the improvements made
 by HTTP/2 in this regard are negated by the issues of TCP, particularly in lossy or high latency
 environments~\cite{http2_vs_1}.
 
@@ -1228,14 +1263,14 @@ handshake~\cite{quic_transport_protocol_design}.
 
 Some of the latency brought on by the TLS handshake is addressed by TLS 1.3, adding
 support for 1-RTT and 0-RTT handshakes, at the cost of perfect forward secrecy~\cite{rfc8446}. Even with
-these enhancements, the TCP plus TLS handshake takes a minimum of 1,5 RTTs before data can be
+these enhancements, the TCP plus TLS handshake takes a minimum of 1.5 RTTs before data can be
 transmitted, due to the separation of the connection and security handshake. There is
 an extension to TCP called TCP Fast Open (TFO) that enables data to be sent during
 the TCP handshake, in the SYN and SYN-ACK packets. For TLS this means that
-the ClientHello can be carried in the initial SYN packet\cite{rfc7413}. The main problem
+the ClientHello can be carried in the initial SYN packet~\cite{rfc7413}. The main problem
 with TFO is that a significant amount of middleboxes will drop TCP packets with
 unknown SYN data or options. If any of these devices are on the path between the
-endpoints, using TFO is simply not possible\cite{fast_open_problem}.
+endpoints, using TFO is simply not possible~\cite{fast_open_problem}.
 
 \subsubsection{Protocol Ossification}
 A big hurdle in deploying new protocols and extensions to existing ones
@@ -1264,7 +1299,7 @@ However, all existing options consume space, and seeing as the space is so limit
 it is not difficult to exceed the available space. For example, SACK can use as much
 space as is available, or timestamps that take up 10  bytes, so one quarter of
 the total available space. In practice this leaves very little space for extending
-the protocol, further increasing the difficulty of implementing new features\cite{ietf-tcpm-tcp-edo-15}.
+the protocol, further increasing the difficulty of implementing new features~\cite{ietf-tcpm-tcp-edo-15}.
 
 \subsection{Background and evolution}
 As discussed in Section \ref{quic_motivation}, the combinations of TCP, TLS and HTTP/2 are
@@ -1293,7 +1328,7 @@ Connection IDs to identify the connection, allowing the connection to resume whe
 there is some change in network. QUIC was widely deployed on Google's front-end servers,
 and by 2017 it was already estimated that QUIC represented 7\% of global internet
 traffic~\cite{quic_transport_protocol_design}. Since then the adoption of QUIC has
-been rapid and according to statistics by Cloudflare, QUIC makes up more than 30\% of web traffic\cite{cloudflare_radar}.
+been rapid and according to statistics by Cloudflare, QUIC makes up more than 30\% of web traffic~\cite{cloudflare_radar}.
 
 QUIC was submitted to the IETF for consideration in 2016, and a working group
 was created for the purposes of standardizing QUIC. The goal of the working group
@@ -1735,7 +1770,7 @@ The main purpose of the SMB protocol is to share files and directories over a ne
 The SMB protocol is a stateful protocol, where clients initiate connections,
 an authenticated session is created and requests are sent over the connection, allowing
 the client to perform file operations. In addition to sharing file, the smb protocol enables
-access other to othern network resources, such as printers. There currently exist
+access to other network resources, such as printers. There currently exist
 two major versions of the SMB protocol, the original SMB protocol, sometimes referred to as the CIFS protocols, which later
 evolved into the SMB 2 Protocol, which encapsulates SMB Versions 2 and 3~\cite{smb2_tech}. The SMB 2
 protocol will from this point forwards be referred to as the SMB protocol.
@@ -2029,9 +2064,9 @@ ALPN is a TLS feature, that is designed for a situation where it is not clear wh
 service a client is trying to access. This may arise when a server is running
 multiple network services that all use the same port, for example as the SMB over
 QUIC protocol uses the same UDP
-port as HTTP/3. ALPN allows the server and client to negotiation which protocol
+port as HTTP/3. ALPN allows the server and client to negotiate which protocol
 will be used inside the TLS tunnel, removing the need for an additional round trip to negotiate
-the used protocol separately\cite{rfc7301}. For reference SMB over QUIC simply uses the ALPN ID "smb".
+the used protocol separately~\cite{rfc7301}. For reference SMB over QUIC simply uses the ALPN ID "smb".
 
 The listener object is responsible for listening for
 and accepting incoming connections. The listener object uses a callback function
@@ -2147,7 +2182,7 @@ the incoming data faster than it arrives, and the linked list structure allows
 the total buffer size to grow dynamically as needed. This method of handling incoming
 network buffers is similar to the method used in the Linux kernel, albeit a simplified
 version, using a single-linked list instead as compared to the doubly linked list
-used in the Linux kernel\cite{linux_network_buffer}.
+used in the Linux kernel~\cite{linux_network_buffer}.
 As can be seen in Figure~\ref{fig:msquic_rx_data} the data is not copied until
 it reaches the internal receiving thread, with only the reference to the received buffer being
 passed around. This allows the processing in the callback function to be inexpensive,
@@ -2371,7 +2406,7 @@ that under optimal conditions, a single QUIC stream using MsQuic can at most rea
 speeds of 3GB, indicating the point where the throughput is limited by the MsQuic
 library.
 
-The interoperability of the SMB over QUIC implementation, as outline in Chapter~\ref{sec:implementation},
+The interoperability of the SMB over QUIC implementation, as outlined in Chapter~\ref{sec:implementation},
 was manually tested using the Windows 2025 SMB over QUIC client. This was accomplished
 by using Powershell to mount the share. By specifying \textit{/transport:quic} when
 mounting the share it is possible to force the client to exclusively try to connect
@@ -2379,7 +2414,7 @@ via QUIC, completely forgoing TCP. A self-signed certificate was used in the ser
 for testing purposes, and the client was configured to accept the certificate by
 specifying \textit{/skipcertcheck} when mounting the share. Via manual testing it
 was showed that the client could mount the share, create a text file, write some
-data to the file and the delete it, and finally disconnect from the server, withouth
+data to the file and the delete it, and finally disconnect from the server, without
 issues. This showed that the compatibility aspect of the implementation had been
 reached.
 
@@ -2438,16 +2473,19 @@ reached.
 \end{figure}
 
 The results of benchmark scenario 1 is outlined in Figure~\ref{fig:scenario_1}.
-From the graphs it is clear that there is one signifcant outlier, the throughput of
-the write workload from the Windows Client to the Windows server using encrypted TCP.
+Looking at the write workloads it can be seen from the graphs it is clear that there is
+one significant outlier, the throughput of the write workload from the Windows Client
+to the Windows server using encrypted TCP.
 The reason for this outlier is not evident, the gain could potentially be from offloading
-of cryptographic processing to a separate thread. For the write workload we see
-that due to this outlier the Windows SMB over QUIC implementation suffers a 65\%
+of cryptographic processing to a separate thread or some other optimization. 
+Due to this outlier the Windows SMB over QUIC implementation suffers a 65\%
 performance reduction when compared to encrypted TCP. In comparison, the Fusion QUIC
 transport prototype sees a 35\% reduction in throughput for the write workload. For the read
 workload the Windows QUIC implementation actually performed slightly better than
 using encrypted TCP, while the Fusion QUIC implementation sees a 50\% reduction in
-throughput as compared to encrypted TCP.
+throughput as compared to encrypted TCP, suggesting that there are optimizations
+that could be made to the transmitting data path in the QUIC prototype, to bring
+the comparative performance in line with the read throughput.
 
 \subsubsection{Scenario 2: Single file random I/O}
 
@@ -2506,10 +2544,10 @@ throughput as compared to encrypted TCP.
 
 Scenario 2, in comparison to scenario 1, shows much less impact from the chosen
 transport, as seen in Figure~\ref{fig:scenario_2}. For the read workload it is
-clear that the results is inside the margin of errors, with all transport and host
+clear that the results are inside the margin of errors, with all transport and host
 showing very similar throughput. In the case of the write workload it can be seen
-that the Windows server has slightly improved performance, but the differences between
-QUIC and TCP is more significant. For workloads that are similar to the one performed
+that as in scenario 1, the Windows server shows a higher throughput, and the difference
+between QUIC and Encrypted TCP is noticable. For workloads that are similar to the one performed
 in Scenario 2, it can be seen that the bottleneck is not the transport layer, resulting
 in similar performance regardless if QUIC or encrypted TCP is used.
 
@@ -2569,7 +2607,8 @@ in similar performance regardless if QUIC or encrypted TCP is used.
 
 In scenario 3, as illustrated in Figure~\ref{fig:scenario_3}, it can be seen that
 Windows using encrypted TCP has a significant advantage as compared to all other
-implementaitons. However, when comparing the performance of SMB over QUIC, the
+implementations, both for read and write workloads. However, when comparing the
+performance of SMB over QUIC, the
 throughput of Windows and Fusion is very close, with Fusion being slightly favored
 in the read workload, and Windows having a slight advantage in the write workload.
 As in scenario two, the performance impact of using QUIC as compared to encrypted TCP is
@@ -2584,9 +2623,9 @@ and add some discussion about the state of SMB over QUIC.
 
 \subsection{Discussion}
 
-This work has been succesful in implementing a prototype QUIC transport layer
+This work has been successful in implementing a prototype QUIC transport layer
 and integrated this into the Fusion SMB server to provide SMB over QUIC functionality.
-While the protoypes performance somewhat suffers in scenarios that are heavily dependent
+While the prototypes performance somewhat suffers in scenarios that are heavily dependent
 on network transport throughput, it still managed to nearly matched the performance
 of encrypted TCP for workloads that are bottlenecked by the SMB protocol processing.
 The prototype is a promising first step in implementing a SMB over QUIC implementation
@@ -2645,7 +2684,7 @@ that may be implemented as well. Some advantage could be gained by creating a
 dedicated control data stream, in addition to the data streams. The data streams
 would handle the main data transfer requests, such as as SMB2 OPEN, READ, WRITE and
 so on. By using QUIC it is possible to prioritize the streams, potentially allowing
-fast operations, such as directory listing and opens, to be completed quickly withouth
+fast operations, such as directory listing and opens, to be completed quickly without
 being blocked by for example large reads and writes.
 In comparison to the data streams, the control stream would be responsible for control data, including
 but not limited to NEGOTIATE, SESSION\_SETUP, CANCEL and ECHO requests, enabling
@@ -2656,8 +2695,8 @@ and responses separately from other SMB commands.
 \subsection{Future work}
 
 While a prototype for the QUIC transport layer has been achieved, there is still
-room for fruther development and investigation. Currently the solution works as
-as middle layer between MsQUIC and the Fusion SMB server, creating an interface
+room for further development and investigation. Currently the solution works as
+a middle layer between MsQUIC and the Fusion SMB server, creating an interface
 that both sides can use for communication. While this has allowed for creating
 the prototype in the allocated timeframe, and shows promising performance when compared
 to encrypted TCP, there are still possible gains to be made. By continuing development
@@ -2684,7 +2723,7 @@ One of the advantages of QUIC as compared to TCP is the improved latency of conn
 establishment. By benchmarking the setup of many SMB over QUIC connections, against
 setting up SMB over encrypted TCP connections, it could highlight the performance
 difference between the implementations. However, as the Microsoft's SMB over QUIC client
-is as the time of writing the only known SMB over QUIC client, the process of setting up
+is at the time of writing the only known SMB over QUIC client, the process of setting up
 the amount of clients required for the test is far from straightforward. Once an
 alternative client is released, it may enable running connection benchmarking.
 
