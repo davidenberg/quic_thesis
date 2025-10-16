@@ -542,14 +542,14 @@ ALPN & Application Layer Protocol Negotiation \\
 DFS & Distributed File System \\
 DTLS & Datagram Transport Layer Security \\
 HOL & Head-of-line \\
-HTTP & HyperText Transfer Protocol \\
+HTTP & Hypertext Transfer Protocol \\
 IP & Internet Protocol \\
 ISN & Initial Sequence Number \\
 NAT & Network Address Translator \\
 NIC & Network Interface Controller \\
 OS & Operating System \\
 RDMA & Remote Direct Memory Access \\
-RFC & Request For Comment \\
+RFC & Request for Comments \\
 RTT & Round-Tripe Time \\
 SCTP & Stream Control Transmission Protocol \\
 SMB & Server Message Block \\
@@ -599,7 +599,7 @@ Recently, a new transport protocol, QUIC, has been developed to address
 the issues and shortcomings of TCP. QUIC was initially developed by Google~\cite{quic_transport_protocol_design},
 and later standardized by the Internet Engineering Task Force (IETF) in Request for Comments (RFC) 9000~\cite{rfc9000}.
 QUIC implements transport level multiplexing, encryption and authentication via TLS 1.3, and improved connection
-setup latency as parts of its design~\cite{rfc9000,rfc9001}. QUIC has already been
+set up latency as parts of its design~\cite{rfc9000,rfc9001}. QUIC has already been
 widely deployed as a foundation for HTTP/3~\cite{rfc9114}, supporting large-scale
 web applications. However, QUIC was not only developed as a transport protocol for web applications,
 but also as a general-purpose transport protocol~\cite{rfc9000}. One of these applications is 
@@ -609,7 +609,7 @@ Although TCP has served as the reliable transport protocol for SMB during the la
 decades, it has several well-known drawbacks in modern networking environments.
 First, TCP suffers from Head-of-Line (HOL) blocking, which can significantly
 impact performance in lossy environments. Second, TCP combined with TLS requires
-additional messages during the connection setup, the handshake, negatively affecting
+additional messages during the connection set up, the handshake, negatively affecting
 the latency of connections, especially for short communications. Finally,
 TCP heavily suffers from protocol ossification: different middleboxes, firewalls and
 operating system (OS) implementations make changes difficult and slow to propagate~\cite{quic_transport_protocol_design}.
@@ -819,20 +819,20 @@ SST was introduced in ~\cite{sst} with the aim
 of extending TCP semantics by introducing a hierarchical structure, allowing
 child streams to be created on top of an existing stream. These streams can
 be created without having to set up new connections, making them much more lightweight
-than their TCP equivalent of opening multiple connections. SST supports multiplexed streams, allowing the streams
+than the TCP equivalent of opening multiple connections. SST supports multiplexed streams, allowing the streams
 to exist in parallel, alleviating the issues of HOL blocking as each stream uses
 independent flow control. SST also supports independent stream prioritization
 as well as reliable and best effort (unreliable) delivery~\cite{sst}.
 
 There were three primary reasons for creating the new protocol, SST, that splits
 a single connection into multiple data streams. First, some protocols provide
-multiplexing on top of TCP but suffers from HOL blocking as loss will block all
+multiplexing on top of TCP but suffer from HOL blocking as loss will block all
 data transfers until retransmission. This issue arises as reliable communication
-protocols guarantee that all byte will be delivered in order, without any missing
+protocols guarantee that all bytes will be delivered in order, without any missing
 chunks. Retransmissions, especially in high latency environments, causes delivery
 delays for all of the data in the affected stream, or in the case of TCP, the
 whole connection. Secondly, while
-TCP is better suited for long connection and large data transfers, UDP excels
+TCP is better suited for long connections and large data transfers, UDP excels
 in short communications where the overhead of setting up connection via TCP's three-way
 handshake provides significant overhead.  Finally, some protocols such as HTTP/1.0
 have bad utilization of network resources, as they are designed to run on top of TCP
@@ -854,7 +854,7 @@ and packet sequencing. The Negotiation protocol is responsible for setting up th
 and negotiating protocol details. Most interesting is the Stream Protocol, building on
 top of the other protocols to implement the Stream structure that SST is based upon.
 SST implements the concept of child streams. Child streams are created on top of
-a parent stream, but are otherwise equivalent to the primary stream in all but name.
+a parent stream but are otherwise equivalent to the primary stream in all but name.
 Child streams allow multiple streams to exist on top of one connection, and they
 are designed to be lightweight. This mitigates the issue of HOL blocking between streams,
 as loss on one stream still enables the other streams to keep transmitting while
@@ -906,7 +906,7 @@ allows continued communication without breaking the association~\cite{rfc9260}.
 	\end{tabular}
 \end{table}
 
-The HyperText Transfer Protocol (HTTP), is a protocol stemming from the early days 
+The Hypertext Transfer Protocol (HTTP), is a protocol stemming from the early days 
 of the World Wide Web, defining a protocol that would allow a server and a client
 to talk to each other. HTTP allows a client to request different resources from a 
 web server, such as JavaScript, CSS, images, multimedia files or any number of different resources.
@@ -919,7 +919,7 @@ the GET method for requesting a resource, and POST for sending data to the serve
 
 A comparison of HTTP version can be seen in Table~\ref{tab:http_versions}. 
 The first version of HTTP, HTTP/1.0 was defined in RFC 1945~\cite{rfc1945}. HTTP/1.0
-used non-persistent connections, and had no concept of multiplexing over a single connection.
+used non-persistent connections and had no concept of multiplexing over a single connection.
 It was a basic protocol, working on a request-response principle, with each request opening
 its own TCP connection. HTTP/1.1 defines three request methods. GET to request data
 from the server, POST to post data to the server and HEAD, which is similar to GET,
@@ -936,7 +936,7 @@ RFC 2616~\cite{rfc2616}. HTTP/1.1 improved upon HTTP/1.0, adding support for sev
 new features. First, persistent connections allow multiple requests to be sent over one connection,
 cutting down on the number of connections that need to be opened to load a set of resources.
 Second, pipelining allows multiple requests to be made at one time, without having to wait for the
-previous request to return. This is not quite yet true multiplexing, as the responses
+response to the previous request. This was not quite yet true multiplexing, as the responses
 need to be returned in the same order as the request were made, causing HOL blocking
 of subsequent requests in case of loss~\cite{rfc2616}. Third, with the Introduction
 of HTTP over TLS, HTTPS, it was now possible to set up more secure, encrypted communications,
@@ -980,7 +980,7 @@ team. The HTTP/2 protocol uses the same HTTP semantics as HTTP/1.1, but like SPD
 improves on the transport of the HTTP data between endpoints. HTTP/2 implements
 streams and stream multiplexing, stream prioritization, header compression and
 server push capabilities. Like SPDY, HTTP/2 supports multiple independently
-mutiplexed streams, allowing multiple parallel requests over one TCP connection.
+multiplexed streams, allowing multiple parallel requests over one TCP connection.
 Stream priority allows the client to signal which requests are more important to
 be filled, and in case no priority is given, the server may choose to determine
 priority based on other information~\cite{rfc9113}. For header compression, HTTP/2 implements a
@@ -1012,11 +1012,11 @@ offered by HTTP/3 is the improvements to transport level HOL-blocking. Because H
 takes advantage of native QUIC streams for its multiplexing, which are entirely independent
 on the transport level, packet loss won't affect unrelated streams. This allows
 HTTP/3 to take full advantage of multiplexing requests to load resources, without
-bottlenecking from the transport layer. QUIC offers an improved connection setup
+bottlenecking from the transport layer. QUIC offers an improved connection set up
 time as compared to HTTP/2, as HTTP/2 uses TCP + TLS, requiring multiple RTTs to
 establish a secure connection. HTTP/3 utilizes the fact that QUIC has the TLS
 handshake integrated into the QUIC transport handshake, potentially reducing
-connection setup time to 1 RTT. In some cases, it is even possible to use 0-RTT
+connection set up time to 1 RTT. In some cases, it is even possible to use 0-RTT
 data transfer to instantaneously transfer data without waiting for the connection
 to be set up. Connection migration of QUIC allows connection to stay active for mobile
 users, even in the face of network changes~\cite{rfc9114}. As with HTTP/2, HTTP/3 uses header compression,
@@ -1056,23 +1056,23 @@ TLS 1.2 and earlier the handshake required 2 RTTs before application data could 
 securely, but since TLS 1.3 the handshake has been streamlined into 1-RTT, with the
 possibility of 0-RTT data transfer, at the cost of perfect forward secrecy. The TLS 1.3
 handshake is outlined in Figure~\ref{fig:tls_handshake} where the asterisk indicated optional
-or alternative parts of the message, curly brackets indicate handshake secret protected and
+or alternative parts of the message, curly brackets indicate handshake secret protection and
 square brackets indicate full application protection of data. The handshake begins with a ClientHello message,
 containing a nonce, the protocol version and
 either a pair of Diffie-Hellman key shares or a set of pre-shared key labels. The server responds
-with a ServerHello, containing key shares, certificate if it used in authentication of the server
+with a ServerHello, containing key shares, certificate if it is used in authentication of the server
 and possible extensions, such as a CertificateVerify request in case the server requests that the client
 be authenticated via a certificate as well. The certificate and CertificateRequest as
 well as Extensions are protected with keys derived during the handshake process. These
-are different from the secrets used to protect application data and does not guarantee
+are different from the secrets used to protect application data and do not guarantee
 perfect forward secrecy. The combination of ClientHello and ServerHello is used to
 create the shared keys. Finally, the client responds, acknowledging that the process is finished~\cite{rfc8446}.
 
-Normally the handshake adds additional overhead to connection setup. With TLS 1.2 and
+Normally the handshake adds additional overhead to connection set up. With TLS 1.2 and
 lower adding an additional 2+ RTTs of latency, and TLS 1.3 adding 1-RTT of latency.
 However, the QUIC protocol integrates the TLS 1.3 handshake into the transport layer protocol,
-allowing both handshake to be made in parallel, negating the latency impact, but more
-on this in Chapter~\ref{sec:quic}. Once the handshake is finished and the TLS session setup,
+allowing both handshakes to be made in parallel, negating the latency impact, but more
+on this in Chapter~\ref{sec:quic}. Once the handshake is finished and the TLS session set up,
 the record protocol takes over. The record layer splits the application data into
 appropriate chunks, which are then encrypted and integrity protected. Finally, the record layer transmits
 these records via the underlying, reliable transport.
@@ -1097,7 +1097,7 @@ Datagram Transport Layer Security (DTLS) is designed to overcome the challenges
 of securing an unreliable transport. There are four main reasons the TLS cannot
 be used directly on top of UDP. First, TLS uses an implicit sequence number as a
 nonce, meaning that TLS records being delivered out of order causes the decryption
-process to fail. Second, the TLS handshake is rigid, the right messages have to arrive
+process to fail. Second, the TLS handshake is rigid, the right messages must arrive
 in the right order for the handshake to succeed. Third, handshake messages may be 
 larger than one datagram, causing fragmentation. Finally, UDP is susceptible to
 Denial-of-Service (DoS)~\cite{rfc9147}.
@@ -1158,7 +1158,7 @@ for enabling remote access to filesystems between different UNIX machines. NFS w
 designed to be a simple and open filesystem, making it easy to port to different
 machines. In contrast to the SMB protocol, the NFS protocol was designed to be a 
 stateless protocol. This simplifies processing, as each request contains all necessary
-information to complete the request, and in case the request fails the client may
+information to complete the request, and if the request fails the client may
 simply try again. Recovery from error states is simpler as no sessions have to be
 re-established. The stateless  design come with drawbacks,
 for example two concurrent clients trying to write the same file could cause the
@@ -1171,7 +1171,7 @@ includes features such as file locking, multipath and compound operations, along
 improvements and improved authentication support for stronger security~\cite{rfc7530}.
 NFSv4.1 introduced NFS sessions and parallel access to data, as well as improving support
 for clustered solutions~\cite{rfc8881}, while
-NFSv4.2 introduces support for server side operations, and sparse files~\cite{rfc7862}.
+NFSv4.2 introduces support for server-side operations, and sparse files~\cite{rfc7862}.
 
 \begin{table}[h]
 	\centering
@@ -1185,11 +1185,11 @@ NFSv4.2 introduces support for server side operations, and sparse files~\cite{rf
 	\end{tabular}
 \end{table}
 
-Table~\ref{tab:smb_nfs} gives an overview between the major differences of SMB and
+Table~\ref{tab:smb_nfs} gives an overview of the major differences between SMB and
 NFS. SMB provides many different features, a natively stateful protocol for sharing
 all kinds of resources, and a solution that is very Windows centric, with UNIX based
 system requiring a third-party solution for support, such as Fusion SMB or
-Samba. In comparison, NFS is a lightweight, easy to setup protocol that is purely
+Samba. In comparison, NFS is a lightweight, easy to set up protocol that is purely
 focused on file and directory sharing, and which is integrated into many
 different UNIX based operating systems.
 \clearpage
@@ -1223,12 +1223,12 @@ development of QUIC and give an overview of the architecture and functionality o
 the protocol.
 
 \subsection{The motivation for a new transport protocol \label{quic_motivation}}
-TCP is a cornerstone of modern internet infrastructure. It has been the go to
+TCP is a cornerstone of modern internet infrastructure. It has been the go-to
 protocol for reliable communications for more than 40 years, ensuring connectivity between users and hosts
 since its inception. However, as the design of TCP is largely influenced by the
 landscape of when it was created, many of the improvements that have been made to TCP,
 such as security, have had to be built on top of TCP, as these were not considerations
-at the time of the TCP's inception. Today's internet landscape, with real-time content,
+at the time of TCP's inception. Today's internet landscape, with real-time content,
 hyper-mobile users and increased demands on not only latency, but also privacy and security, have exposed
 some of the limitations imposed by the TCP stack. This section will outline the
 key issues that prompted the development of a new, modern protocol: QUIC.
@@ -1256,7 +1256,7 @@ A limitation of the TCP stack is the delay caused by the TCP handshake. As discu
 in earlier chapters, establishing a TCP connection is done via a three-way handshake
 (SYN, SYN-ACK, ACK). This handshake incurs one Round-Trip Time (RTT) of delay. In
 addition, most applications use TLS for security, and historically the TLS 1.2 handshake
-and setup add two additional RTTs of delay. While network bandwidth is ever increasing,
+and set up add two additional RTTs of delay. While network bandwidth is ever increasing,
 much of the communication done on the internet consists of short dialogues, that
 are significantly impacted by the additional latency brought on by the TCP plus TLS
 handshake~\cite{quic_transport_protocol_design}.
@@ -1280,7 +1280,7 @@ part of the network. These devices may be overly conservative, dropping or
 modifying packets that do not conform to their assumptions. This is already an
 issue for TCP enhancements, and entirely new protocols have no chance of reaching
 their destination, without explicitly adding support in all the middleboxes on the path.
-To get around this, protocol designers have to design their protocols from the ground
+To get around this, protocol designers must design their protocols from the ground
 up to be resistant against middlebox interference, such as is the case with QUIC encapsulating
 its protocol inside UDP as an anti-ossification measure~\cite{Ossification}.
 
@@ -1318,7 +1318,7 @@ for rapid deployment without any necessary modifications to existing infrastruct
 To combat the issue of HOL blocking, QUIC implements transport level multiplexing of
 data streams, allowing multiple independent streams to exist over one connection.
 Packet loss in any of the data streams would not affect any of the others, blocking
-only the one stream, while waiting for retransmission. QUIC uses a combined connection and
+only one stream, while waiting for retransmission. QUIC uses a combined connection and
 cryptographic handshake, minimizing the latency of establishing a new connection.
 While TCP uses IP-port tuples to identify connections, this does not allow for changes in the
 underlying network, such as might be the case for mobile users. If the IP or port
@@ -1327,7 +1327,7 @@ the connection is dropped and must be reestablished. To combat this QUIC uses
 Connection IDs to identify the connection, allowing the connection to resume when
 there is some change in network. QUIC was widely deployed on Google's front-end servers,
 and by 2017 it was already estimated that QUIC represented 7\% of global internet
-traffic~\cite{quic_transport_protocol_design}. Since then the adoption of QUIC has
+traffic~\cite{quic_transport_protocol_design}. Since then, the adoption of QUIC has
 been rapid and according to statistics by Cloudflare, QUIC makes up more than 30\% of web traffic~\cite{cloudflare_radar}.
 
 QUIC was submitted to the IETF for consideration in 2016, and a working group
@@ -1379,7 +1379,7 @@ QUIC implements its own transport layer, handling the multiplexing of data strea
 ensuring reliable and in-order delivery of data as well as connection management
 mechanics~\cite{rfc9000}. QUIC's security layer is fully integrated into the protocol, using TLS 1.3
 for encryption of on-wire traffic, as well as authentication and authorization of peers, ensuring
-secure communications between endpoints. The security layer also protects most of
+secure communication between endpoints. The security layer also protects most of
 the packet header, leaving only the necessary info for routing and version control
 visible on the wire~\cite{rfc9001}. The final layer exposes a standardized application
 interface that can support virtually any application-layer protocol, the most prominent
@@ -1511,7 +1511,7 @@ requested to be opened. Data transfer is done via STREAM frames, that carry the
 application data that is to be transmitted. Once data transfer is complete, and
 the application is done with the stream, it may be closed by sending a stream
 frame with the FIN bit set or alternatively by sending a RESET\_STREAM to abruptly end the
-stream, signaling that no further data will be sent. On the receiving end the receiver
+stream, signaling that no further data will be sent. At the receiving end the receiver
 can read data from the stream and may end the stream by sending a STOP\_SENDING frame,
 signaling that no more data will be accepted on the stream~\cite{rfc9000}.
 
@@ -1519,7 +1519,7 @@ The design of QUIC streams is such that it directly addresses TCP's HOL blocking
 issue. In TCP, the in-order delivery guarantee is implemented on an entire connection,
 resulting in the whole connection stalling in case of a lost packet until the packet is
 retransmitted and received. In comparison, QUIC building its streams on top of
-UDP, have implemented an in-order guarantee per stream. That is, any lost packet
+UDP, has implemented an in-order guarantee per stream. That is, any lost packet
 only blocks the specific stream that packet belonged to, allowing the other streams
 that may exist on the same connection to keep transmitting while the erroneous
 stream retransmits. This feature also works in the favor for control data,
@@ -1530,7 +1530,7 @@ bidirectional QUIC stream, and unidirectional streams are used for control and
 push streams. HTTP/3 implementations should support at least 100 concurrent streams
 taking advantage of the multiplexing introduced by QUIC~\cite{rfc9114}. When a client
 visits a web page, it may open tens of streams simultaneously, to fetch HTML, CSS,
-JavaScript, images and fonts. If for example a packet containing part of an image is lost, QUIC
+JavaScript, images and fonts. If, for example, a packet containing part of an image is lost, QUIC
 enables the HTML and CSS streams to continue delivering while the image stream recovers,
 improving web page render times in lossy environments.
 
@@ -1569,8 +1569,8 @@ This granular control allows the protocol implementations to adapt the flow cont
 according to the environment, enabling improved performance especially in dynamic environments.
 
 The QUIC protocol uses three different packet number spaces, separate for initial,
-handshake and application data spaces. This is as due to the
-corresponding packets use different levels of encryption, ensuring that acknowledgements
+handshake and application data spaces. This is due to the
+corresponding packets using different levels of encryption, ensuring that acknowledgements
 sent in one packet number space does not cause retransmissions of packets of a different
 encryption level. The packet numbers of QUIC are monotonically increasing, signaling
 the order in which the packets were sent. That is, when retransmission occurs the
@@ -1600,7 +1600,7 @@ means that the congestion window can double every RTT as long as all inflight pa
 are acknowledged. When packet loss is detected, the sender enters recovery period.
 During the recovery period the congestion window is reduced to half its current
 size, and this reduction may be made instantly when entering the recovery period
-or gradually using some other mechanism. Any additional detected loss during this
+or gradually using some other mechanism. Any additional loss detected during this
 period does not affect the congestion window size. The recovery period ends once
 the congestion window has been reduced to the new size, and the sender has sent
 a packet and that packet has been acknowledged. From here the sender enters congestion 
@@ -1667,7 +1667,7 @@ ID is retired and a RETIRE\_CONNECTION\_ID frame has been sent, but no acknowled
 has yet been received, should be kept to a limited number~\cite{rfc9000}.
 
 When a QUIC packet is received, it is attempted to match this packet to an existing
-connection. If the recipient is a server it is also possible that the incoming
+connection. If the recipient is a server, it is also possible that the incoming
 packet is part of a new connection. If it is not possible to associate the packet
 with any connection ID of any existing connection, and the packet is not part of
 initializing a new connection, then a Stateless Reset may be sent in response. If
@@ -1686,7 +1686,7 @@ decrypt the packet due to various reasons~\cite{rfc9000}.
 
 On of the main innovations made by the QUIC protocol is the integration of the
 TLS 1.3 cryptographic handshake into the transport handshake, improving the latency
-of connection setup and encrypting the connection from the beginning. As can be
+of connection set up and encrypting the connection from the beginning. As can be
 seen from Figure~\ref{fig:quic_handshake}, in a 1-RTT handshake the connection is initiated by the client
 sending an Initial packet, which contains a TLS ClientHello message
 contained inside a CRYPTO frame. The server responds with an Initial Packet containing
@@ -1699,10 +1699,10 @@ and application data can now flow securely~\cite{rfc9000, rfc9001}.
 It is possible to transmit data before the cryptographic handshake has been completed,
 albeit with some drawbacks. In Figure~\ref{fig:quic_handshake} the opportunities
 for early data transmission have been marked with an asterisk. Firstly, 0-RTT data
-transfer is possible, in case the client is previously known to the server, and
+transfer is possible, in case the client is previously known to the server and
 has received a TLS resumption ticket. With 0-RTT data transfer the initial data may be sent during the Initial Packet
 from the client. 0-RTT data transfer comes with the caveat that it is susceptible
-to replay attacks. It is also possible for the server to derive the encryption keys,
+to replay attacks. It is also possible for the server to derive the encryption keys
 early and transmit data alongside its initial handshake message. This mechanic is
 referred to as "0.5-RTT", but the data is carried inside a 1-RTT packet. This has
 the drawback of transmitting data before the client has authenticated, which means
@@ -1757,19 +1757,19 @@ send packets to the new address, using a new connection ID, to prevent on-wire
 tracking of the connection migration. In practice, on the receiving end the process
 is the same for explicit and implicit migration. A server will not initialize a 
 connection migration, this is exclusively done by the client. What a server may
-do is a using preferred address. This allows servers to accept incoming connections
+do is use a preferred address. This allows servers to accept incoming connections
 on one address, and then quickly transfer the connection to a separate, preferred
 address, performing path validation against the client from the new address~\cite{rfc9000}.
 
 \clearpage
 
-\section{The Server Message Block protocol}
+\section{The Server Message Block Protocol}
 \label{sec:smb}
 
 The main purpose of the SMB protocol is to share files and directories over a network.
 The SMB protocol is a stateful protocol, where clients initiate connections,
 an authenticated session is created and requests are sent over the connection, allowing
-the client to perform file operations. In addition to sharing file, the smb protocol enables
+the client to perform file operations. In addition to sharing files, the SMB protocol enables
 access to other network resources, such as printers. There currently exist
 two major versions of the SMB protocol, the original SMB protocol, sometimes referred to as the CIFS protocols, which later
 evolved into the SMB 2 Protocol, which encapsulates SMB Versions 2 and 3~\cite{smb2_tech}. The SMB 2
@@ -1898,7 +1898,7 @@ SMB2 SERVER\_TO\_CLIENT\_NOTIFICATION (ASYNC only) & 0x0013 \\ \hline
 
 \subsection{SMB connection lifetime}
 
-The SMB connections begins by establishing a connection via the transport protocol
+The SMB connection begins by establishing a connection via the transport protocol
 of choice. As discussed in Section~\ref{sec:smb}, this may be TCP, RDMA or QUIC.
 Once the connection is established, the first message sent from the client is
 the SMB2 NEGOTIATE message. The client sends an array of supported dialects,
@@ -1949,7 +1949,7 @@ performing any more operations~\cite{smb2_tech}.
 
 When the client is finished with a share it is time to disconnect and log off. The
 disconnection is performed via a SMB2 TREE\_DISCONNECT message, using the TreeId
-provided earlier when connection was setup to the share. If the client is done with its
+provided earlier when connection was set up to the share. If the client is done with its
 operations, it can log off from the server via the SMB2 LOGOFF message, allowing
 the client to cut all connections to the server. This section only covers the most
 basic process and possibilities of using the SMB protocol to access a shared resource.
@@ -1978,9 +1978,9 @@ SMB over QUIC. As discussed in Section~\ref{sec:quic}, the QUIC protocol brings
 many advantages over legacy TCP transports. QUIC enables transport-level encryption
 that leverages TLS 1.3 for more secure cryptography, multiple logical streams
 to combat HOL blocking, moving the traffic to port 443 to avoid the common port
-blocking of SMB port 445 and connections migration. The most notable of the improvements to the
+blocking of SMB port 445 and supports connection migration. The most notable of the improvements to the
 SMB protocol is the inclusion of transport level encryption. While SMB version >= 3
-supports per share based encryption, the cryptographic analysis is outside the scope
+supports per share-based encryption, the cryptographic analysis is outside the scope
 of this thesis, but benefits of TLS 1.3, such as perfect forward secrecy is not
 part of standard SMB encryption~\cite{smb_quic}. SMB over QUIC supports negotiating
 transport level encryption in the transport capabilities of the negotiate protocol
@@ -2037,7 +2037,7 @@ a new connection request, a stream being opened or closed, or receiving data on 
 \end{figure}
 
 The MsQuic library abstracts away the concept of networking sockets, instead opting
-for an object based model, which can be seen in Figure~\ref{fig:msquic_arch}. The
+for an object-based model, which can be seen in Figure~\ref{fig:msquic_arch}. The
 MsQuic library model includes 5 main types of objects: the Registration, Configuration,
 Listener, Connection and Stream object. The hierarchy of these objects can be seen
 in Figure~\ref{fig:msquic_arch}. All function calls are done in relation to one of
@@ -2062,7 +2062,7 @@ and allowed cipher suites. The configuration object also stores a list of
 Application Layer Protocol Negotiation (ALPN) IDs that the server supports~\cite{msquic_docs}.
 ALPN is a TLS feature, that is designed for a situation where it is not clear which
 service a client is trying to access. This may arise when a server is running
-multiple network services that all use the same port, for example as the SMB over
+multiple network services that all use the same port, for example the SMB over
 QUIC protocol uses the same UDP
 port as HTTP/3. ALPN allows the server and client to negotiate which protocol
 will be used inside the TLS tunnel, removing the need for an additional round trip to negotiate
@@ -2077,7 +2077,7 @@ in response~\cite{msquic_docs}.
 The Connection object represents the QUIC connection between two peers. On the client
 side this connection is explicitly created via a function call, while on the server
 side it is created in the listener callback. The connection object contains information
-about the connection, and it is expected to handle events related to connection setup,
+about the connection, and it is expected to handle events related to connection set up,
 stream creation and connection teardown, either as a result of an error or from one
 of the peers closing the connection~\cite{msquic_docs}.
 
@@ -2262,15 +2262,15 @@ per connection.
 \end{figure}
 
 As illustrated in Figure~\ref{fig:hardware} the hardware environment for the test setup consists
-of a server and a client, connect directly via a 100 GbE switch. The server is as Supermicro
+of a server and a client, connected directly via a 100 GbE switch. The server is a Supermicro
 SYS-2029BT-HNR, with dual Intel Xeon Gold 622R CPUs running at a clock speed of 2.9 GHz. The server
 has 192 GB of RAM, and a 3 TB Micron 9300 NVMe drive supporting read and write speeds of 3.5 GB. The client
 machine is a Gigabyte R281-3C1, with dual Intel Xeon Silver 4114 CPUs, running at a clock speed of 2.2GHz.
 Similarly to the server the client has 192 GB of RAM.
 \paragraph{Software environment}
 
-The server is setup to dualboot Windows 2025 and Ubuntu 22.04 LTS, allowing for the benchmarks to
-be ran against the same hardware for both the Fusion SMB and Windows SMB implementations. The
+The server is set up to dual boot Windows 2025 and Ubuntu 22.04 LTS, allowing for the benchmarks to
+be run against the same hardware for both the Fusion SMB and Windows SMB implementations. The
 client is running Windows 2025 to support SMB over QUIC client capabilities.
 
 \subsubsection{SMB over QUIC implementations analyzed}
@@ -2303,14 +2303,14 @@ To ensure reproducibility and comparability of the results, filesystem benchmark
 using the Flexible I/O (fio) tester \footnote{\url{https://fio.readthedocs.io/en/latest/fio_doc.html}},
 which enables running synthetic workloads on the shares. The fio tester supports
 many different scenarios, workloads as well fine-grained control over parameters
-such as file and block size, sequential and random reads as well as time based workloads.
+such as file and block size, sequential and random reads as well as time-based workloads.
 
 \subsection{Test scenarios}
 
 \subsubsection{Interoperability tests}
 
 The first step in testing, before performance evaluation, is to make sure that
-the two implementations outlined are able to connect, authenticate and setup
+the two implementations outlined are able to connect, authenticate and set up
 the SMB session. Using the Windows SMB over QUIC client, it is ensured that the client
 is able to connect to the server, receive and accept the server certificate, and
 additionally perform some basic file operations to ensure that the data transfer is
@@ -2324,9 +2324,9 @@ The tests were chosen in such a way as to both benchmark the solutions under opt
 as well as represent real world scenarios.
 
 \paragraph{SecNetPerf:}
-For running the SecNetPerf performance test to get a overview of the link speed,
-two tests are run, one for checking the link speed each ways. The test is run with the maximum
-throughput execution profile, and run for 60 seconds, first testing uplink speed,
+For running the SecNetPerf performance test to get an overview of the link speed,
+two tests are run, one for checking the link speed each way. The test is run with the maximum
+throughput execution profile, and runs for 60 seconds, first testing uplink speed,
 then downlink speed (from the perspective of the client). This gives a base value for
 what the optimal throughput is expected to be, as logically the addition of the
 overhead of QUIC transport layer, SMB protocol and filesystem IO should not improve
@@ -2338,7 +2338,7 @@ set up, as unexpected results may point to problems in the configuration.
 The sequential read and write of one file is used to establish baseline numbers
 for the performance of the transport. The test is designed such that it puts little
 strain on the filesystem IO, instead of having the transport layer as the primary 
-bottleneck for performance. The tests is run for a time of 120 seconds, against a
+bottleneck for performance. The tests are run for a time of 120 seconds, against a
 pre-allocated file, allowing for a maximum throughput test during continuous load.
 This test uses a large block size to maximize the performance.
 
@@ -2364,10 +2364,10 @@ This section will outline the results from the benchmarks outlined in Section~\r
 For each of the scenarios there are two sets of graphs, one outlining the IO performance
 in MB/s, as well as the IOPS. As the benchmarks used consistent block sizes, it is
 expected that these two metrics are heavily correlated. Each of the scenarios were
-ran against SMB over QUIC,
+run against SMB over QUIC,
 as well as against SMB using TCP. The QUIC benchmarks were ran against an unencrypted
 share, instead relying on the QUIC protocol's integrated encryption. The TCP benchmarks
-were ran against an encrypted SMB share, so that the performance numbers would be
+were run against an encrypted SMB share, so that the performance numbers would be
 comparable with the performance number from SMB over QUIC.
 \begin{figure}[h]
 \centering
@@ -2396,7 +2396,7 @@ comparable with the performance number from SMB over QUIC.
 \end{figure}
 
 As can be seen in Figure~\ref{fig:perf_graph}, the link speed was verified using both
-iPerf and SecNetPerf. The performance tests was run using the Windows 2025 client
+iPerf and SecNetPerf. The performance tests were run using the Windows 2025 client
 machine as the performance test client, against both the Windows and Ubuntu
 server hosts. Using the default settings of iPerf, the throughput reached 20 GB/s
 against the Ubuntu host, and 13.4 GB/s against Windows. Similarly, using SecNetPerf,
@@ -2407,8 +2407,8 @@ library.
 
 The interoperability of the SMB over QUIC implementation, as outlined in Chapter~\ref{sec:implementation},
 was manually tested using the Windows 2025 SMB over QUIC client. This was accomplished
-by using Powershell to mount the share. By specifying \textit{/transport:quic} when
-mounting the share it is possible to force the client to exclusively try to connect
+by using PowerShell to mount the share. By specifying \textit{/transport:quic} when
+mounting the share, it is possible to force the client to exclusively try to connect
 via QUIC, completely forgoing TCP. A self-signed certificate was used in the server
 for testing purposes, and the client was configured to accept the certificate by
 specifying \textit{/skipcertcheck} when mounting the share. Via manual testing it
@@ -2471,7 +2471,7 @@ reached.
 \label{fig:scenario_1}
 \end{figure}
 
-The results of benchmark scenario 1 is outlined in Figure~\ref{fig:scenario_1}.
+The results of benchmark scenario 1 are outlined in Figure~\ref{fig:scenario_1}.
 Looking at the write workloads it can be seen from the graphs that there is
 one significant outlier, the throughput of the write workload from the Windows Client
 to the Windows server using encrypted TCP.
@@ -2553,7 +2553,7 @@ transports, which can be seen in Figure~\ref{fig:scenario_2}. For the read workl
 clear that the results are inside the margin of errors, with all transport and host
 showing very similar throughput, for both QUIC and encrypted TCP. In the case of the write workload it can be seen
 that as in scenario 1, the Windows server shows a higher throughput, and the difference
-between QUIC and encrypted TCP is noticable for the Windows implementation. Again, the
+between QUIC and encrypted TCP is noticeable for the Windows implementation. Again, the
 Windows QUIC implementation has slightly higher throughput than the Fusion QUIC implementation,
 but the difference is less severe than in Scenario 1, with the Fusion QUIC implementation
 suffering a 30\% decrease in throughput. From Scenario 2, it can be seen that the bottleneck is
@@ -2621,9 +2621,9 @@ However, when comparing the performance of SMB over QUIC, the
 throughput of Windows and Fusion is very close, with Fusion being slightly favored
 in the read workload, and Windows having a slight advantage in the write workload.
 The throughput of Fusion's implementation of QUIC and encrypted TCP is close, just as
-in scenario 2. In comparison, the performance impact of using QUIC as instead of
-encrypted TCP is more significant for the Windows implementation, which is the same case
-as the previous 2 scenarios.
+in scenario 2. In comparison, the performance impact of using QUIC instead of
+encrypted TCP is more significant for the Windows implementation, which can be seen
+in the results of all three scenarios.
 
 \clearpage
 \section{Conclusions}
@@ -2648,14 +2648,14 @@ conditions the QUIC transport layer suffers when compared to encrypted TCP, it m
 that one of the main advantages of SMB over QUIC is the ability to access SMB shares from
 external networks, as compared to legacy SMB access which is most commonly
 done inside internal networks or over Virtual Private Networks (VPN). Considering that
-most ISPs offers internet bandwidths of up to 1 Gb/s (125 MB/s), the prototype is
+most ISPs offer internet bandwidths of up to 1 Gb/s (125 MB/s), the prototype is
 already able to sufficiently support access over the internet.
 
-During the process of working on this thesis it became clear that the extentions
+During the process of working on this thesis it became clear that the extensions
 to the SMB protocol made by Microsoft to support SMB over QUIC were done in such a way
 that they do not take advantage of many of the improvements offered by QUIC when compared
 to TCP. There are only two QUIC specific features utilized by SMB. First, transport level
-encryption with the SMB protoco, moving the encryption from an SMB specific per-share basis to
+encryption with the SMB protocol, moving the encryption from an SMB specific per-share basis to
 instead use QUIC's native encryption. Second, SMB over QUIC implements mutual
 authentication, allowing verification of clients via certificates. However, there is
 at least one significant QUIC feature missing, from
@@ -2663,7 +2663,7 @@ the [MS-SMB2] documentation \textit{"By default, Windows SMB2 clients and server
 Sending or receiving more than one stream per connection will be blocked by the underlying transport
 QUIC."}~\cite{smb2}. This, in turn, results in the SMB protocol entirely neglecting
 to use one of the biggest improvements brought on by QUIC, the ability to use
-multiple data streams over one connection. The following is some of the authors suggestions
+multiple data streams over one connection. The following are some of the author's suggestions
 on how the SMB protocol could properly implement support for QUIC and its
 modern features.
 
@@ -2671,19 +2671,19 @@ As QUIC streams are by design lightweight, the overhead of opening new streams,
 when compared to for example the overhead introduced by filesystem I/O, is
 negligible. The main drawback to implementing a system of multiple streams per
 connection is the increased complexity, as there are no guarantees of in-order
-delivery between the streams. A server or client might transmit two streams one after the
-other and they may arrive in the reverse order. However, the SMB protocol already
+delivery between the streams. A server or client might transmit two streams, one after the
+other, and they may arrive in the reverse order. However, the SMB protocol already
 has added support for SMB Multichannel, which enables the server and client to transmit
-and receive over multiple Network Interface Controllers (NIC), or to utilize multiple
-paths over one NIC via Receive Side Scaling (RSS), simultaneously. Thus the problem
+and receive over multiple Network Interface Controllers (NIC), or utilize multiple
+paths over one NIC via Receive Side Scaling (RSS), simultaneously. Thus, the problem
 of data transfer over multiple data streams has already been solved via earlier
 extensions to the protocol.
 
-The main question is then work out how multiple requests should be split up between different
+The main issue is then working out how multiple requests should be split up between different
 streams, and what the granularity of these splits could be. The naive approach
 is to map every request or compounded request to its own stream. One stream would then
 consist of a request and a response, or a set of compounded requests and compounded
-resposes. This is similar to the design of HTTP/3 or DNS over QUIC. The advantage
+responses. This is similar to the design of HTTP/3 or DNS over QUIC. The advantage
 of this approach is that it takes full advantage of
 the multiplexed streams implemented by QUIC, going a long way towards negating HOL blocking.
 Another approach is to use streams on a per-open basis, setting up a stream
@@ -2693,11 +2693,11 @@ all requests on separate streams, while still managing to take advantage of QUIC
 features.
 
 There are some other advantages that may be implemented regardless of how the requests
-are split between streams. AN advantage could be gained by creating a
+are split between streams. An advantage could be gained by creating a
 dedicated control stream, in addition to the normal data streams. The data streams
-would handle the main data transfer requests, such as as SMB2 OPEN, READ, WRITE and
+would handle the main data transfer requests, such as SMB2 OPEN, READ, WRITE and
 so on. By using QUIC it is possible to prioritize the streams, potentially allowing
-fast operations, such as directory listing and opens, to be completed quickly without
+fast operations, such as directory listing and file or directory opens, to be completed quickly without
 being blocked by for example large reads and writes.
 In addition to the data streams, the control stream would be responsible for control information, including
 but not limited to NEGOTIATE, SESSION\_SETUP, CHANGE\_NOTIFY, CANCEL and ECHO requests, enabling
@@ -2713,11 +2713,11 @@ room for further development and investigation. Currently the solution works as
 a middle layer between MsQUIC and the Fusion SMB server, creating an interface
 that both sides can use for communication. While this has allowed for creating
 the prototype in the allocated timeframe, and shows promising performance when compared
-to encrypted TCP, there are still possible gains to be had. By continuing development
+to encrypted TCP, there are still possible gains to be had. By continuing development,
 it could be possible to natively support the MsQuic library, or more precisely support
 the event driven processing model presented by MsQuic. At the same time
-this could improve the overhead from memory management, by minimizing the amount of allocations,
-deallocations and copies that is done on the data path between the MsQuic library
+this could improve the overhead from memory management, by minimizing the number of allocations,
+deallocations and copies that is made on the data path between the MsQuic library
 and the Fusion SMB server, improving both performance and long-term stability.
 
 The focus of the prototype was ensuring stability, preventing memory leaks or errors.
@@ -2726,10 +2726,10 @@ implementation complexity. Future work could incrementally improve memory manage
 for example by implementing pools of pre-allocated objects to store information
 about received buffers.
 
-An aspect that was not explored by this thesis is the existance of a multitude of
+An aspect that was not explored by this thesis is the existence of a multitude of
 different QUIC libraries.
 One of the advantages presented by QUIC is the fact that most implementations are located
-in the user space. By prototyping any number of libraries it is possible to
+in the user space. By prototyping any number of libraries, it is possible to
 compare performance and ease-of-use, enabling a more informed decision on which
 library is desirable for use in the final implementation, or possibly supporting multiple
 libraries on a case-by-case basis. Considering that the development
@@ -2737,17 +2737,17 @@ is done for Linux based machines, one of the most promising options is the QUIC
 kernel module being developed, as outlined in Section~\ref{sec:implementation}.
 
 One of the advantages of QUIC as compared to TCP is the improved latency of connection
-establishment. By benchmarking the setup of many SMB over QUIC connections, against
+establishment. By benchmarking the set up of many SMB over QUIC connections, against
 setting up SMB over encrypted TCP connections, it could be possible to benchmark this
 aspect of the implementation. However, as Microsoft's SMB over QUIC client
 is at the time of writing to the author's knowledge the only publicly available SMB
-over QUIC client, the process of setting up the amount of clients required for the
-test is far from straightforward. Once an alternative client is released, it may
-enable running connection setup benchmarking.
+over QUIC client, the process of setting up the number of clients required for the
+test is far from straightforward. Once an alternative client is available, it may
+enable running connection set up benchmarking.
 
-As discussed the Microsoft SMB over QUIC implementation does not take advantage of
+As discussed, the Microsoft SMB over QUIC implementation does not take advantage of
 most of QUIC's advanced features, instead opting to use QUIC in a very similar
-manner to TCP. Futher work could focus on improving the design of SMB over QUIC,
+manner to TCP. Further work could focus on improving the design of SMB over QUIC,
 as well as prototyping an implementation that takes advantage of QUIC's improvements over
 TCP.  
 \clearpage
