@@ -2261,7 +2261,7 @@ per connection.
 	\label{fig:hardware}
 \end{figure}
 
-As can be seen in Figure~\ref{fig:hardware} the hardware environment for the test setup consists
+As illustrated in Figure~\ref{fig:hardware} the hardware environment for the test setup consists
 of a server and a client, connect directly via a 100 GbE switch. The server is as Supermicro
 SYS-2029BT-HNR, with dual Intel Xeon Gold 622R CPUs running at a clock speed of 2.9 GHz. The server
 has 192 GB of RAM, and a 3 TB Micron 9300 NVMe drive supporting read and write speeds of 3.5 GB. The client
@@ -2271,7 +2271,7 @@ Similarly to the server the client has 192 GB of RAM.
 
 The server is setup to dualboot Windows 2025 and Ubuntu 22.04 LTS, allowing for the benchmarks to
 be ran against the same hardware for both the Fusion SMB and Windows SMB implementations. The
-client runs is running Windows 2025 to support SMB over QUIC client capabilities.
+client is running Windows 2025 to support SMB over QUIC client capabilities.
 
 \subsubsection{SMB over QUIC implementations analyzed}
 As part of this thesis two different SMB over QUIC implementations were considered
@@ -2365,11 +2365,10 @@ For each of the scenarios there are two sets of graphs, one outlining the IO per
 in MB/s, as well as the IOPS. As the benchmarks used consistent block sizes, it is
 expected that these two metrics are heavily correlated. Each of the scenarios were
 ran against SMB over QUIC,
-as well as against SMB using TCP. To enable a fair comparison of the results the
-benchmarks against SMB using TCP were ran on an encrypted share, to enable comparison
-of the results with the QUIC implementation which uses transport level encryption
-instead of the SMB protocol's own encryption.
-
+as well as against SMB using TCP. The QUIC benchmarks were ran against an unencrypted
+share, instead relying on the QUIC protocol's integrated encryption. The TCP benchmarks
+were ran against an encrypted SMB share, so that the performance numbers would be
+comparable with the performance number from SMB over QUIC.
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
@@ -2396,14 +2395,14 @@ instead of the SMB protocol's own encryption.
 \label{fig:perf_graph}
 \end{figure}
 
-As can be seen in Figure~\ref{fig:perf_graph}, the link speed was verified with both
+As can be seen in Figure~\ref{fig:perf_graph}, the link speed was verified using both
 iPerf and SecNetPerf. The performance tests was run using the Windows 2025 client
-machine as the performance test client, against both the Windows 2025 and Ubuntu
-server hosts. Using the default settings of iPerf, the throughut reached 20 GB/s
-against the Ubuntu host, and 13.4 GB/s against windows. Similarly, using SecNetPerf,
+machine as the performance test client, against both the Windows and Ubuntu
+server hosts. Using the default settings of iPerf, the throughput reached 20 GB/s
+against the Ubuntu host, and 13.4 GB/s against Windows. Similarly, using SecNetPerf,
 speeds of at least 3 GB/s where reached both ways, for both servers. This indicates
-that under optimal conditions, a single QUIC stream using MsQuic can at most reach
-speeds of 3GB, indicating the point where the throughput is limited by the MsQuic
+that under optimal conditions, a single QUIC connection and stream using MsQuic can at most reach
+speeds of 3GB/s on the test hardware, indicating the point where the throughput is limited by the MsQuic
 library.
 
 The interoperability of the SMB over QUIC implementation, as outlined in Chapter~\ref{sec:implementation},
@@ -2413,9 +2412,9 @@ mounting the share it is possible to force the client to exclusively try to conn
 via QUIC, completely forgoing TCP. A self-signed certificate was used in the server
 for testing purposes, and the client was configured to accept the certificate by
 specifying \textit{/skipcertcheck} when mounting the share. Via manual testing it
-was showed that the client could mount the share, create a text file, write some
-data to the file and the delete it, and finally disconnect from the server, without
-issues. This showed that the compatibility aspect of the implementation had been
+was shown that the client could mount the share, create a text file, write some
+data to the file, delete the file and finally disconnect from the server, without
+any issues. This showed that the compatibility aspect of the implementation had been
 reached.
 
 \subsubsection{Scenario 1: Large sequential I/O}
@@ -2473,19 +2472,26 @@ reached.
 \end{figure}
 
 The results of benchmark scenario 1 is outlined in Figure~\ref{fig:scenario_1}.
-Looking at the write workloads it can be seen from the graphs it is clear that there is
+Looking at the write workloads it can be seen from the graphs that there is
 one significant outlier, the throughput of the write workload from the Windows Client
 to the Windows server using encrypted TCP.
 The reason for this outlier is not evident, the gain could potentially be from offloading
-of cryptographic processing to a separate thread or some other optimization. 
+of cryptographic processing to a separate thread or some other optimization in the
+threading model of the implementation. 
 Due to this outlier the Windows SMB over QUIC implementation suffers a 65\%
 performance reduction when compared to encrypted TCP. In comparison, the Fusion QUIC
-transport prototype sees a 35\% reduction in throughput for the write workload. For the read
+transport prototype sees a 35\% reduction in throughput for the write workload when compared
+to encrypted TCP. For the read
 workload the Windows QUIC implementation actually performed slightly better than
 using encrypted TCP, while the Fusion QUIC implementation sees a 50\% reduction in
 throughput as compared to encrypted TCP, suggesting that there are optimizations
 that could be made to the transmitting data path in the QUIC prototype, to bring
-the comparative performance in line with the read throughput.
+the comparative performance in line with the read throughput. This is also evident
+when comparing Windows QUIC performance with Fusion QUIC performance. The write
+workload, which is mainly bounded by the client's performance, shows very similar performance between
+both QUIC implementations. In comparison, the read workload, which is more dependent
+on the server, shows that the Fusion QUIC implementation has a 45\% lower throughput than
+the Windows QUIC implementation.
 
 \subsubsection{Scenario 2: Single file random I/O}
 
@@ -2542,14 +2548,17 @@ the comparative performance in line with the read throughput.
 \label{fig:scenario_2}
 \end{figure}
 
-Scenario 2, in comparison to scenario 1, shows much less impact from the chosen
-transport, as seen in Figure~\ref{fig:scenario_2}. For the read workload it is
+Scenario 2, in comparison to scenario 1, shows much less impact from the different
+transports, which can be seen in Figure~\ref{fig:scenario_2}. For the read workload it is
 clear that the results are inside the margin of errors, with all transport and host
-showing very similar throughput. In the case of the write workload it can be seen
+showing very similar throughput, for both QUIC and encrypted TCP. In the case of the write workload it can be seen
 that as in scenario 1, the Windows server shows a higher throughput, and the difference
-between QUIC and Encrypted TCP is noticable. For workloads that are similar to the one performed
-in Scenario 2, it can be seen that the bottleneck is not the transport layer, resulting
-in similar performance regardless if QUIC or encrypted TCP is used.
+between QUIC and encrypted TCP is noticable for the Windows implementation. Again, the
+Windows QUIC implementation has slightly higher throughput than the Fusion QUIC implementation,
+but the difference is less severe than in Scenario 1, with the Fusion QUIC implementation
+suffering a 30\% decrease in throughput. From Scenario 2, it can be seen that the bottleneck is
+not only the network transport layer, resulting in similar performance regardless
+if QUIC or encrypted TCP is used.
 
 \subsubsection{Scenario 3: multiple files random I/O}
 \begin{figure}[h]
@@ -2605,14 +2614,16 @@ in similar performance regardless if QUIC or encrypted TCP is used.
 \label{fig:scenario_3}
 \end{figure}
 
-In scenario 3, as illustrated in Figure~\ref{fig:scenario_3}, it can be seen that
-Windows using encrypted TCP has a significant advantage as compared to all other
-implementations, both for read and write workloads. However, when comparing the
-performance of SMB over QUIC, the
+Scenario 3, illustrated in Figure~\ref{fig:scenario_3}, shows that
+Windows using encrypted TCP has a significant advantage in this scenario, when compared
+to the other implementations. This advantage holds for both for read and write workloads.
+However, when comparing the performance of SMB over QUIC, the
 throughput of Windows and Fusion is very close, with Fusion being slightly favored
 in the read workload, and Windows having a slight advantage in the write workload.
-As in scenario two, the performance impact of using QUIC as compared to encrypted TCP is
-more significant for the Windows implementation as compared to Fusion.
+The throughput of Fusion's implementation of QUIC and encrypted TCP is close, just as
+in scenario 2. In comparison, the performance impact of using QUIC as instead of
+encrypted TCP is more significant for the Windows implementation, which is the same case
+as the previous 2 scenarios.
 
 \clearpage
 \section{Conclusions}
@@ -2623,75 +2634,78 @@ and add some discussion about the state of SMB over QUIC.
 
 \subsection{Discussion}
 
-This work has been successful in implementing a prototype QUIC transport layer
-and integrated this into the Fusion SMB server to provide SMB over QUIC functionality.
-While the prototypes performance somewhat suffers in scenarios that are heavily dependent
-on network transport throughput, it still managed to nearly matched the performance
-of encrypted TCP for workloads that are bottlenecked by the SMB protocol processing.
-The prototype is a promising first step in implementing a SMB over QUIC implementation
-for Linux based systems.
+This work has been successful in designing and implementing a prototype QUIC transport layer
+for the Fusion SMB server to provide SMB over QUIC functionality.
+While the prototype's performance somewhat suffers in scenarios that are heavily dependent
+on network transport throughput, it still managed to nearly match the performance
+of encrypted TCP for workloads that are not only dependent on the network transport
+throughput. The prototype is a promising first step in implementing a SMB over QUIC
+implementation for Linux based systems.
 
 While there is room for improvements in the performance of the QUIC transport layer,
 the implemented prototype still shows relatively good performance. While under ideal
-conditions the QUIC transport layer falters as compared to TCP, it must be highlighted
+conditions the QUIC transport layer suffers when compared to encrypted TCP, it must be highlighted
 that one of the main advantages of SMB over QUIC is the ability to access SMB shares from
-external networks, as compared to legacy SMB processing which is most commonly
-done on internal networks or over Virtual Private Networks (VPN). Most ISPs offers
-internet bandwidths of up to 1 Gb/s (125 MB/s), which the prototype is able to comfortably
-accomodate.
+external networks, as compared to legacy SMB access which is most commonly
+done inside internal networks or over Virtual Private Networks (VPN). Considering that
+most ISPs offers internet bandwidths of up to 1 Gb/s (125 MB/s), the prototype is
+already able to sufficiently support access over the internet.
 
 During the process of working on this thesis it became clear that the extentions
-to the SMB protocol by Microsoft to support SMB over QUIC was done in such a way
-that it does not take advantage of many of the improvements offered by QUIC as compared
-to TCP. There are only two QUIC features utilized by SMB. First, transport level
-encryption with the SMB protocol moving the encryption from a per-share basis to
+to the SMB protocol made by Microsoft to support SMB over QUIC were done in such a way
+that they do not take advantage of many of the improvements offered by QUIC when compared
+to TCP. There are only two QUIC specific features utilized by SMB. First, transport level
+encryption with the SMB protoco, moving the encryption from an SMB specific per-share basis to
 instead use QUIC's native encryption. Second, SMB over QUIC implements mutual
-authentication, allowing verification of clients via certificates. However, from
+authentication, allowing verification of clients via certificates. However, there is
+at least one significant QUIC feature missing, from
 the [MS-SMB2] documentation \textit{"By default, Windows SMB2 clients and servers always use a single stream per QUIC connection.
 Sending or receiving more than one stream per connection will be blocked by the underlying transport
 QUIC."}~\cite{smb2}. This, in turn, results in the SMB protocol entirely neglecting
 to use one of the biggest improvements brought on by QUIC, the ability to use
-multiple streams over one connection. Following is some of the authors suggestions
-on how the SMB protocol could properly implement support for QUIC and all its
+multiple data streams over one connection. The following is some of the authors suggestions
+on how the SMB protocol could properly implement support for QUIC and its
 modern features.
 
 As QUIC streams are by design lightweight, the overhead of opening new streams,
-as when compared to for example the overhead introduced by filesystem I/O, is
+when compared to for example the overhead introduced by filesystem I/O, is
 negligible. The main drawback to implementing a system of multiple streams per
 connection is the increased complexity, as there are no guarantees of in-order
-delivery between the streams, a server or client might transmit two streams on after the
+delivery between the streams. A server or client might transmit two streams one after the
 other and they may arrive in the reverse order. However, the SMB protocol already
 has added support for SMB Multichannel, which enables the server and client to transmit
-and receive over multiple Network Interface Controllers (NIC), or using multiple
+and receive over multiple Network Interface Controllers (NIC), or to utilize multiple
 paths over one NIC via Receive Side Scaling (RSS), simultaneously. Thus the problem
-of data transfer over multiple data streams has already been solved as part of the
-protocol.
+of data transfer over multiple data streams has already been solved via earlier
+extensions to the protocol.
 
-The question is then concerning on how the request should be split up between different
-streams, and what the granularity of the splits could be. The naive approach
-is to map every request or compounded request to its own stream. So one stream would
-consist of a request and a response. This is similar to the methods used by DNS
-over QUIC. The advantage of this approach is that it can take full advantage of
-the multiple stream offered by QUIC, almost entirely negating HOL blocking.
+The main question is then work out how multiple requests should be split up between different
+streams, and what the granularity of these splits could be. The naive approach
+is to map every request or compounded request to its own stream. One stream would then
+consist of a request and a response, or a set of compounded requests and compounded
+resposes. This is similar to the design of HTTP/3 or DNS over QUIC. The advantage
+of this approach is that it takes full advantage of
+the multiplexed streams implemented by QUIC, going a long way towards negating HOL blocking.
 Another approach is to use streams on a per-open basis, setting up a stream
-for each file that is openend, and sending all operations concerning that file
-over the specific stream. The advantage here is lesser complexity than having
-all requests separate, while still managing to take advantage of QUIC'S advanced
+for each file or directory that is opened, and sending all operations concerning that file
+or directory over its specific stream. The advantage here is lesser complexity than having
+all requests on separate streams, while still managing to take advantage of QUIC's advanced
 features.
 
-Not depending on how the I/O requests are split there are some other advantages
-that may be implemented as well. Some advantage could be gained by creating a
-dedicated control data stream, in addition to the data streams. The data streams
+There are some other advantages that may be implemented regardless of how the requests
+are split between streams. AN advantage could be gained by creating a
+dedicated control stream, in addition to the normal data streams. The data streams
 would handle the main data transfer requests, such as as SMB2 OPEN, READ, WRITE and
 so on. By using QUIC it is possible to prioritize the streams, potentially allowing
 fast operations, such as directory listing and opens, to be completed quickly without
 being blocked by for example large reads and writes.
-In comparison to the data streams, the control stream would be responsible for control data, including
-but not limited to NEGOTIATE, SESSION\_SETUP, CANCEL and ECHO requests, enabling
+In addition to the data streams, the control stream would be responsible for control information, including
+but not limited to NEGOTIATE, SESSION\_SETUP, CHANGE\_NOTIFY, CANCEL and ECHO requests, enabling
 the control channel to handle control messages separately from the data
 transfers. An advantage of a dedicated control stream is that the SMB credit system
 could be moved there, enabling the server and client to handle credit requests
 and responses separately from other SMB commands.
+
 \subsection{Future work}
 
 While a prototype for the QUIC transport layer has been achieved, there is still
@@ -2699,39 +2713,43 @@ room for further development and investigation. Currently the solution works as
 a middle layer between MsQUIC and the Fusion SMB server, creating an interface
 that both sides can use for communication. While this has allowed for creating
 the prototype in the allocated timeframe, and shows promising performance when compared
-to encrypted TCP, there are still possible gains to be made. By continuing development
-it would be possible to natively support the MsQuic model, or more precisely support
-the event driven processing model presented by the MsQuic library. At the same time
-this would improve the memory management, by minimizing the amount of allocations,
+to encrypted TCP, there are still possible gains to be had. By continuing development
+it could be possible to natively support the MsQuic library, or more precisely support
+the event driven processing model presented by MsQuic. At the same time
+this could improve the overhead from memory management, by minimizing the amount of allocations,
 deallocations and copies that is done on the data path between the MsQuic library
-and Fusion SMB server, improving both performance and long-term stability. Similarly
-the focus of the prototype was ensuring stability, preventing memory leaks or errors.
+and the Fusion SMB server, improving both performance and long-term stability.
+
+The focus of the prototype was ensuring stability, preventing memory leaks or errors.
 Due to the time constraint this resulted in inefficient memory management to reduce
 implementation complexity. Future work could incrementally improve memory management,
 for example by implementing pools of pre-allocated objects to store information
 about received buffers.
 
-An aspect that was not explored by this thesis is the existance of many QUIC libraries.
-One of the advantages presented by QUIC is the fact that implementations are run
+An aspect that was not explored by this thesis is the existance of a multitude of
+different QUIC libraries.
+One of the advantages presented by QUIC is the fact that most implementations are located
 in the user space. By prototyping any number of libraries it is possible to
 compare performance and ease-of-use, enabling a more informed decision on which
-library is desirable for use in the final version. Considering that the development
+library is desirable for use in the final implementation, or possibly supporting multiple
+libraries on a case-by-case basis. Considering that the development
 is done for Linux based machines, one of the most promising options is the QUIC
 kernel module being developed, as outlined in Section~\ref{sec:implementation}.
 
 One of the advantages of QUIC as compared to TCP is the improved latency of connection
 establishment. By benchmarking the setup of many SMB over QUIC connections, against
-setting up SMB over encrypted TCP connections, it could highlight the performance
-difference between the implementations. However, as the Microsoft's SMB over QUIC client
-is at the time of writing the only known SMB over QUIC client, the process of setting up
-the amount of clients required for the test is far from straightforward. Once an
-alternative client is released, it may enable running connection benchmarking.
+setting up SMB over encrypted TCP connections, it could be possible to benchmark this
+aspect of the implementation. However, as Microsoft's SMB over QUIC client
+is at the time of writing to the author's knowledge the only publicly available SMB
+over QUIC client, the process of setting up the amount of clients required for the
+test is far from straightforward. Once an alternative client is released, it may
+enable running connection setup benchmarking.
 
 As discussed the Microsoft SMB over QUIC implementation does not take advantage of
 most of QUIC's advanced features, instead opting to use QUIC in a very similar
 manner to TCP. Futher work could focus on improving the design of SMB over QUIC,
-as well as prototyping a implementation that utilizes the advantages of QUIC as
-compared to TCP.  
+as well as prototyping an implementation that takes advantage of QUIC's improvements over
+TCP.  
 \clearpage
 %% Bibliography/ list of references
 %%
