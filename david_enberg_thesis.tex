@@ -447,16 +447,16 @@ urldate=long % date is expressed as Month dd, yyyy
 	file sharing, traditionally relies upon TCP, which faces limitations in modern
 	networking environments. The QUIC protocol offers a modern alternative, allowing
 	for a secure, reliable transport with native multiplexing capabilities. The SMB
-	protocol has added support for QUIC, but performance analysis of the impact and
-	protocol implementations outside of Windows are limited.
+	protocol has added support for QUIC, but performance analysis of its impact and
+	of protocol implementations outside of Windows is limited.
 
 	In this thesis a QUIC transport layer for the Fusion SMB server was designed,
 	implemented and evaluated in the Linux user space. A prototype was
 	developed by integrating Microsoft's MsQuic library for QUIC capabilities. The
 	thesis discusses the design of the transport layer and the architectural decisions
 	made to interface with the existing server. The interoperability and performance of
-	the implementation was benchmarked against
-    Microsoft's implementation of SMB over QUIC, using several different
+	the implementation were benchmarked against
+    Microsoft's implementation of SMB over QUIC in several different
 	benchmarking scenarios. These results were compared to the performance of the standard
 	encrypted TCP transport. The thesis concludes by discussing the performance
 	results obtained, along with providing insights into the potential of leveraging
@@ -537,7 +537,7 @@ Tölö, 24 November 2025\\
 \mysection{Abbreviations}
 
 \begin{tabular}{ll}
-ACK & acknowledgment \\
+ACK & Acknowledgment \\
 ALPN & Application Layer Protocol Negotiation \\
 DFS & Distributed File System \\
 DTLS & Datagram Transport Layer Security \\
@@ -583,7 +583,7 @@ being essential for applications ranging from web browsing and multimedia sharin
 to enterprise level file sharing. The Transmission Control Protocol (TCP)~\cite{rfc793}
 has served as the solution of choice for reliable communication for over four decades.
 Side-by-side with TCP, the User Datagram Protocol (UDP)~\cite{rfc768} has been
-used for application with high requirements on latency, with no guarantees of
+used for applications with high requirements on latency, with no guarantees of
 reliability. As the application demands move towards higher throughput, lower latency
 and increased security demands, the inherent limitations of TCP have become apparent.
 
@@ -607,7 +607,7 @@ to serve as a transport protocol for the SMB protocol.
 
 Although TCP has served as the reliable transport protocol for SMB during the last
 decades, it has several well-known drawbacks in modern networking environments.
-First, TCP suffers from head-of-line (HOL) blocking, which can significantly
+First, TCP suffers from Head-of-Line (HOL) blocking, which can significantly
 impact performance in lossy environments. Second, TCP combined with TLS requires
 additional messages during the connection setup, the handshake, negatively affecting
 the latency of connections, especially for short communications. Finally,
@@ -619,13 +619,13 @@ of web traffic~\cite{quic_better_for_what,evaluating_quic_perf,quic_and_tcp_perf
 no studies have been done on the performance of SMB using the QUIC transport protocol.
 While the support for alternative transport protocols in the SMB protocol, mainly
 Remote Direct Memory Access (RDMA) and QUIC, has been defined and implemented by Microsoft~\cite{smb2},
-The writer is not aware of formal
+To the author's knowledge, there have been no formal
 efforts into researching and comparing the performance of these alternative transports.
 Additionally, there is no known implementation of SMB over QUIC for Linux
 based systems, with currently the only available implementation being in Windows machines.
 SMB suffers in the context of network reachability, as many internet service providers
 choose to block the port used by SMB due to several exploits targeting this specific port,
-resulting in normal SMB traffic being blocked as well~\cite{bitag_port_blocking}.
+resulting in standard SMB traffic being blocked as well~\cite{bitag_port_blocking}.
 
 A possible solution to address the limitation present in TCP is using
 QUIC as an alternative transport protocol. Via combining QUIC's multiplexed transport,
@@ -634,7 +634,7 @@ HOL blocking, improve latency of the connection and improve deployment to user s
 applications. Additionally, since QUIC is designed with mobile users in mind, it could
 improve the reliability of the SMB protocol in diverse mobile environments, especially
 for mobile users. By moving from the traditional TCP port 445 to UDP port 443,
-SMB over QUIC in essence would mimic HTTP/3 web traffic on the transport level,
+SMB over QUIC would essentially mimic HTTP/3 web traffic on the transport level,
 circumventing the blocking of SMB traffic that is commonly done for TCP.
 
 The objective of this thesis is to design, implement and benchmark a QUIC transport
@@ -648,8 +648,8 @@ focusing on throughput and compatibility.
 
 This thesis is limited to supporting a QUIC transport layer using MsQuic. Other
 potential QUIC libraries are beyond the scope of this thesis, as there is no
-unified interface between the libraries, resulting in the work done to get one
-library working not being transferable to another library. The performance evaluations
+unified interface between the libraries, meaning the work required to integrate one library is
+not transferable to another. The performance evaluations
 are limited to different throughput tests, including several different workloads, representative of
 real-world enterprise and customer use cases.
 Other tests that will not be considered are latency and benchmarking connection creation,
@@ -685,8 +685,8 @@ communication challenges. It is intended to be a highly reliable transport
 protocol between hosts in a packet switched network. TCP is connection-oriented,
 providing reliable, end-to-end, bi-directional communication between a pair of processes, in the
 form of a continuous stream of bytes. The TCP protocol is designed to fit into
-a layered hierarchy of protocols, slotting
-in on top of the internet protocol (IP)~\cite{rfc791}. IP handles the addressing
+a layered hierarchy of protocols, fitting into the protocol stack
+on top of the Internet Protocol (IP)~\cite{rfc791}. IP handles the addressing
 and routing of datagrams between the hosts, while TCP aims to ensure that
 information is delivered correctly, in order, and without duplication. TCP works with
 the assumption that the underlying protocol is unreliable and may lose,
@@ -807,7 +807,7 @@ abstraction, as each datagram exists independently of one another, but a series
 of these datagrams could be seen as a type of data stream, albeit an unordered one.
 Having only one stream per connection can lead to issues in the transport layer, such as HOL-blocking,
 which is discussed in Section~\ref{sec:hol}. The solution of opening multiple
-connections comes with drawbacks of large overhead and resource consumption for
+connections comes with the drawbacks of large overhead and resource consumption for
 the peers, with each connection taking up a separate socket on the client machine.
 As a result, protocols have emerged that aim to extend the data stream capabilities
 of TCP and UDP, and in the process solve some of the issues present in these legacy
@@ -825,7 +825,7 @@ independent flow control. SST also supports independent stream prioritization
 as well as reliable and best effort (unreliable) delivery~\cite{sst}.
 
 There were three primary reasons for creating the new protocol, SST, that splits
-a single connection into multiple data stream . First, some protocols provide
+a single connection into multiple data streams. First, some protocols provide
 multiplexing on top of TCP but suffers from HOL blocking as loss will block all
 data transfers until retransmission. This issue arises as reliable communication
 protocols guarantee that all byte will be delivered in order, without any missing
@@ -979,7 +979,7 @@ HTTP/2, RFC 7540~\cite{rfc7540} containing acknowledging for the contributions m
 team. The HTTP/2 protocol uses the same HTTP semantics as HTTP/1.1, but like SPDY
 improves on the transport of the HTTP data between endpoints. HTTP/2 implements
 streams and stream multiplexing, stream prioritization, header compression and
-server push capabilities. Like SPDY, HTTP/2 support multiple independently
+server push capabilities. Like SPDY, HTTP/2 supports multiple independently
 mutiplexed streams, allowing multiple parallel requests over one TCP connection.
 Stream priority allows the client to signal which requests are more important to
 be filled, and in case no priority is given, the server may choose to determine
@@ -1242,8 +1242,8 @@ combat this issue. HTTP/2 introduced multiplexing of multiple requests over one
 connection, allowing multiple application-level streams, for example for different
 resources such as images or JavaScript, to be multiplexed over a single TCP
 connection. This means that HTTP/2 managed to mitigate application-level HOL
-blocking, which was an issue in earlier versions of HTTP- However, HTTP/2 still
-sufferes from transport level HOL blocking, as the multiplexed stream is
+blocking, which was an issue in earlier versions of HTTP. However, HTTP/2 still
+suffers from transport level HOL blocking, as the multiplexed stream is
 sent over a single TCP connection. As a result, a single lost packet in the TCP
 stream still causes all other unrelated streams over the same connection to stall,
 even if their packets were successfully delivered, until the offending packet
@@ -1275,7 +1275,7 @@ endpoints, using TFO is simply not possible~\cite{fast_open_problem}.
 \subsubsection{Protocol Ossification}
 A big hurdle in deploying new protocols and extensions to existing ones
 is the protocol ossification of protocols on the internet. There exists a large number of different
-of middleboxes, such as Network Address Translators (NATs) and firewalls that are all
+middleboxes, such as Network Address Translators (NATs) and firewalls that are all
 part of the network. These devices may be overly conservative, dropping or 
 modifying packets that do not conform to their assumptions. This is already an
 issue for TCP enhancements, and entirely new protocols have no chance of reaching
@@ -2640,7 +2640,7 @@ done on internal networks or over Virtual Private Networks (VPN). Most ISPs offe
 internet bandwidths of up to 1 Gb/s (125 MB/s), which the prototype is able to comfortably
 accomodate.
 
-During the process of working on this thesis it became clear that the extention
+During the process of working on this thesis it became clear that the extentions
 to the SMB protocol by Microsoft to support SMB over QUIC was done in such a way
 that it does not take advantage of many of the improvements offered by QUIC as compared
 to TCP. There are only two QUIC features utilized by SMB. First, transport level
@@ -2649,7 +2649,7 @@ instead use QUIC's native encryption. Second, SMB over QUIC implements mutual
 authentication, allowing verification of clients via certificates. However, from
 the [MS-SMB2] documentation \textit{"By default, Windows SMB2 clients and servers always use a single stream per QUIC connection.
 Sending or receiving more than one stream per connection will be blocked by the underlying transport
-QUIC."}~\cite{smb2}. This in turn results in the SMB protocol entirely neglecting
+QUIC."}~\cite{smb2}. This, in turn, results in the SMB protocol entirely neglecting
 to use one of the biggest improvements brought on by QUIC, the ability to use
 multiple streams over one connection. Following is some of the authors suggestions
 on how the SMB protocol could properly implement support for QUIC and all its
@@ -2663,7 +2663,7 @@ delivery between the streams, a server or client might transmit two streams on a
 other and they may arrive in the reverse order. However, the SMB protocol already
 has added support for SMB Multichannel, which enables the server and client to transmit
 and receive over multiple Network Interface Controllers (NIC), or using multiple
-paths over one NIC via Receive Side Scaling (RSS), simoultaneously. Thus the problem
+paths over one NIC via Receive Side Scaling (RSS), simultaneously. Thus the problem
 of data transfer over multiple data streams has already been solved as part of the
 protocol.
 
