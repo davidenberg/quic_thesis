@@ -644,7 +644,13 @@ In order to develop this solution, the thesis will implement a QUIC transport la
 will be accomplished by using the MsQuic library~\cite{msquic}. This QUIC transport layer
 will then be integrated into Fusion SMB, an SMB server developed by Tuxera~\cite{fusion}.
 The thesis will conduct a series of performance benchmarks and interoperability tests,
-focusing on throughput and compatibility.
+focusing on throughput and compatibility. The main research questions this thesis aims to answer are:
+
+\begin{enumerate}
+  \item What is the performance of SMB over QUIC under optimal network conditions?
+  \item How does the performance of SMB over QUIC compare to encrypted SMB over TCP?
+  \item How does the SMB protocol take advantage of the QUIC protocol's features?
+\end{enumerate}
 
 This thesis is limited to supporting a QUIC transport layer using MsQuic. Other
 potential QUIC libraries are beyond the scope of this thesis, as there is no
@@ -2291,6 +2297,11 @@ of the Fusion SMB server with the MsQuic library for transport capabilities will
 be compared to the Windows implementation.
 
 \subsubsection{Benchmarking Software}
+
+For measuring the link speed and making sure the tests are running over the correct
+network interface, iPerf\footnote{\url{https://iperf.fr/}} will be used. iPerf allows
+for the testing of the maximum bandwidth over a network, and will indicate any
+possible issues or bottlenecks in the testing environment.
 The MsQuic repository contains a tool for testing the performance of MsQuic called
 SecNetPerf\footnote{\url{https://github.com/microsoft/msquic/tree/main/src/perf}},
 which implements a QUIC performance protocol defined in ~\cite{banks-quic-performance-00}.
@@ -2321,7 +2332,13 @@ of the connection, and teardown should be handled gracefully.
 
 The exact commands used in running the benchmarks are available in Appendix~\ref{app:bench}.
 The tests were chosen in such a way as to both benchmark the solutions under optimal conditions,
-as well as represent real world scenarios.
+as well as represent real world scenarios. The FIO benchmarks were all run for a time of
+120 seconds to ensure that the results would represent an average throughput under sustained
+load and minimize the impact of external conditions.
+
+\paragraph{iPerf:}
+iPerf is run using the standard setup, with no additional paramteres. This benchmark tests
+the maximum possible netowrk throughput during a time period of 10 seconds.
 
 \paragraph{SecNetPerf:}
 For running the SecNetPerf performance test to get an overview of the link speed,
@@ -2338,7 +2355,7 @@ set up, as unexpected results may point to problems in the configuration.
 The sequential read and write of one file is used to establish baseline numbers
 for the performance of the transport. The test is designed such that it puts little
 strain on the filesystem IO, instead of having the transport layer as the primary 
-bottleneck for performance. The tests are run for a time of 120 seconds, against a
+bottleneck for performance. The tests are run against a
 pre-allocated file, allowing for a maximum throughput test during continuous load.
 This test uses a large block size to maximize the performance.
 
@@ -2378,16 +2395,16 @@ comparable with the performance number from SMB over QUIC.
 	enlarge y limits={upper=0},
     legend style={at={(0.5,-0.15)},
       anchor=north,legend columns=-1},
-	ylabel=Throughput (MB/s),
+	ylabel=Throughput (Gb/s),
 	symbolic x coords={iPerf, Secnetperf up, Secnetperf down},
     xtick=data,
 	ymin=0
     ]
 \addplot 
-	coordinates {(iPerf,13400) (Secnetperf up, 3900) (Secnetperf down, 3200)};
+	coordinates {(iPerf,13.400) (Secnetperf up, 3.900) (Secnetperf down, 3.200)};
 
 \addplot 
-	coordinates {(iPerf,20000) (Secnetperf up, 6100) (Secnetperf down, 3100)};
+	coordinates {(iPerf,20.000) (Secnetperf up, 6.100) (Secnetperf down, 3.100)};
 \legend{Windows, Ubuntu}
 \end{axis}
 \end{tikzpicture}
@@ -2398,9 +2415,9 @@ comparable with the performance number from SMB over QUIC.
 As can be seen in Figure~\ref{fig:perf_graph}, the link speed was verified using both
 iPerf and SecNetPerf. The performance tests were run using the Windows 2025 client
 machine as the performance test client, against both the Windows and Ubuntu
-server hosts. Using the default settings of iPerf, the throughput reached 20 GB/s
-against the Ubuntu host, and 13.4 GB/s against Windows. Similarly, using SecNetPerf,
-speeds of at least 3 GB/s where reached both ways, for both servers. This indicates
+server hosts. Using the default settings of iPerf, the throughput reached 20 Gb/s
+against the Ubuntu host, and 13.4 Gb/s against Windows. Similarly, using SecNetPerf,
+speeds of at least 3 Gb/s where reached both ways, for both servers. This indicates
 that under optimal conditions, a single QUIC connection and stream using MsQuic can at most reach
 speeds of 3GB/s on the test hardware, indicating the point where the throughput is limited by the MsQuic
 library.
@@ -2629,8 +2646,15 @@ in the results of all three scenarios.
 \section{Conclusions}
 \label{sec:conclusion}
 \label{sec:summary}
-This section of the thesis will cover the key points and findings of the thesis
-and add some discussion about the state of SMB over QUIC.
+
+During the process of this thesis, two SMB over QUIC implementations have been benchmarked
+during optimal network
+conditions, and the results have been presented. Additionally, the same benchmarks were run against
+SMB over encrypted TPC, and the performance of SMB using TCP and QUIC was compared. Finally, this
+thesis has shown which of the features introduced by the QUIC protocol is utilized by the SMB protocol,
+to take advantage of the improvements offered by QUIC as compard to TCP.
+The rest of this section of the thesis will summarize the key points and findings of the thesis
+and adds some discussion about the possible expansion of SMB over QUIC.
 
 \subsection{Discussion}
 
@@ -2647,7 +2671,9 @@ the implemented prototype still shows relatively good performance. While under i
 conditions the QUIC transport layer suffers when compared to encrypted TCP, it must be highlighted
 that one of the main advantages of SMB over QUIC is the ability to access SMB shares from
 external networks, as compared to legacy SMB access which is most commonly
-done inside internal networks or over Virtual Private Networks (VPN). Considering that
+done inside internal networks or over Virtual Private Networks (VPN). This is due to the fact
+that the standard SMB TCP port 445 is commonly blocked by ISPs, affecting the ability
+of SMB traffic to traverse the internet. Considering that
 most ISPs offer internet bandwidths of up to 1 Gb/s (125 MB/s), the prototype is
 already able to sufficiently support access over the internet.
 
