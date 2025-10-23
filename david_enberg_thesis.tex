@@ -647,9 +647,9 @@ The thesis will conduct a series of performance benchmarks and interoperability 
 focusing on throughput and compatibility. The main research questions this thesis aims to answer are:
 
 \begin{enumerate}
-  \item What is the performance of SMB over QUIC under optimal network conditions?
-  \item How does the performance of SMB over QUIC compare to encrypted SMB over TCP?
-  \item How does the SMB protocol take advantage of the QUIC protocol's features?
+  \item Is it feasible to implement SMB on top of QUIC and what are the hurdles in doing so?
+  \item What are the benefits of a QUIC-based implementation as compared to the traditional TCP-based implementation?
+  \item How does the performance of SMB over QUIC compare to the TCP-based implementation?
 \end{enumerate}
 
 This thesis is limited to supporting a QUIC transport layer using MsQuic. Other
@@ -846,13 +846,6 @@ and open a new TCP connection for each resource that is loaded. This
 was somewhat remedied in HTTP/1.1 with the serializing of requests over one connection,
 but at the time of the SST's creation it had yet to be widely implemented~\cite{sst}.
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={Diagram of the SST architecture.}, height=8cm]{./images/sst.png}
-	\caption{The SST architecture}
-	\label{fig:sst_arc}
-\end{figure}
-
 As can be seen in Figure~\ref{fig:sst_arc}, the SST architecture consists of three
 parts, the Stream, Channel and Negotiation Protocols. The Channel Protocol is responsible
 for the delivery channel providing the best-effort delivery service, congestion control
@@ -869,6 +862,13 @@ while the normal stream is semantically like TCP, the second stream type, the ep
 to UDP. Ephemeral streams allow the application to have short communications as part
 of a larger connection, without any additional overhead~\cite{sst}.
 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Diagram of the SST architecture.}, height=8cm]{./images/sst.png}
+	\caption{The SST architecture}
+	\label{fig:sst_arc}
+\end{figure}
 
 \subsubsection{SCTP}
 
@@ -899,19 +899,6 @@ allows continued communication without breaking the association~\cite{rfc9260}.
 
 \subsection{HTTP and its evolutions}
 
-\begin{table}[h]
-	\centering
-	\caption{Comparison of HTTP Versions}
-	\label{tab:http_versions}
-	\begin{tabular}{lllll}
-	\textbf{Version} & \textbf{HTTP/1.1} & \textbf{SPDY} & \textbf{HTTP/2} & \textbf{HTTP/3} \\
-	\textbf{Transport}    & TCP     & TCP & TCP & QUIC    \\
-	\textbf{Multiplexing} & Pipelining    & Over TCP & Over TCP & QUIC multiplexing    \\
-	\textbf{Compression}  & No    & SPDY specific & HPACK & QPACK    \\
-	\textbf{Server Push} & No & Yes & Yes & Yes \\
-	\end{tabular}
-\end{table}
-
 The Hypertext Transfer Protocol (HTTP), is a protocol stemming from the early days 
 of the World Wide Web, defining a protocol that would allow a server and a client
 to talk to each other. HTTP allows a client to request different resources from a 
@@ -937,6 +924,19 @@ requests were entirely independent of one another. However, this was not very ef
 resource usage, as perform multiple three-way TCP handshakes to load a simple web page
 added significant overhead.
 
+\begin{table}[h]
+	\centering
+	\caption{Comparison of HTTP Versions}
+	\label{tab:http_versions}
+	\begin{tabular}{lllll}
+	\textbf{Version} & \textbf{HTTP/1.1} & \textbf{SPDY} & \textbf{HTTP/2} & \textbf{HTTP/3} \\
+	\textbf{Transport}    & TCP     & TCP & TCP & QUIC    \\
+	\textbf{Multiplexing} & Pipelining    & Over TCP & Over TCP & QUIC multiplexing    \\
+	\textbf{Compression}  & No    & SPDY specific & HPACK & QPACK    \\
+	\textbf{Server Push} & No & Yes & Yes & Yes \\
+	\end{tabular}
+\end{table}
+
 HTTP/1.0 was iterated upon and became HTTP/1.1, which was initially defined in
 RFC 2616~\cite{rfc2616}. HTTP/1.1 improved upon HTTP/1.0, adding support for several
 new features. First, persistent connections allow multiple requests to be sent over one connection,
@@ -948,13 +948,6 @@ of subsequent requests in case of loss~\cite{rfc2616}. Third, with the Introduct
 of HTTP over TLS, HTTPS, it was now possible to set up more secure, encrypted communications,
 instead of transmitting data in cleartext~\cite{rfc2818}.
 \subsubsection{SPDY}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={Block diagram of HTTP multiplexing.}, height=3cm]{./images/http_multiplex.png}
-	\caption{HTTP multiplexing}
-	\label{fig:http_mux}
-\end{figure}
 
 The SPDY protocol was designed by Google to improve latency of web pages, as compared
 to HTTP/1.1. The SPDY protocol was designed to work as an extension to HTTP/1.1,
@@ -977,6 +970,14 @@ send a resource to the client, without the client having request the resource fi
 Server hint is similar to server push, but instead of sending the resource, the
 server sends a hint to the client with a suggestion that the client should request
 a specific resource~\cite{spdy}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of HTTP multiplexing.}, height=3cm]{./images/http_multiplex.png}
+	\caption{HTTP multiplexing}
+	\label{fig:http_mux}
+\end{figure}
+
 \subsubsection{HTTP/2}
 
 HTTP/2 is standardized in RFC 9113~\cite{rfc9113}, is the evolution from HTTP/1.1.
@@ -1051,12 +1052,6 @@ encrypted and transmitted. The TLS protocol is designed to be a general-purpose
 security protocol, as it only requires to be ran on a reliable transport, and in
 principle any application protocol may be run on top of TLS~\cite{rfc8446}.
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={Diagram of TLS handshake between a client and a server}, height=9cm]{./images/tls_handshake.png}
-	\caption{The TLS 1.3 Handshake}
-	\label{fig:tls_handshake}
-\end{figure}
 The TLS handshake is the most important part when establishing a TLS session. In
 TLS 1.2 and earlier the handshake required 2 RTTs before application data could be sent
 securely, but since TLS 1.3 the handshake has been streamlined into 1-RTT, with the
@@ -1073,6 +1068,13 @@ well as Extensions are protected with keys derived during the handshake process.
 are different from the secrets used to protect application data and do not guarantee
 perfect forward secrecy. The combination of ClientHello and ServerHello is used to
 create the shared keys. Finally, the client responds, acknowledging that the process is finished~\cite{rfc8446}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Diagram of TLS handshake between a client and a server}, height=9cm]{./images/tls_handshake.png}
+	\caption{The TLS 1.3 Handshake}
+	\label{fig:tls_handshake}
+\end{figure}
 
 Normally the handshake adds additional overhead to connection set up. With TLS 1.2 and
 lower adding an additional 2+ RTTs of latency, and TLS 1.3 adding 1-RTT of latency.
@@ -1418,12 +1420,6 @@ application, QUIC defines a large set of different frame types for different,
 distinct roles in connection establishment, data transfer and protocol logic
 management. Depending on the packet type QUIC uses either a long header or short
 header.
-\begin{figure}[b]
-	\centering
-	\includegraphics[alt={A block diagram of the QUIC short and long header format, detailing its fields and their sizes.}, height=8cm]{./images/quic_header.png}
-	\caption{The QUIC header formats}
-	\label{fig:quic_header}
-\end{figure}
 
 QUIC packets are divided into two general categories, those that use the long header
 and those that use the short header. The long header is used during the establishment
@@ -1447,7 +1443,23 @@ is the length of the packet number field minus one. Lastly is the destination ID
 again indicating the recipient, the packet number used for protocols semantics
 and finally the packet payload~\cite{rfc9000}.
 
-\begin{table}[tb]
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={A block diagram of the QUIC short and long header format, detailing its fields and their sizes.}, height=8cm]{./images/quic_header.png}
+	\caption{The QUIC header formats}
+	\label{fig:quic_header}
+\end{figure}
+
+The long header packet type numbers differ between QUIC version 1 and version 2, as
+is outlined in Table~\ref{tab:quic_long_header_types}. Initial packets are used to initiate the connection and transmit
+the initial TLS handshake. The Handshake packet carries the subsequent
+cryptographic messages, after the initial exchange. In case the connection attempt is
+a resumption, the client may use the 0-RTT packet type to transmit encrypted application
+data as part of the handshake, basing the encryption on previously established keys. The
+Retry packet type may be used by the server to force the client to
+validate its address~\cite{rfc9000}.
+
+\begin{table}[h]
 	\centering
 	\caption{Table of QUIC long header types}
 	\label{tab:quic_long_header_types}
@@ -1459,14 +1471,6 @@ and finally the packet payload~\cite{rfc9000}.
 	Retry     & 0x03    & 0b00   
 	\end{tabular}
 \end{table}
-The long header packet type numbers differ between QUIC version 1 and version 2, as
-is outlined in Table~\ref{tab:quic_long_header_types}. Initial packets are used to initiate the connection and transmit
-the initial TLS handshake. The Handshake packet carries the subsequent
-cryptographic messages, after the initial exchange. In case the connection attempt is
-a resumption, the client may use the 0-RTT packet type to transmit encrypted application
-data as part of the handshake, basing the encryption on previously established keys. The
-Retry packet type may be used by the server to force the client to
-validate its address~\cite{rfc9000}.
 
 In QUIC there is only one short-header packet type, known as the 1-RTT packet. It is
 used for the bulk of communication, taking advantage of the more compact short
@@ -1683,13 +1687,6 @@ decrypt the packet due to various reasons~\cite{rfc9000}.
 
 \subsubsection{Connection Lifetime}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={Diagram of QUIC handshake between a client and a server}, height=9cm]{./images/quic_handshake.png}
-	\caption{The QUIC Handshake}
-	\label{fig:quic_handshake}
-\end{figure}
-
 On of the main innovations made by the QUIC protocol is the integration of the
 TLS 1.3 cryptographic handshake into the transport handshake, improving the latency
 of connection set up and encrypting the connection from the beginning. As can be
@@ -1701,6 +1698,13 @@ well as its certificate and possibly the CeritifcateVerify message in case the c
 should be authenticated as well. The client then responds with a Handshake message
 containing the TLS Finished message, which signals the completion of the handshake,
 and application data can now flow securely~\cite{rfc9000, rfc9001}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Diagram of QUIC handshake between a client and a server}, height=9cm]{./images/quic_handshake.png}
+	\caption{The QUIC Handshake}
+	\label{fig:quic_handshake}
+\end{figure}
 
 It is possible to transmit data before the cryptographic handshake has been completed,
 albeit with some drawbacks. In Figure~\ref{fig:quic_handshake} the opportunities
@@ -1784,6 +1788,14 @@ The legacy SMB protocol will be referenced as SMB 1 for clarity, however it will
 not be covered in depth by this thesis. This section of the thesis will give a
 technical overview of the SMB protocol.
 
+Within the larger versions of the SMB protocol there exists minor versions, referred
+to as dialects. Within the SMB protocol the following dialects exist, SMB 2,
+SMB 2.1, SMB 3.0, SMB 3.0.2 and SMB 3.1.1. The basic functionality of the SMB protocol
+was already defined in SMB 1, allowing clients to connect to shares and perform file
+operations. As can be seen in the overview given by Table~\ref{tab:smb_dialects},
+the protocol has been continuously improved by then, adding support for, among other
+features, encryption and alternative transports~\cite{smb2_tech}.
+
 \begin{table}[h]
 \centering
 \caption{Comparison of SMB protocol dialects}
@@ -1799,14 +1811,6 @@ SMB 3.0.2 & 2013 & Unbuffered read and write \\ \hline
 SMB 3.1.1 & 2016 & Support QUIC as a transport, RDMA encryption, Improved cryotography support \\ \hline
 \end{tabular}
 \end{table}
-
-Within the larger versions of the SMB protocol there exists minor versions, referred
-to as dialects. Within the SMB protocol the following dialects exist, SMB 2,
-SMB 2.1, SMB 3.0, SMB 3.0.2 and SMB 3.1.1. The basic functionality of the SMB protocol
-was already defined in SMB 1, allowing clients to connect to shares and perform file
-operations. As can be seen in the overview given by Table~\ref{tab:smb_dialects},
-the protocol has been continuously improved by then, adding support for, among other
-features, encryption and alternative transports~\cite{smb2_tech}.
 
 The SMB protocol places itself in the application layer and it does not stand on its
 own but relies on other protocols for much of its functionality. To enable authentication
@@ -1826,20 +1830,6 @@ which comes with increased security guarantees and potentially improved performa
 over TCP~\cite{smb2_tech}.
 
 \subsection{SMB message structure}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={A block diagram of the SMB Direct TCP header format, detailing its fields and their sizes.}, height=3cm]{./images/smb_tcp_direct_header.drawio.png}
-	\caption{The SMB Direct TCP header}
-	\label{fig:direct_tcp_header}
-\end{figure}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={A block diagram of the SMB2 Packet header common fields format, detailing its fields and their sizes.}, height=14cm]{./images/smb_packet_header_common.png}
-	\caption{The SMB protocol header}
-	\label{fig:smb2_transport_header}
-\end{figure}
 
 The SMB protocol uses the Direct TCP packet header, as shown in Figure~\ref{fig:direct_tcp_header}.
 It begins with a zero byte, followed by a 3-byte StreamProtocolLength field which
@@ -1871,6 +1861,20 @@ the signature. The synchronous header likewise contains the signature and Messag
 of the AsyncId the synchronous header contains the TreeId. Following
 the SMB2 packet header is the SMB2 Protocol Message, which has a variable length depending
 on the command code and if it is a request or a response~\cite{smb2_tech}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={A block diagram of the SMB Direct TCP header format, detailing its fields and their sizes.}, height=3cm]{./images/smb_tcp_direct_header.drawio.png}
+	\caption{The SMB Direct TCP header}
+	\label{fig:direct_tcp_header}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={A block diagram of the SMB2 Packet header common fields format, detailing its fields and their sizes.}, height=14cm]{./images/smb_packet_header_common.png}
+	\caption{The SMB protocol header}
+	\label{fig:smb2_transport_header}
+\end{figure}
 
 \begin{table}[h]
 \centering
@@ -2133,13 +2137,6 @@ support, relevant especially for mobile users.
 
 \subsubsection{MsQuic Integration into Fusion SMB}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[alt={Block diagram of the flow between Fusion SMB and MsQuic}, height=12cm]{./images/MsQuic_integration.png}
-	\caption{MsQuic integration with Fusion SMB}
-	\label{fig:msquic_int}
-\end{figure}
-
 The generic transport layer interface of the Fusion SMB server uses a set of functions
 that is called by the server to interact with the transport, such as for creating and
 destroying the transport, listening for incoming connection and receiving and transmitting data.
@@ -2166,13 +2163,14 @@ as a middle layer between the Fusion SMB server and the QUIC transport, receivin
 data into a receive buffer for the server, and transmitting data from the server to
 the client, enabling two-way communication between the server and client.
 
-\subsubsection{QUIC transport layer data path}
 \begin{figure}[h]
 	\centering
-	\includegraphics[alt={Block diagram of the receive buffer of the QUIC layer}, height=3cm]{./images/quic_buffer.png}
-	\caption{QUIC transport layer receive buffer}
-	\label{fig:msquic_buf}
+	\includegraphics[alt={Block diagram of the flow between Fusion SMB and MsQuic}, height=12cm]{./images/MsQuic_integration.png}
+	\caption{MsQuic integration with Fusion SMB}
+	\label{fig:msquic_int}
 \end{figure}
+
+\subsubsection{QUIC transport layer data path}
 
 When implementing the QUIC layer, the multi-receive mode of the MsQuic
 library, as outlined in Section~\ref{sec:msquic}, will be used due to the improved performance
@@ -2202,6 +2200,13 @@ When draining the receive buffer the caller begins from the head, reading in as
 much data as necessary, updating the offset, and if the head is completely drained,
 moves onto the next element in the list, until the requested amount of data has
 been drained.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[alt={Block diagram of the receive buffer of the QUIC layer}, height=3cm]{./images/quic_buffer.png}
+	\caption{QUIC transport layer receive buffer}
+	\label{fig:msquic_buf}
+\end{figure}
 
 \begin{figure}[h]
 	\centering
@@ -2260,6 +2265,13 @@ per connection.
 
 \paragraph{Hardware environment}
 
+As illustrated in Figure~\ref{fig:hardware} the hardware environment for the test setup consists
+of a server and a client, connected directly via a 100 GbE switch. The server is a Supermicro
+SYS-2029BT-HNR, with dual Intel Xeon Gold 622R CPUs running at a clock speed of 2.9 GHz. The server
+has 192 GB of RAM, and a 3 TB Micron 9300 NVMe drive supporting read and write speeds of 3.5 GB. The client
+machine is a Gigabyte R281-3C1, with dual Intel Xeon Silver 4114 CPUs, running at a clock speed of 2.2GHz.
+Similarly to the server the client has 192 GB of RAM.
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[alt={Block diagram of hardware setup of test environment}, height=4cm]{./images/hardware.png}
@@ -2267,12 +2279,6 @@ per connection.
 	\label{fig:hardware}
 \end{figure}
 
-As illustrated in Figure~\ref{fig:hardware} the hardware environment for the test setup consists
-of a server and a client, connected directly via a 100 GbE switch. The server is a Supermicro
-SYS-2029BT-HNR, with dual Intel Xeon Gold 622R CPUs running at a clock speed of 2.9 GHz. The server
-has 192 GB of RAM, and a 3 TB Micron 9300 NVMe drive supporting read and write speeds of 3.5 GB. The client
-machine is a Gigabyte R281-3C1, with dual Intel Xeon Silver 4114 CPUs, running at a clock speed of 2.2GHz.
-Similarly to the server the client has 192 GB of RAM.
 \paragraph{Software environment}
 
 The server is set up to dual boot Windows 2025 and Ubuntu 22.04 LTS, allowing for the benchmarks to
@@ -2282,19 +2288,28 @@ client is running Windows 2025 to support SMB over QUIC client capabilities.
 \subsubsection{SMB over QUIC implementations analyzed}
 As part of this thesis two different SMB over QUIC implementations were considered
 for comparison in the benchmark.
-\paragraph{Windows SMB over QUIC client and server:}
-
-The Windows SMB over QUIC implementation provided by Microsoft is currently
-the only production-ready and widely deployed implementation of SMB over QUIC. This implementation
-serves as the baseline for the tests. The server will be the main target of comparison,
-as the client will be used in all tests, being the only available SMB over QUIC client.
 
 \paragraph{Fusion SMB server:}
 
 The Fusion SMB server, with the prototype QUIC transport layer as described in
-Chapter~\ref{sec:implementation}, will be the second item of comparison. The performance
-of the Fusion SMB server with the MsQuic library for transport capabilities will
-be compared to the Windows implementation.
+Chapter~\ref{sec:implementation}, will be the first item of comparison. The performance
+of the Fusion SMB server with the MsQuic library for QUIC transport capabilities will
+be compared to the Windows SMB over QUIC implementation, as well as the traditional
+TCP-based transport.
+
+\paragraph{Windows SMB over QUIC server:}
+
+The Windows SMB over QUIC server implementation provided by Microsoft is currently
+the only production-ready and widely deployed implementation of SMB over QUIC. The
+Windows server will be the main target of comparison
+against Fusion SMB, comparing the direct performance of QUIC as well as the performance
+impact of using QUIC in place of TCP for SMB traffic.
+
+\paragraph{Windows SMB over QUIC client:}
+
+The Windows SMB over QUIC client provided by Microsoft is, as with the server implementation,
+the only production-ready and widely deployed implementation of SMB over QUIC. The client
+will be used for testing both against Fusion SMB and Windows SMB server.
 
 \subsubsection{Benchmarking Software}
 
@@ -2337,8 +2352,8 @@ as well as represent real world scenarios. The FIO benchmarks were all run for a
 load and minimize the impact of external conditions.
 
 \paragraph{iPerf:}
-iPerf is run using the standard setup, with no additional paramteres. This benchmark tests
-the maximum possible netowrk throughput during a time period of 10 seconds.
+iPerf is run using the standard setup, with no additional parameters. This benchmark tests
+the maximum possible network throughput during a time period of 10 seconds.
 
 \paragraph{SecNetPerf:}
 For running the SecNetPerf performance test to get an overview of the link speed,
@@ -2356,22 +2371,24 @@ The sequential read and write of one file is used to establish baseline numbers
 for the performance of the transport. The test is designed such that it puts little
 strain on the filesystem IO, instead of having the transport layer as the primary 
 bottleneck for performance. The tests are run against a
-pre-allocated file, allowing for a maximum throughput test during continuous load.
+pre-allocated 5GB file, allowing for a maximum throughput test during continuous load.
 This test uses a large block size to maximize the performance.
 
 \paragraph{FIO Scenario 2: Random read and writes of a single large file}
 
 In comparison to scenario 1, where the maximum throughput is tested, scenario 2
-with random reads and writes instead test the performance when there is a lot of
-small operations, instead focusing on the I/O operations per second (IOPS). To simulate
-this workload a small blocksize is used, together with random writes and reads. This corresponds
+with random reads and writes instead tests the performance when there is a lot of
+small operations. The main performance metric of scenario 2 is the number of I/O operations per second (IOPS).
+To simulate this workload, it is run against a 1 GB file, with a small blocksize
+together with random writes and reads. This corresponds
 to workloads where many small operations are done consistently, for example in
 spreadsheets.
 
 \paragraph{FIO Scenario 3: Read and write of many small files}
 
 The final FIO scenario is the reading and writing of many small files concurrently,
-testing workloads where there is a lot of concurrency. This allows the benchmarking
+testing workloads where there is a lot of concurrency. The test creates 16 files
+of size 100 kB and performs random reads and writes against the files. This allows the benchmarking
 of a scenario with many processes simultaneously performing workloads, stress
 testing different parts of the processing than scenario 1 and 2.
 
@@ -2567,7 +2584,7 @@ the Windows QUIC implementation.
 
 Scenario 2, in comparison to scenario 1, shows much less impact from the different
 transports, which can be seen in Figure~\ref{fig:scenario_2}. For the read workload it is
-clear that the results are inside the margin of errors, with all transport and host
+clear that the difference in results is insignificant, with all transport and host
 showing very similar throughput, for both QUIC and encrypted TCP. In the case of the write workload it can be seen
 that as in scenario 1, the Windows server shows a higher throughput, and the difference
 between QUIC and encrypted TCP is noticeable for the Windows implementation. Again, the
@@ -2647,23 +2664,42 @@ in the results of all three scenarios.
 \label{sec:conclusion}
 \label{sec:summary}
 
+This thesis has explored the feasibility of implementing SMB on top of QUIC,
+and a prototype SMB over QUIC implementation has been created. Due to the fact that the
+SMB over QUIC implementation only uses one stream per connection, the semantics of
+SMB over QUIC is very similar to that of the traditional TCP-based implementation,
+making it very feasible to implement SMB on top of QUIC.
+The biggest hurdle in implementing SMB over QUIC is the lack of native QUIC support in Linux-based
+systems, necessitating the use of external libraries to provide support for the QUIC protocol.
+The external library chosen for the implementation, MsQuic, differs in processing model
+and interface from standard BSD-style sockets, leading to the design and work needed to integrate
+the QUIC layer being non-trivial.
+
+The biggest benefits of using a QUIC-based SMB implementation as compared to the TCP-based implementation
+is the improved cryptography of TLS 1.3 and the move from TCP port 445, which is commonly
+blocked by ISPs, to UDP port 443, which is also used by HTTP/3, enabling the SMB
+traffic to traverse the internet without getting blocked. The biggest disadvantage is
+the negative performance impact of using QUIC as compared to TCP in high-throughput
+scenarios.
+
 During the process of this thesis, two SMB over QUIC implementations have been benchmarked
-during optimal network
-conditions, and the results have been presented. Additionally, the same benchmarks were run against
-SMB over encrypted TPC, and the performance of SMB using TCP and QUIC was compared. Finally, this
-thesis has shown which of the features introduced by the QUIC protocol is utilized by the SMB protocol,
-to take advantage of the improvements offered by QUIC as compard to TCP.
-The rest of this section of the thesis will summarize the key points and findings of the thesis
-and adds some discussion about the possible expansion of SMB over QUIC.
+during optimal network conditions, and the results have been presented. Additionally,
+the same benchmarks were run against SMB over encrypted TPC, and the performance of SMB
+using TCP and QUIC was compared. The benchmarks show that during optimal network conditions
+the QUIC-based implementations' performance suffers when compared to TCP-based implementations,
+but the performance numbers from the QUIC-based implementations are promising and
+the performance is already sufficient for general-purpose tasks. The rest of this section of the
+thesis will summarize the key points and findings of the thesis
+and add some discussion about the possible expansion of SMB over QUIC.
 
 \subsection{Discussion}
 
 This work has been successful in designing and implementing a prototype QUIC transport layer
 for the Fusion SMB server to provide SMB over QUIC functionality.
 While the prototype's performance somewhat suffers in scenarios that are heavily dependent
-on network transport throughput, it still managed to nearly match the performance
-of encrypted TCP for workloads that are not only dependent on the network transport
-throughput. The prototype is a promising first step in implementing a SMB over QUIC
+on network transport throughput, the Fusion SMB over QUIC implementation still managed to
+nearly match the performance of encrypted TCP for workloads that are not only dependent
+on the network transport throughput. The prototype is a promising first step in implementing an SMB over QUIC
 implementation for Linux based systems.
 
 While there is room for improvements in the performance of the QUIC transport layer,
@@ -2671,7 +2707,7 @@ the implemented prototype still shows relatively good performance. While under i
 conditions the QUIC transport layer suffers when compared to encrypted TCP, it must be highlighted
 that one of the main advantages of SMB over QUIC is the ability to access SMB shares from
 external networks, as compared to legacy SMB access which is most commonly
-done inside internal networks or over Virtual Private Networks (VPN). This is due to the fact
+done inside internal networks or over Virtual Private Networks (VPN). This is since
 that the standard SMB TCP port 445 is commonly blocked by ISPs, affecting the ability
 of SMB traffic to traverse the internet. Considering that
 most ISPs offer internet bandwidths of up to 1 Gb/s (125 MB/s), the prototype is
