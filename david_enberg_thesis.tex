@@ -273,12 +273,12 @@ urldate=long % date is expressed as Month dd, yyyy
 %\thesissubtitle{}
 
 %%
-\place{Espoo}
+\place{Helsinki}
 %%
 
 %% The date for the bachelor's thesis is the day it is presented
 %%
-\date{24 November 2025}
+\date{5 November 2025}
 %%
 
 %% Thesis supervisor
@@ -491,7 +491,7 @@ urldate=long % date is expressed as Month dd, yyyy
 	Server Message Block-protokollet (SMB), ett väletablerat protokoll för
 	delning av filer över ett nätverk. Traditionellt förlitar sig SMB-protokollet
 	på TCP, som medför begränsningar i moderna nätverksmiljöer. QUIC-protokollet
-	erbjuder ett modernt alternative som möjliggör säkert och tillförlitlig
+	erbjuder ett modernt alternativ som möjliggör säkert och tillförlitlig
 	transport av information med inbyggt stöd för multiplexering. SMB-protokollet
 	har utvidgats för att stöda QUIC, men prestandautvärderingar och implementeringar
 	utanför Windows är begränsade.
@@ -504,8 +504,9 @@ urldate=long % date is expressed as Month dd, yyyy
 	prestanda och interoperabilitet jämfördes mot Microsofts implementation av SMB över QUIC,
 	genom ett flertal test scenarion. Resultaten jämfördes med referensvärden från
 	standardtransporten med krypterad TCP. Examensarbetet avslutas med en diskussion
-	angående resultat, samt ger insikter till potentialen att bättre utnyttja de avancerade
-	QUIC funktionerna i SMB-protokollet, insikter som erhållits under utvecklingsprocessen.
+	angående resultaten, samt ger insikter till potentialen att bättre utnyttja de avancerade
+	QUIC funktionerna i SMB-protokollet, med hjälp av insikter som erhållits under
+	utvecklingsprocessen.
 \end{abstractpage}
 
 
@@ -517,8 +518,10 @@ urldate=long % date is expressed as Month dd, yyyy
 \mysection{Preface}
 %\mysection{Esipuhe}
 
+
+
 \vspace{5cm}
-Tölö, 24 November 2025\\
+Helsinki, 5 November 2025\\
 
 \vspace{5mm}
 {\hfill David C.\ Enberg \hspace{1cm}}
@@ -2316,10 +2319,10 @@ will be used for testing both against Fusion SMB and Windows SMB server.
 For measuring the link speed and making sure the tests are running over the correct
 network interface, iPerf\footnote{\url{https://iperf.fr/}} will be used. iPerf allows
 for the testing of the maximum bandwidth over a network, and will indicate any
-possible issues or bottlenecks in the testing environment.
+possible issues or bottlenecks in the test environment.
 The MsQuic repository contains a tool for testing the performance of MsQuic called
 SecNetPerf\footnote{\url{https://github.com/microsoft/msquic/tree/main/src/perf}},
-which implements a QUIC performance protocol defined in ~\cite{banks-quic-performance-00}.
+which implements a QUIC performance protocol defined in~\cite{banks-quic-performance-00}.
 The tool enables the testing of link throughput, which means that the tool is used
 to get a baseline performance of MsQuic over the link used for testing. This value can then
 be compared to the throughput of the SMB over QUIC solution, to determine the overhead
@@ -2328,7 +2331,7 @@ introduced by the implementation of the QUIC transport layer together with the S
 To ensure reproducibility and comparability of the results, filesystem benchmarks are run
 using the Flexible I/O (fio) tester \footnote{\url{https://fio.readthedocs.io/en/latest/fio_doc.html}},
 which enables running synthetic workloads on the shares. The fio tester supports
-many different scenarios, workloads as well fine-grained control over parameters
+many different scenarios, workloads as well as fine-grained control over parameters
 such as file and block size, sequential and random reads as well as time-based workloads.
 
 \subsection{Test scenarios}
@@ -2436,7 +2439,7 @@ server hosts. Using the default settings of iPerf, the throughput reached 20 Gb/
 against the Ubuntu host, and 13.4 Gb/s against Windows. Similarly, using SecNetPerf,
 speeds of at least 3 Gb/s where reached both ways, for both servers. This indicates
 that under optimal conditions, a single QUIC connection and stream using MsQuic can at most reach
-speeds of 3GB/s on the test hardware, indicating the point where the throughput is limited by the MsQuic
+speeds of 3Gb/s on the test hardware, indicating the point where the throughput is limited by the MsQuic
 library.
 
 The interoperability of the SMB over QUIC implementation, as outlined in Chapter~\ref{sec:implementation},
@@ -2584,10 +2587,10 @@ the Windows QUIC implementation.
 
 Scenario 2, in comparison to scenario 1, shows much less impact from the different
 transports, which can be seen in Figure~\ref{fig:scenario_2}. For the read workload it is
-clear that the difference in results is insignificant, with all transport and host
+clear that the difference in results is insignificant, with all transports and hosts
 showing very similar throughput, for both QUIC and encrypted TCP. In the case of the write workload it can be seen
 that as in scenario 1, the Windows server shows a higher throughput, and the difference
-between QUIC and encrypted TCP is noticeable for the Windows implementation. Again, the
+between QUIC and encrypted TCP is significant for the Windows implementation. Again, the
 Windows QUIC implementation has slightly higher throughput than the Fusion QUIC implementation,
 but the difference is less severe than in Scenario 1, with the Fusion QUIC implementation
 suffering a 30\% decrease in throughput. From Scenario 2, it can be seen that the bottleneck is
@@ -2666,7 +2669,7 @@ in the results of all three scenarios.
 
 This thesis has explored the feasibility of implementing SMB on top of QUIC,
 and a prototype SMB over QUIC implementation has been created. Due to the fact that the
-SMB over QUIC implementation only uses one stream per connection, the semantics of
+Windows SMB over QUIC client and server implementation only uses one stream per connection, the semantics of
 SMB over QUIC is very similar to that of the traditional TCP-based implementation,
 making it very feasible to implement SMB on top of QUIC.
 The biggest hurdle in implementing SMB over QUIC is the lack of native QUIC support in Linux-based
@@ -2684,22 +2687,22 @@ scenarios.
 
 During the process of this thesis, two SMB over QUIC implementations have been benchmarked
 during optimal network conditions, and the results have been presented. Additionally,
-the same benchmarks were run against SMB over encrypted TPC, and the performance of SMB
+the same benchmarks were run against SMB over encrypted TCP, and the performance of SMB
 using TCP and QUIC was compared. The benchmarks show that during optimal network conditions
 the QUIC-based implementations' performance suffers when compared to TCP-based implementations,
 but the performance numbers from the QUIC-based implementations are promising and
 the performance is already sufficient for general-purpose tasks. The rest of this section of the
 thesis will summarize the key points and findings of the thesis
-and add some discussion about the possible expansion of SMB over QUIC.
+and add some discussion about the possible expansions of SMB over QUIC.
 
 \subsection{Discussion}
 
 This work has been successful in designing and implementing a prototype QUIC transport layer
 for the Fusion SMB server to provide SMB over QUIC functionality.
 While the prototype's performance somewhat suffers in scenarios that are heavily dependent
-on network transport throughput, the Fusion SMB over QUIC implementation still managed to
+on the network transport throughput, the Fusion SMB over QUIC implementation still managed to
 nearly match the performance of encrypted TCP for workloads that are not only dependent
-on the network transport throughput. The prototype is a promising first step in implementing an SMB over QUIC
+on the network transport performance. The prototype is a promising first step in implementing an SMB over QUIC
 implementation for Linux based systems.
 
 While there is room for improvements in the performance of the QUIC transport layer,
@@ -2710,7 +2713,7 @@ external networks, as compared to legacy SMB access which is most commonly
 done inside internal networks or over Virtual Private Networks (VPN). This is since
 that the standard SMB TCP port 445 is commonly blocked by ISPs, affecting the ability
 of SMB traffic to traverse the internet. Considering that
-most ISPs offer internet bandwidths of up to 1 Gb/s (125 MB/s), the prototype is
+most ISPs only offer internet bandwidths of up to 1 Gb/s (125 MB/s), the prototype is
 already able to sufficiently support access over the internet.
 
 During the process of working on this thesis it became clear that the extensions
@@ -2719,7 +2722,7 @@ that they do not take advantage of many of the improvements offered by QUIC when
 to TCP. There are only two QUIC specific features utilized by SMB. First, transport level
 encryption with the SMB protocol, moving the encryption from an SMB specific per-share basis to
 instead use QUIC's native encryption. Second, SMB over QUIC implements mutual
-authentication, allowing verification of clients via certificates. However, there is
+authentication, allowing authentication of clients via certificates. However, there is
 at least one significant QUIC feature missing, from
 the [MS-SMB2] documentation \textit{"By default, Windows SMB2 clients and servers always use a single stream per QUIC connection.
 Sending or receiving more than one stream per connection will be blocked by the underlying transport
